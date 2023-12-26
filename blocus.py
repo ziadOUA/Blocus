@@ -22,71 +22,6 @@ import os
 
 # ══════════ Variables & Constantes
 
-pièces = {
-    1: [['O']],
-    2: [['O'],
-        ['O']],
-    3: [['O'],
-        ['O'],
-        ['O']],
-    4: [['O', ' '],
-        ['O', 'O']],
-    5: [['O'],
-        ['O'],
-        ['O'],
-        ['O']],
-    6: [[' ', 'O'],
-        [' ', 'O'],
-        ['O', 'O']],
-    7: [['O', ' '],
-        ['O', 'O'],
-        ['O', ' ']],
-    8: [['O', 'O'],
-        ['O', 'O']],
-    9: [['O', 'O', ' '],
-        [' ', 'O', 'O']],
-    10: [['O'],
-         ['O'],
-         ['O'],
-         ['O'],
-         ['O']],
-    11: [[' ', 'O'],
-         [' ', 'O'],
-         [' ', 'O'],
-         ['O', 'O']],
-    12: [[' ', 'O'],
-         [' ', 'O'],
-         ['O', 'O'],
-         ['O', ' ']],
-    13: [[' ', 'O'],
-         ['O', 'O'],
-         ['O', 'O']],
-    14: [['O', 'O'],
-         [' ', 'O'],
-         ['O', 'O']],
-    15: [['O', ' '],
-         ['O', 'O'],
-         ['O', ' '],
-         ['O', ' ']],
-    16: [[' ', 'O', ' '],
-         [' ', 'O', ' '],
-         ['O', 'O', 'O']],
-    17: [['O', ' ', ' '],
-         ['O', ' ', ' '],
-         ['O', 'O', 'O']],
-    18: [['O', 'O', ' '],
-         [' ', 'O', 'O'],
-         [' ', ' ', 'O']],
-    19: [['O', ' ', ' '],
-         ['O', 'O', 'O'],
-         [' ', ' ', 'O']],
-    20: [['O', ' ', ' '],
-         ['O', 'O', 'O'],
-         [' ', 'O', ' ']],
-    21: [[' ', 'O', ' '],
-         ['O', 'O', 'O'],
-         [' ', 'O', ' ']]}
-
 pièces_joueur_1_liste = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                          [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
                          [' ', 'O', 'O', ' ', 'O', 'O', 'O', ' ', 'O', 'O', 'O', ' '],
@@ -116,34 +51,7 @@ pièces_joueur_1_liste = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
                          [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
                          [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
 
-pièces_joueur_2_liste = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-                         [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
-                         [' ', 'O', 'O', ' ', 'O', 'O', 'O', ' ', 'O', 'O', 'O', ' '],
-                         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
-                         [' ', ' ', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
-                         [' ', 'O', 'O', ' ', 'O', 'O', 'O', ' ', ' ', 'O', 'O', ' '],
-                         [' ', ' ', 'O', ' ', ' ', ' ', ' ', ' ', 'O', 'O', ' ', ' '],
-                         [' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
-                         [' ', 'O', 'O', ' ', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' '],
-                         [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', 'O', 'O', ' '],
-                         [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', 'O', ' ', ' '],
-                         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', 'O', ' ', ' '],
-                         [' ', ' ', 'O', ' ', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' '],
-                         [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' ', ' ', 'O', ' '],
-                         [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' ', 'O', 'O', ' '],
-                         [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', 'O', 'O', ' ', ' '],
-                         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-                         [' ', 'O', 'O', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', ' '],
-                         [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
-                         [' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
-                         [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
-                         [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
-                         [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', 'O', 'O', 'O', ' '],
-                         [' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
-                         [' ', 'O', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
-                         [' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', 'O', ' '],
-                         [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
-                         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
+pièces_joueur_2_liste = [i[:] for i in pièces_joueur_1_liste]
 
 j1_has_selected_pièce = False
 j2_has_selected_pièce = False
@@ -152,6 +60,10 @@ orientation_id = 0
 
 last_coords_copy = []
 directions_from_center_copy = []
+
+joueur_actif = 0
+board_cell_size = 38
+board_size = 16
 
 # ══════════ Classe principale
 
@@ -216,6 +128,7 @@ class App():
     def blocus_classic(self):
         global plateau_canvas, cell_size, cases_plateau, last_cell, plateau, tour_joueur, top_part, joueur_actif, pièces_joueur_1, pièces_joueur_2, pièces_joueur_1_liste, cases_pièces_j1, cases_pièces_j2
         global red_corners_coords, blue_corners_coords, common_corners_coords
+        global board_cell_size, board_size
         for i in self.master.winfo_children():
             i.destroy() # idem
         
@@ -227,16 +140,14 @@ class App():
         main_menu_frame = Frame(self.master)
         main_menu_frame.pack(expand=True)
 
-        plateau = [[' ' for _ in range(14)] for _ in range(14)] # Création du plateau grâce à une compréhension de liste
+        plateau = [[' ' for _ in range(board_size)] for _ in range(board_size)] # Création du plateau grâce à une compréhension de liste
         plateau[-1][0] = 'RC'
-        # plateau[10][0] = 'RC' # Temporaire
         plateau[0][-1] = 'BC'
 
-        red_corners_coords.append([0, 13])
-        # red_corners_coords.append([0, 10])
-        blue_corners_coords.append([13, 0])
+        red_corners_coords.append([0, board_size - 1])
+        blue_corners_coords.append([board_size - 1, 0])
 
-        plateau_canvas = Canvas(main_menu_frame, width=617, height=617, bd=0, highlightthickness=0, relief='ridge') # On crée un canvas pour le plateau
+        plateau_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size + 1, height=board_size * board_cell_size + 1, bd=0, highlightthickness=0, relief='ridge') # On crée un canvas pour le plateau
         plateau_canvas.grid(column=1, row=1) # On place le canvas
 
         pièces_joueur_1 = Canvas(main_menu_frame, width=264, height=616, background='red', bd=0, highlightthickness=0, relief='ridge')
@@ -253,23 +164,23 @@ class App():
         tour_joueur = Label(top_part, text=f"Joueur {joueur_actif + 1}", font=('default', 20), background='white', padx=20)
         tour_joueur.grid(column=1, row=0)
 
-        cell_size = 44 # On définit la taille de chaque case
+        # cell_size = 38 # On définit la taille de chaque case
         cases_plateau = []
         cases_pièces_j1 = []
         cases_pièces_j2 = []
         last_cell = None
 
-        for line in range(14):
+        for line in range(board_size):
             row = []
-            for column in range(14):
-                x1 = column * cell_size
-                y1 = line * cell_size
-                x2 = x1 + cell_size
-                y2 = y1 + cell_size
-                if line == 13 and column == 0:
+            for column in range(board_size):
+                x1 = column * board_cell_size
+                y1 = line * board_cell_size
+                x2 = x1 + board_cell_size
+                y2 = y1 + board_cell_size
+                if line == board_size - 1 and column == 0:
                     cell = plateau_canvas.create_rectangle(x1, y1, x2, y2, fill="white")
                     plateau_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="#FFB2B2", width=0)
-                elif line == 0 and column == 13:
+                elif line == 0 and column == board_size - 1:
                     cell = plateau_canvas.create_rectangle(x1, y1, x2, y2, fill="white")
                     plateau_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="#B2B2FF", width=0)
                 else:
@@ -328,10 +239,11 @@ class App():
     
     def on_plateau_click(self, event):
         global plateau, joueur_actif, adjacent_coords, directions_from_center, j1_has_selected_pièce, j2_has_selected_pièce
-        column_event = event.x // cell_size 
-        line_event = event.y // cell_size
-        if line_event > 13: line_event = 13;
-        if column_event > 13: column_event = 13;
+        global board_cell_size, board_size
+        column_event = event.x // board_cell_size 
+        line_event = event.y // board_cell_size
+        if line_event > board_size - 1: line_event = board_size - 1;
+        if column_event > board_size - 1: column_event = board_size - 1;
 
         if plateau[line_event][column_event] == 'RH' or plateau[line_event][column_event] == 'BH':
             for line in plateau:
@@ -350,10 +262,11 @@ class App():
     
     def on_plateau_hover(self, event):
         global last_coords_copy, directions_from_center
-        column_event = event.x // cell_size 
-        line_event = event.y // cell_size
-        if line_event > 13: line_event = 13;
-        if column_event > 13: column_event = 13;
+        global board_cell_size, board_size
+        column_event = event.x // board_cell_size 
+        line_event = event.y // board_cell_size
+        if line_event > board_size - 1: line_event = board_size - 1;
+        if column_event > board_size - 1: column_event = board_size - 1;
 
         last_coords = [column_event, line_event]
         if last_coords_copy != last_coords:
@@ -369,12 +282,14 @@ class App():
                 
                 if plateau[line_event][column_event] == ' ':
                     plateau[line_event][column_event] = 'H'
-                for line in range(14):
-                    for column in range(14):
+                
+                for line in range(board_size):
+                    for column in range(board_size):
                         if plateau[line][column] == ' ':
                             plateau_canvas.itemconfig(cases_plateau[line][column], fill="white")
                         if plateau[line][column] == 'H':
                             plateau_canvas.itemconfig(cases_plateau[line][column], fill="lightgrey")
+            
             os.system('CLS')
             for line in plateau:
                 print(line)
@@ -396,15 +311,17 @@ class App():
 
     
     def is_within_the_main_board(self, event_x, event_y):
-        if (event_x < 0 or event_y < 0 or event_x > 14 - 1 or event_y > 14 - 1):
+        global board_size
+        if (event_x < 0 or event_y < 0 or event_x > board_size - 1 or event_y > board_size - 1):
             return False
         return True
 
     def define_possible_corners(self):
+        global board_size
         memoire = []
         memoire2 = []
-        for line in range(14):
-            for column in range(14):
+        for line in range(board_size):
+            for column in range(board_size):
                 element_unvalid = False
                 touches_corner = False
                 touches_corner_red = False
@@ -529,13 +446,14 @@ class App():
                     pass
 
     def draw_pièce_on_canvas(self, event_x, event_y):
+        global board_size
         out_of_bounds = False
         can_be_drawn = True
         can_be_placed = False
 
         for direction in directions_from_center:
             adj_x, adj_y = event_x + direction[0], event_y + direction[1]
-            if not (0 <= adj_x <= 13 and 0 <= adj_y <= 13):
+            if not (0 <= adj_x <= board_size - 1 and 0 <= adj_y <= board_size - 1):
                 out_of_bounds = True
         
         for line in plateau:
@@ -554,12 +472,6 @@ class App():
                     memoire.append(plateau[event_y + direction[1] + 1][event_x + direction[0]])
                 if self.is_within_the_main_board(event_x + direction[0] + 1, event_y + direction[1]):
                     memoire.append(plateau[event_y + direction[1]][event_x + direction[0] + 1])
-                
-                # if 'R' not in memoire:
-                #     if [event_x + direction[0], event_y + direction[1]] in red_corners_coords and joueur_actif == 0:
-                #         can_be_placed = True
-                #     if [event_x + direction[0], event_y + direction[1]] in blue_corners_coords and joueur_actif == 1:
-                #         can_be_placed = True
                 
                 if joueur_actif == 0:
                     if 'R' not in memoire:
@@ -591,27 +503,29 @@ class App():
                     else:
                         plateau[event_y + direction[1]][event_x + direction[0]] = 'H'
         
-        for line in range(14):
-            for column in range(14):
+        for line in range(board_size):
+            for column in range(board_size):
                 if plateau[line][column] == ' ': plateau_canvas.itemconfig(cases_plateau[line][column], fill="white");
                 if plateau[line][column] == 'H': plateau_canvas.itemconfig(cases_plateau[line][column], fill="lightgrey");
                 if plateau[line][column] == 'RH': plateau_canvas.itemconfig(cases_plateau[line][column], fill="#FFB2B2");
                 if plateau[line][column] == 'BH': plateau_canvas.itemconfig(cases_plateau[line][column], fill="#B2B2FF");
 
     def on_plateau_leave(self, event):
+        global board_size
         for line in plateau:
             for k, n in enumerate(line):
                 if n == 'H' or n == 'RH' or n == 'BH':
                     line[k] = ' '
-        for i in range(14):
-            for j in range(14):
+        for i in range(board_size):
+            for j in range(board_size):
                 if plateau[i][j] == ' ':
                     plateau_canvas.itemconfig(cases_plateau[i][j], fill="white")
     
     def update_canvas(self):
         global tour_joueur
-        for i in range(14):
-            for j in range(14):
+        global board_size
+        for i in range(board_size):
+            for j in range(board_size):
                 if plateau[i][j] == 'R':
                     color = 'red'
                 elif plateau[i][j] == 'B':
@@ -715,7 +629,6 @@ class App():
                 directions_from_center_rotated[i][1] = -direction[0] # 270°
 
         directions_from_center = directions_from_center_rotated
-        # self.on_plateau_hover(event)
         self.draw_pièce_on_canvas(last_coords_copy[0], last_coords_copy[1])
 
 
