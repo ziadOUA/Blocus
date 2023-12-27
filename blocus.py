@@ -71,6 +71,54 @@ red_corners_coordinates = []
 blue_corners_coordinates = []
 common_corners_coordinates = []
 
+# Palette source
+
+md_sys_color_primary_light = "#164fe1"
+md_ref_palette_primary70 = "#90a7ff"
+md_sys_color_on_primary_light = "#ffffff"
+md_sys_color_primary_container_light = "#dce1ff"
+md_sys_color_on_primary_container_light = "#001551"
+
+md_sys_color_secondary_light = "#595d72"
+md_sys_color_on_secondary_light = "#ffffff"
+md_sys_color_secondary_container_light = "#dee1f9"
+md_sys_color_on_secondary_container_light = "#161b2c"
+
+md_sys_color_tertiary_light = "#c00100"
+md_ref_palette_tertiary70 = "#ff8a78"
+md_sys_color_on_tertiary_light = "#ffffff"
+md_sys_color_tertiary_container_light = "#ffdad4"
+md_sys_color_on_tertiary_container_light = "#410000"
+
+md_sys_color_background_light = "#ffffff"
+md_sys_color_on_background_light = "#1b1b1f"
+md_sys_color_surface_light = "#fefbff"
+md_sys_color_on_surface_light = "#1b1b1f"
+md_sys_color_surface_variant_light = "#e2e1ec"
+md_sys_color_on_surface_variant_light = "#45464f"
+md_sys_color_outline_light = "#767680"
+md_sys_color_inverse_on_surface_light = "#f2f0f4"
+md_sys_color_inverse_surface_light = "#303034"
+md_sys_color_inverse_primary_light = "#b7c4ff"
+md_sys_color_shadow_light = "#000000"
+md_sys_color_surface_tint_light = "#164fe1"
+md_sys_color_outline_variant_light = "#c6c5d0"
+md_sys_color_scrim_light = "#000000"
+
+# Palette
+
+# background_color = md_sys_color_background_light
+background_color = md_sys_color_background_light
+surface_color = md_sys_color_surface_variant_light
+
+placed_piece_red = md_sys_color_tertiary_light
+valid_placement_red = md_ref_palette_tertiary70
+placed_piece_blue = md_sys_color_primary_light
+valid_placement_blue = md_ref_palette_primary70
+invalid_placement = md_sys_color_outline_variant_light
+
+board_cell_outline_color = md_sys_color_outline_variant_light
+
 # ══════════ Classe principale
 
 
@@ -83,7 +131,7 @@ class App:
         style = Style() # On définit un style
         style.theme_use('default') # On utilise le style par défaut pour modifier plus facilement les boutons
         style.configure('TButton', font=('Arial', 30, 'bold'), background='red') # On ajoute du style pour les boutons
-        style.configure('TFrame', background='white') # On change la couleur de fond des cadres "Frame"
+        style.configure('TFrame', background=background_color) # On change la couleur de fond des cadres "Frame"
         style.map('TButton', background=[('active', '#ff0000'), ('disabled', '#f0f0f0')])
 
         self.main_menu() # Affiche le menu principal dès le démarrage du programme
@@ -134,6 +182,7 @@ class App:
         global board_canvas, board_cells, board, tour_joueur, top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
         global board_cell_size, board_size
+        global red_starting_corner, blue_starting_corner
         for i in self.master.winfo_children():
             i.destroy() # idem
 
@@ -147,13 +196,13 @@ class App:
         red_corners_coordinates.append([0, board_size - 1])
         blue_corners_coordinates.append([board_size - 1, 0])
 
-        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size + 1, height=board_size * board_cell_size + 1, bd=0, highlightthickness=0, relief='ridge') # On crée un canvas pour le board
-        board_canvas.grid(column=1, row=1) # On place le canvas
+        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size + 3, height=board_size * board_cell_size + 3, bd=0, highlightthickness=0, relief='ridge') # On crée un canvas pour le board
+        board_canvas.grid(column=1, row=1, padx=10) # On place le canvas
 
-        player_1_pieces = Canvas(main_menu_frame, width=264, height=616, background='red', bd=0, highlightthickness=0, relief='ridge')
+        player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='ridge')
         player_1_pieces.grid(column=0, row=1)
 
-        player_2_pieces = Canvas(main_menu_frame, width=264, height=616, background='lightblue', bd=0, highlightthickness=0, relief='ridge')
+        player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='ridge')
         player_2_pieces.grid(column=2, row=1)
 
         top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure au board
@@ -161,8 +210,9 @@ class App:
 
         back_button = Button(top_part, text="< Retour", command=self.main_menu)
         back_button.grid(column=0, row=0)
-        tour_joueur = Label(top_part, text=f"Joueur {current_player + 1}", font=('default', 20), background='white', padx=20)
+        tour_joueur = Label(top_part, font=('default', 20), background=background_color, padx=20)
         tour_joueur.grid(column=1, row=0)
+        tour_joueur['text'] = f'Joueur {current_player + 1}'
 
         board_cells = []
         player_1_pieces_cells = []
@@ -171,18 +221,15 @@ class App:
         for line in range(board_size):
             row = []
             for column in range(board_size):
-                x1 = column * board_cell_size
-                y1 = line * board_cell_size
-                x2 = x1 + board_cell_size
-                y2 = y1 + board_cell_size
+                x1 = column * board_cell_size + 1
+                y1 = line * board_cell_size + 1
+                x2 = x1 + board_cell_size + 1
+                y2 = y1 + board_cell_size + 1
+                cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill=background_color, outline=board_cell_outline_color) # On crée un rectangle pour chaque case
                 if line == board_size - 1 and column == 0:
-                    cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill="white")
-                    board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="#FFB2B2", width=0)
+                    red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0)
                 elif line == 0 and column == board_size - 1:
-                    cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill="white")
-                    board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="#B2B2FF", width=0)
-                else:
-                    cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill="white") # On crée un rectangle pour chaque case
+                    blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0)
                 row.append(cell)
             board_cells.append(row)
 
@@ -195,11 +242,11 @@ class App:
                 x2 = x1 + 22
                 y2 = y1 + 22
                 if player_1_pieces_list[line][column] == 'O':
-                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill="red", width=0)
-                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill="blue", width=0)
+                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill=placed_piece_red, width=0)
+                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill=placed_piece_blue, width=0)
                 else:
-                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill="white", width=0) # On crée un rectangle pour chaque case
-                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill="white", width=0)
+                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill=surface_color, width=0) # On crée un rectangle pour chaque case
+                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill=surface_color, width=0)
                 row_j1.append(cell_j1)
                 row_j2.append(cell_j2)
             player_1_pieces_cells.append(row_j1)
@@ -212,10 +259,10 @@ class App:
         board_canvas.bind("<Leave>", self.on_plateau_leave) # La souris quitte le canvas
 
         # On "bind" les pièces à des événements
-        player_1_pieces.bind("<Button-1>", self.on_pièces_click_j1) # Clic
+        player_1_pieces.bind("<Button-1>", self.on_player_1_pieces_click) # Clic
         player_1_pieces.bind("<Motion>", self.on_pièces_hover_j1) # La souris bouge
         # player_1_pieces.bind("<Leave>", self.on_plateau_leave) # La souris quitte le canvas
-        player_2_pieces.bind("<Button-1>", self.on_pièces_click_j2) # Clic
+        player_2_pieces.bind("<Button-1>", self.on_player_2_pieces_click) # Clic
         # player_2_pieces.bind("<Motion>", self.on_pièces_hover) # La souris bouge
         # player_2_pieces.bind("<Leave>", self.on_pièces_leave) # La souris quitte le canvas
 
@@ -249,16 +296,21 @@ class App:
                     if n == 'RH':
                         line[k] = 'R'
                         j1_has_selected_piece = False
+                        for k in adjacent_coords:
+                            player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color)
                     elif n == 'BH':
                         line[k] = 'B'
+                        for k in adjacent_coords:
+                            player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color)
                         j2_has_selected_piece = False
             self.define_possible_corners()
             current_player = (current_player + 1) % 2 # On change de joueur
             adjacent_coords = []
             directions_from_center = [[0, 0]]
-        self.update_canvas()
+            self.update_canvas()
 
     def on_plateau_hover(self, event):
+        global board, board_canvas, board_cells
         global last_event_coordinates_copy, directions_from_center
         global board_cell_size, board_size
         column_event = event.x // board_cell_size
@@ -284,9 +336,9 @@ class App:
                 for line in range(board_size):
                     for column in range(board_size):
                         if board[line][column] == ' ':
-                            board_canvas.itemconfig(board_cells[line][column], fill="white")
+                            board_canvas.itemconfig(board_cells[line][column], fill=background_color)
                         if board[line][column] == 'H':
-                            board_canvas.itemconfig(board_cells[line][column], fill="lightgrey")
+                            board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement)
 
             os.system('CLS')
             for line in board:
@@ -443,6 +495,7 @@ class App:
                     pass
 
     def draw_piece_on_board(self, event_x, event_y):
+        global board, board_canvas, board_cells
         global board_size
         out_of_bounds = False
         can_be_drawn = True
@@ -502,10 +555,10 @@ class App:
 
         for line in range(board_size):
             for column in range(board_size):
-                if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill="white");
-                if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill="lightgrey");
-                if board[line][column] == 'RH': board_canvas.itemconfig(board_cells[line][column], fill="#FFB2B2");
-                if board[line][column] == 'BH': board_canvas.itemconfig(board_cells[line][column], fill="#B2B2FF");
+                if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
+                if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
+                if board[line][column] == 'RH': board_canvas.itemconfig(board_cells[line][column], fill=valid_placement_red, outline=valid_placement_red);
+                if board[line][column] == 'BH': board_canvas.itemconfig(board_cells[line][column], fill=valid_placement_blue, outline=valid_placement_blue);
 
     def on_plateau_leave(self, event):
         global board_size
@@ -516,27 +569,34 @@ class App:
         for i in range(board_size):
             for j in range(board_size):
                 if board[i][j] == ' ':
-                    board_canvas.itemconfig(board_cells[i][j], fill="white")
+                    board_canvas.itemconfig(board_cells[i][j], fill=background_color)
 
     def update_canvas(self):
+        global board, board_canvas, board_cells
         global tour_joueur
         global board_size
         for i in range(board_size):
             for j in range(board_size):
                 if board[i][j] == 'R':
-                    color = 'red'
+                    color = placed_piece_red
+                    outline = placed_piece_red
                 elif board[i][j] == 'B':
-                    color = 'blue'
+                    color = placed_piece_blue
+                    outline = placed_piece_blue
                 else:
-                    color = 'white'
-                board_canvas.itemconfig(board_cells[i][j], fill=color) # Édite le board en fonction des cases
-        board_canvas.update() # Mise à jour Tkinter du canvas
-        tour_joueur.destroy()
-        tour_joueur = Label(top_part, text=f"Joueur {current_player + 1}")
-        tour_joueur.grid(column=1, row=0)
+                    color = background_color
+                    outline = board_cell_outline_color
+                board_canvas.itemconfig(board_cells[i][j], fill=color, outline=outline) # Édite la couleur des cases en fonction de ce qu'il y a dedans
+        if board[-1][0] == 'R':
+            board_canvas.itemconfig(red_starting_corner, fill=placed_piece_red)
+        if board[0][-1] == 'B':
+            board_canvas.itemconfig(blue_starting_corner, fill=placed_piece_blue)
+        # board_canvas.update() # Mise à jour Tkinter du canvas
+        tour_joueur['text'] = f"Joueur {current_player + 1}" # On met à jour le texte qui affiche le tour du joueur actif
         tour_joueur.update()
 
-    def on_pièces_click_j1(self, event):
+    def on_player_1_pieces_click(self, event):
+        global player_1_pieces_list, player_1_pieces, player_1_pieces_cells
         global current_player, adjacent_coords, j1_has_selected_piece, directions_from_center, orientation_id, j2_has_selected_piece
         if current_player == 0:
             if not j1_has_selected_piece:
@@ -548,7 +608,7 @@ class App:
                     adjacent_coords = self.get_adjacent_pieces_coordinates(player_1_pieces_list, column_event, line_event)
                     for k in adjacent_coords:
                         player_1_pieces_list[k[1]][k[0]] = ' '
-                        player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill='white')
+                        player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=valid_placement_red)
                     player_1_pieces.update()
                     j2_has_selected_piece = False
                     j1_has_selected_piece = True
@@ -556,11 +616,12 @@ class App:
             else:
                 for k in adjacent_coords:
                     player_1_pieces_list[k[1]][k[0]] = 'O'
-                    player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill='red')
+                    player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=placed_piece_red)
                 j1_has_selected_piece = False
                 adjacent_coords = []
 
-    def on_pièces_click_j2(self, event):
+    def on_player_2_pieces_click(self, event):
+        global player_2_pieces_list, player_2_pieces, player_2_pieces_cells
         global current_player, adjacent_coords, j2_has_selected_piece, directions_from_center, orientation_id, j1_has_selected_piece
         if current_player == 1:
             if not j2_has_selected_piece:
@@ -572,7 +633,7 @@ class App:
                     adjacent_coords = self.get_adjacent_pieces_coordinates(player_2_pieces_list, column_event, line_event)
                     for k in adjacent_coords:
                         player_2_pieces_list[k[1]][k[0]] = ' '
-                        player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill='white')
+                        player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=valid_placement_blue)
                     player_2_pieces.update()
                     j1_has_selected_piece = False
                     j2_has_selected_piece = True
@@ -580,7 +641,7 @@ class App:
             else:
                 for k in adjacent_coords:
                     player_2_pieces_list[k[1]][k[0]] = 'O'
-                    player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill='blue')
+                    player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=placed_piece_blue)
                 j2_has_selected_piece = False
                 adjacent_coords = []
 
@@ -674,6 +735,6 @@ class App:
 
 if __name__ == "__main__":
     root = Tk()
-    root.configure(bg='white')
+    root.configure(bg=background_color)
     App(root)
     root.mainloop()
