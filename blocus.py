@@ -107,17 +107,16 @@ md_sys_color_scrim_light = "#000000"
 
 # Palette
 
-# background_color = md_sys_color_background_light
-background_color = md_sys_color_background_light
-surface_color = md_sys_color_surface_variant_light
+background_color = md_sys_color_background_light # Couleur de fond du programme
+surface_color = md_sys_color_surface_variant_light # Couleur de surface (là où les pièces sont placées par exemple)
 
-placed_piece_red = md_sys_color_tertiary_light
-valid_placement_red = md_ref_palette_tertiary70
-placed_piece_blue = md_sys_color_primary_light
-valid_placement_blue = md_ref_palette_primary70
-invalid_placement = md_sys_color_outline_variant_light
+placed_piece_red = md_sys_color_tertiary_light # Couleur d'une pièce rouge placée
+valid_placement_red = md_ref_palette_tertiary70 # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
+placed_piece_blue = md_sys_color_primary_light # Couleur d'une pièce bleue placée
+valid_placement_blue = md_ref_palette_primary70 # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+invalid_placement = md_sys_color_outline_variant_light # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
 
-board_cell_outline_color = md_sys_color_outline_variant_light
+board_cell_outline_color = md_sys_color_outline_variant_light # Couleur de bordure des cases du plateau
 
 # ══════════ Classe principale
 
@@ -179,7 +178,7 @@ class App:
         start_tetrix_duo_game_button.grid(row=4, column=1, **game_mode_grid_style, pady=10)
 
     def blocus_classic(self):
-        global board_canvas, board_cells, board, tour_joueur, top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
+        global board_canvas, board_cells, board, player_turn_label, top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
         global board_cell_size, board_size
         global red_starting_corner, blue_starting_corner
@@ -189,11 +188,11 @@ class App:
         main_menu_frame = Frame(self.master)
         main_menu_frame.pack(expand=True)
 
-        board = [[' ' for _ in range(board_size)] for _ in range(board_size)] # Création du board grâce à une compréhension de liste
-        board[-1][0] = 'RC'
+        board = [[' ' for _ in range(board_size)] for _ in range(board_size)] # Création du plateau grâce à une compréhension de liste
+        board[-1][0] = 'RC' # On place les coins initiaux, où la première pièce de couleur correspondante devra être placée
         board[0][-1] = 'BC'
 
-        red_corners_coordinates.append([0, board_size - 1])
+        red_corners_coordinates.append([0, board_size - 1]) # On ajoute les coordonées des cases de coin mentionnées ci-dessus
         blue_corners_coordinates.append([board_size - 1, 0])
 
         board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size + 3, height=board_size * board_cell_size + 3, bd=0, highlightthickness=0, relief='ridge') # On crée un canvas pour le board
@@ -205,14 +204,14 @@ class App:
         player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='ridge')
         player_2_pieces.grid(column=2, row=1)
 
-        top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure au board
+        top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure au plateau
         top_part.grid(row=0, column=1) # On place le nouveau cadre dans le cadre principal
 
-        back_button = Button(top_part, text="< Retour", command=self.main_menu)
-        back_button.grid(column=0, row=0)
-        tour_joueur = Label(top_part, font=('default', 20), background=background_color, padx=20)
-        tour_joueur.grid(column=1, row=0)
-        tour_joueur['text'] = f'Joueur {current_player + 1}'
+        back_button = Button(top_part, text="< Retour", command=self.main_menu) # On crée un bouton retour
+        back_button.grid(column=0, row=0) # Le bouton est placé
+        player_turn_label = Label(top_part, font=('default', 20), background=background_color, padx=20)
+        player_turn_label.grid(column=1, row=0)
+        player_turn_label['text'] = f'Joueur {current_player + 1}'
 
         board_cells = []
         player_1_pieces_cells = []
@@ -259,10 +258,10 @@ class App:
         board_canvas.bind("<Leave>", self.on_plateau_leave) # La souris quitte le canvas
 
         # On "bind" les pièces à des événements
-        player_1_pieces.bind("<Button-1>", self.on_player_1_pieces_click) # Clic
+        player_1_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic
         player_1_pieces.bind("<Motion>", self.on_pièces_hover_j1) # La souris bouge
         # player_1_pieces.bind("<Leave>", self.on_plateau_leave) # La souris quitte le canvas
-        player_2_pieces.bind("<Button-1>", self.on_player_2_pieces_click) # Clic
+        player_2_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic
         # player_2_pieces.bind("<Motion>", self.on_pièces_hover) # La souris bouge
         # player_2_pieces.bind("<Leave>", self.on_pièces_leave) # La souris quitte le canvas
 
@@ -573,7 +572,8 @@ class App:
 
     def update_canvas(self):
         global board, board_canvas, board_cells
-        global tour_joueur
+        global red_starting_corner, blue_starting_corner
+        global player_turn_label
         global board_size
         for i in range(board_size):
             for j in range(board_size):
@@ -591,53 +591,46 @@ class App:
             board_canvas.itemconfig(red_starting_corner, fill=placed_piece_red)
         if board[0][-1] == 'B':
             board_canvas.itemconfig(blue_starting_corner, fill=placed_piece_blue)
-        # board_canvas.update() # Mise à jour Tkinter du canvas
-        tour_joueur['text'] = f"Joueur {current_player + 1}" # On met à jour le texte qui affiche le tour du joueur actif
-        tour_joueur.update()
+        player_turn_label['text'] = f"Joueur {current_player + 1}" # On met à jour le texte qui affiche le tour du joueur actif
+        player_turn_label.update()
 
-    def on_player_1_pieces_click(self, event):
-        global player_1_pieces_list, player_1_pieces, player_1_pieces_cells
+    def on_player_pieces_click(self, event):
+        global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
         global current_player, adjacent_coords, j1_has_selected_piece, directions_from_center, orientation_id, j2_has_selected_piece
-        if current_player == 0:
+        if event.widget == player_1_pieces and current_player == 0:
             if not j1_has_selected_piece:
                 column_event = event.x // 22
                 line_event = event.y // 22
                 if column_event > 11: column_event = 11;
                 if line_event > 28: line_event = 28;
                 if player_1_pieces_list[line_event][column_event] != ' ': # On vérifie que la case choisie n'est pas vide
-                    adjacent_coords = self.get_adjacent_pieces_coordinates(player_1_pieces_list, column_event, line_event)
+                    adjacent_coords = self.get_adjacent_pieces_coordinates(player_1_pieces_list, column_event, line_event) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées clickées
                     for k in adjacent_coords:
                         player_1_pieces_list[k[1]][k[0]] = ' '
                         player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=valid_placement_red)
-                    player_1_pieces.update()
                     j2_has_selected_piece = False
                     j1_has_selected_piece = True
-                    orientation_id = 0
+                    orientation_id = 0 # On réinitialise l'orientation
             else:
-                for k in adjacent_coords:
+                for k in adjacent_coords: # La pièce est replacée
                     player_1_pieces_list[k[1]][k[0]] = 'O'
                     player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=placed_piece_red)
                 j1_has_selected_piece = False
                 adjacent_coords = []
-
-    def on_player_2_pieces_click(self, event):
-        global player_2_pieces_list, player_2_pieces, player_2_pieces_cells
-        global current_player, adjacent_coords, j2_has_selected_piece, directions_from_center, orientation_id, j1_has_selected_piece
-        if current_player == 1:
+        elif event.widget == player_2_pieces and current_player == 1:
             if not j2_has_selected_piece:
                 column_event = event.x // 22
                 line_event = event.y // 22
                 if column_event > 11: column_event = 11;
                 if line_event > 28: line_event = 28;
-                if player_2_pieces_list[line_event][column_event] != ' ': # On vérifie que la case choisie n'est pas vide
+                if player_2_pieces_list[line_event][column_event] != ' ':
                     adjacent_coords = self.get_adjacent_pieces_coordinates(player_2_pieces_list, column_event, line_event)
                     for k in adjacent_coords:
                         player_2_pieces_list[k[1]][k[0]] = ' '
                         player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=valid_placement_blue)
-                    player_2_pieces.update()
                     j1_has_selected_piece = False
                     j2_has_selected_piece = True
-                    orientation_id = 0
+                    orientation_id = 0 
             else:
                 for k in adjacent_coords:
                     player_2_pieces_list[k[1]][k[0]] = 'O'
