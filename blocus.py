@@ -282,7 +282,7 @@ class App:
         button1.pack()
 
     def on_plateau_click(self, event):
-        global board, current_player, adjacent_coords, directions_from_center, j1_has_selected_piece, j2_has_selected_piece
+        global board, current_player, adjacent_coords, relative_positions, j1_has_selected_piece, j2_has_selected_piece
         global board_cell_size, board_size
         column_event = event.x // board_cell_size
         line_event = event.y // board_cell_size
@@ -305,12 +305,12 @@ class App:
             self.define_possible_corners()
             current_player = (current_player + 1) % 2 # On change de joueur
             adjacent_coords = []
-            directions_from_center = [[0, 0]]
+            relative_positions = [[0, 0]]
             self.update_canvas()
 
     def on_plateau_hover(self, event):
         global board, board_canvas, board_cells
-        global last_event_coordinates_copy, directions_from_center
+        global last_event_coordinates_copy, relative_positions
         global board_cell_size, board_size
         column_event = event.x // board_cell_size
         line_event = event.y // board_cell_size
@@ -368,6 +368,9 @@ class App:
         global board_size
         memoire = []
         memoire2 = []
+
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        directions_corners = [(1, 1), (-1, -1), (1, -1), (-1, 1)]
         for line in range(board_size):
             for column in range(board_size):
                 invalid_element = False
@@ -375,98 +378,35 @@ class App:
                 touches_red_corner = False
                 touches_blue_corner = False
                 if board[line][column] == ' ':
-                    if self.is_within_the_main_board(column - 1, line):
-                        if current_player == 0:
-                            if board[line][column - 1] == 'R':
-                                invalid_element = True
-                        else:
-                            if board[line][column - 1] == 'B':
-                                invalid_element = True
-
-                    if self.is_within_the_main_board(column, line - 1):
-                        if current_player == 0:
-                            if board[line - 1][column] == 'R':
-                                invalid_element = True
-                        else:
-                            if board[line - 1][column] == 'B':
-                                invalid_element = True
-
-                    if self.is_within_the_main_board(column, line + 1):
-                        if current_player == 0:
-                            if board[line + 1][column] == 'R':
-                                invalid_element = True
-                        else:
-                            if board[line + 1][column] == 'B':
-                                invalid_element = True
-
-                    if self.is_within_the_main_board(column + 1, line):
-                        if current_player == 0:
-                            if board[line][column + 1] == 'R':
-                                invalid_element = True
-                        else:
-                            if board[line][column + 1] == 'B':
-                                invalid_element = True
+                    for direction in directions:
+                        if self.is_within_the_main_board(column + direction[0], line + direction[1]):
+                            if current_player == 0:
+                                if board[line + direction[1]][column + direction[0]] == 'R':
+                                    invalid_element = True
+                            else:
+                                if board[line + direction[1]][column + direction[0]] == 'B':
+                                    invalid_element = True
 
                     if not invalid_element:
-                        if self.is_within_the_main_board(column - 1, line - 1):
-                            if current_player == 0:
-                                if board[line - 1][column - 1] == 'R':
-                                    touches_corner = True
-                            else:
-                                if board[line - 1][column - 1] == 'B':
-                                    touches_corner = True
-
-                        if self.is_within_the_main_board(column + 1, line - 1):
-                            if current_player == 0:
-                                if board[line - 1][column + 1] == 'R':
-                                    touches_corner = True
-                            else:
-                                if board[line - 1][column + 1] == 'B':
-                                    touches_corner = True
-
-                        if self.is_within_the_main_board(column - 1, line + 1):
-                            if current_player == 0:
-                                if board[line + 1][column - 1] == 'R':
-                                    touches_corner = True
-                            else:
-                                if board[line + 1][column - 1] == 'B':
-                                    touches_corner = True
-
-                        if self.is_within_the_main_board(column + 1, line + 1):
-                            if current_player == 0:
-                                if board[line + 1][column + 1] == 'R':
-                                    touches_corner = True
-                            else:
-                                if board[line + 1][column + 1] == 'B':
-                                    touches_corner = True
+                        for direction in directions_corners:
+                            if self.is_within_the_main_board(column + direction[0], line + direction[1]):
+                                if current_player == 0:
+                                    if board[line + direction[1]][column + direction[0]] == 'R':
+                                        touches_corner = True
+                                else:
+                                    if board[line + direction[1]][column + direction[0]] == 'B':
+                                        touches_corner = True
 
                         if touches_corner:
                             memoire.append([column, line])
 
                 if board[line][column] == 'RC' or board[line][column] == 'BC':
-                    if self.is_within_the_main_board(column - 1, line - 1):
-                        if board[line - 1][column - 1] == 'R':
-                            touches_red_corner = True
-                        if board[line - 1][column - 1] == 'B':
-                            touches_blue_corner = True
-
-                    if self.is_within_the_main_board(column + 1, line - 1):
-                        if board[line - 1][column + 1] == 'R':
-                            touches_red_corner = True
-                        if board[line - 1][column + 1] == 'B':
-                            touches_blue_corner = True
-
-                    if self.is_within_the_main_board(column - 1, line + 1):
-                        if board[line + 1][column - 1] == 'R':
-                            touches_red_corner = True
-                        if board[line + 1][column - 1] == 'B':
-                            touches_blue_corner = True
-
-                    if self.is_within_the_main_board(column + 1, line + 1):
-                        if board[line + 1][column + 1] == 'R':
-                            touches_red_corner = True
-                        if board[line + 1][column + 1] == 'B':
-                            touches_blue_corner = True
+                    for direction in directions_corners:
+                        if self.is_within_the_main_board(column + direction[0], line + direction[1]):
+                            if board[line + direction[1]][column + direction[0]] == 'R':
+                                touches_red_corner = True
+                            if board[line + direction[1]][column + direction[0]] == 'B':
+                                touches_blue_corner = True
 
                     if touches_red_corner and touches_blue_corner:
                         memoire2.append([column, line])
@@ -500,8 +440,10 @@ class App:
         can_be_drawn = True
         can_be_placed = False
 
-        for direction in directions_from_center:
-            adj_x, adj_y = event_x + direction[0], event_y + direction[1]
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+        for position in relative_positions:
+            adj_x, adj_y = event_x + position[0], event_y + position[1]
             if not (0 <= adj_x <= board_size - 1 and 0 <= adj_y <= board_size - 1):
                 out_of_bounds = True
 
@@ -512,45 +454,40 @@ class App:
 
         if not out_of_bounds:
             memoire = []
-            for direction in directions_from_center:
-                if self.is_within_the_main_board(event_x + direction[0] - 1, event_y + direction[1]):
-                    memoire.append(board[event_y + direction[1]][event_x + direction[0] - 1])
-                if self.is_within_the_main_board(event_x + direction[0], event_y + direction[1] - 1):
-                    memoire.append(board[event_y + direction[1] - 1][event_x + direction[0]])
-                if self.is_within_the_main_board(event_x + direction[0], event_y + direction[1] + 1):
-                    memoire.append(board[event_y + direction[1] + 1][event_x + direction[0]])
-                if self.is_within_the_main_board(event_x + direction[0] + 1, event_y + direction[1]):
-                    memoire.append(board[event_y + direction[1]][event_x + direction[0] + 1])
+            for position in relative_positions:
+                for direction in directions:
+                    if self.is_within_the_main_board(event_x + position[0] + direction[0], event_y + position[1] + direction[1]):
+                        memoire.append(board[event_y + position[1] + direction[1]][event_x + position[0] + direction[0]])
 
                 if current_player == 0:
                     if 'R' not in memoire:
-                        if [event_x + direction[0], event_y + direction[1]] in red_corners_coordinates:
+                        if [event_x + position[0], event_y + position[1]] in red_corners_coordinates:
                             can_be_placed = True
-                        if [event_x + direction[0], event_y + direction[1]] in common_corners_coordinates:
+                        if [event_x + position[0], event_y + position[1]] in common_corners_coordinates:
                             can_be_placed = True
                     else:
                         can_be_placed = False
                 else:
                     if 'B' not in memoire:
-                        if [event_x + direction[0], event_y + direction[1]] in blue_corners_coordinates:
+                        if [event_x + position[0], event_y + position[1]] in blue_corners_coordinates:
                             can_be_placed = True
-                        if [event_x + direction[0], event_y + direction[1]] in common_corners_coordinates:
+                        if [event_x + position[0], event_y + position[1]] in common_corners_coordinates:
                             can_be_placed = True
                     else:
                         can_be_placed = False
 
-            for direction in directions_from_center:
-                if board[event_y + direction[1]][event_x + direction[0]] == 'R' or board[event_y + direction[1]][event_x + direction[0]] == 'B':
+            for position in relative_positions:
+                if board[event_y + position[1]][event_x + position[0]] == 'R' or board[event_y + position[1]][event_x + position[0]] == 'B':
                     can_be_drawn = False
 
-            for direction in directions_from_center:
+            for position in relative_positions:
                 if can_be_drawn:
                     if j1_has_selected_piece and can_be_placed:
-                        board[event_y + direction[1]][event_x + direction[0]] = 'RH'
+                        board[event_y + position[1]][event_x + position[0]] = 'RH'
                     elif j2_has_selected_piece and can_be_placed:
-                        board[event_y + direction[1]][event_x + direction[0]] = 'BH'
+                        board[event_y + position[1]][event_x + position[0]] = 'BH'
                     else:
-                        board[event_y + direction[1]][event_x + direction[0]] = 'H'
+                        board[event_y + position[1]][event_x + position[0]] = 'H'
 
         for line in range(board_size):
             for column in range(board_size):
@@ -596,7 +533,7 @@ class App:
 
     def on_player_pieces_click(self, event):
         global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
-        global current_player, adjacent_coords, j1_has_selected_piece, directions_from_center, orientation_id, j2_has_selected_piece
+        global current_player, adjacent_coords, j1_has_selected_piece, relative_positions, orientation_id, j2_has_selected_piece
         if event.widget == player_1_pieces and current_player == 0:
             if not j1_has_selected_piece:
                 column_event = event.x // 22
@@ -659,35 +596,35 @@ class App:
         #         board_canvas.itemconfig(last_cell, fill="white")
 
     def rotate_piece(self, event):
-        global orientation_id, directions_from_center
+        global orientation_id, relative_positions
         orientation_id = (orientation_id + 1) % 4
 
-        directions_from_center_rotated = [list(direction) for direction in directions_from_center]
+        directions_from_center_rotated = [list(direction) for direction in relative_positions]
 
         if orientation_id == 0:
             pass  # 0°
         elif orientation_id == 1:
-            for i, direction in enumerate(directions_from_center):
+            for i, direction in enumerate(relative_positions):
                 directions_from_center_rotated[i][0] = -direction[1]
                 directions_from_center_rotated[i][1] = direction[0] # 90°
         elif orientation_id == 2:
-            for i, direction in enumerate(directions_from_center):
+            for i, direction in enumerate(relative_positions):
                 directions_from_center_rotated[i][0] = -direction[0]
                 directions_from_center_rotated[i][1] = -direction[1] # 180°
         elif orientation_id == 3:
-            for i, direction in enumerate(directions_from_center):
+            for i, direction in enumerate(relative_positions):
                 directions_from_center_rotated[i][0] = direction[1]
                 directions_from_center_rotated[i][1] = -direction[0] # 270°
 
-        directions_from_center = directions_from_center_rotated
+        relative_positions = directions_from_center_rotated
         self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
 
 
     def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y):
-        global directions_from_center
+        global relative_positions
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         cases_adjacentes = []
-        directions_from_center = []
+        relative_positions = []
         memoire = [[selected_case_x, selected_case_y]]
 
         # While the stack is not empty, meaning there are still cases to check
@@ -719,7 +656,7 @@ class App:
                             memoire.append([adj_x, adj_y])
 
         for adjacent_coords in cases_adjacentes:
-            directions_from_center.append([adjacent_coords[0] - selected_case_x, -(selected_case_y - adjacent_coords[1])])
+            relative_positions.append([adjacent_coords[0] - selected_case_x, -(selected_case_y - adjacent_coords[1])])
 
         # Return the list of coordinates of connected 'O's
         # This is the final output of the function
