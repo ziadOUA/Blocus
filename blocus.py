@@ -11,10 +11,11 @@
 
 # ═══════════════════════════════ IMPORTATIONS ═══════════════════════════════
 
-from tkinter import Label, Tk, Canvas
+from tkinter import Label, Tk, Canvas, PhotoImage
 from tkinter import messagebox
 from tkinter.ttk import Style, Button, Frame
 import os
+from playsound import playsound
 
 # ════════════════════════════════════════════════════════════════════════════
 # ════════════════════════════ CORPS DU PROGRAMME ════════════════════════════
@@ -62,6 +63,9 @@ last_event_coordinates_copy = []
 directions_from_center_copy = []
 
 board = []
+board_cells = []
+player_1_pieces_cells = []
+player_2_pieces_cells = []
 
 current_player = 0 # Le joueur 1 commence
 board_cell_size = 38
@@ -70,6 +74,9 @@ board_size = 16
 red_corners_coordinates = []
 blue_corners_coordinates = []
 common_corners_coordinates = []
+
+player_1_score = 0
+player_2_score = 0
 
 # Palette source
 
@@ -178,10 +185,12 @@ class App:
         start_tetrix_duo_game_button.grid(row=4, column=1, **game_mode_grid_style, pady=10)
 
     def blocus_classic(self):
-        global board_canvas, board_cells, board, player_turn_label, top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
+        global board_canvas, board_cells, board, player_turn_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
+        global board_cells, player_1_pieces_cells, player_2_pieces_cells
         global board_cell_size, board_size
         global red_starting_corner, blue_starting_corner
+        global player_1_score_label, player_2_score_label
         for i in self.master.winfo_children():
             i.destroy() # idem
 
@@ -196,26 +205,57 @@ class App:
         blue_corners_coordinates.append([board_size - 1, 0])
 
         board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size + 3, height=board_size * board_cell_size + 3, bd=0, highlightthickness=0, relief='ridge') # On crée un canvas pour le board
-        board_canvas.grid(column=1, row=1, padx=10) # On place le canvas
+        board_canvas.grid(column=1, row=2, padx=10) # On place le canvas
 
         player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='ridge')
-        player_1_pieces.grid(column=0, row=1)
+        player_1_pieces.grid(column=0, row=2)
 
         player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='ridge')
-        player_2_pieces.grid(column=2, row=1)
+        player_2_pieces.grid(column=2, row=2)
 
-        top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure au plateau
-        top_part.grid(row=0, column=1) # On place le nouveau cadre dans le cadre principal
+        board_top_part = Frame(main_menu_frame, padding=10) # On crée un cadre pour la partie supérieure au plateau
+        board_top_part.grid(row=1, column=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
+        board_top_part.columnconfigure(1, weight=1)
 
-        back_button = Button(top_part, text="< Retour", command=self.main_menu) # On crée un bouton retour
+        self.back_icon = PhotoImage(file='res/img/back_icon.png')
+        back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2) # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
-        player_turn_label = Label(top_part, font=('default', 20), background=background_color, padx=20)
-        player_turn_label.grid(column=1, row=0)
+        
+        player_turn_label = Label(board_top_part, font=('default', 20), background=background_color)
+        player_turn_label.grid(column=1, row=0, sticky='ew')
         player_turn_label['text'] = f'Joueur {current_player + 1}'
 
-        board_cells = []
-        player_1_pieces_cells = []
-        player_2_pieces_cells = []
+        spacer1 = Label(board_top_part, text='                ', background=background_color) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
+        spacer1.grid(column=2, row=0)
+
+        player_1_pieces_top_part = Frame(main_menu_frame)
+        player_1_pieces_top_part.grid(column=0, row=1, sticky='ew')
+        player_1_pieces_top_part.columnconfigure(1, weight=1)
+
+        self.hint_icon = PhotoImage(file='res/img/hint_icon.png')
+        player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton retour
+        player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
+
+        player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20)
+        player_1_score_label.grid(column=1, row=0, sticky='ew')
+        player_1_score_label['text'] = f'Score : {player_1_score}'
+
+        spacer2 = Label(player_1_pieces_top_part, text='                ', background=background_color) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
+        spacer2.grid(column=2, row=0)
+
+        player_2_pieces_top_part = Frame(main_menu_frame)
+        player_2_pieces_top_part.grid(column=2, row=1, sticky='ew')
+        player_2_pieces_top_part.columnconfigure(1, weight=1)
+
+        spacer3 = Label(player_2_pieces_top_part, text='                ', background=background_color) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
+        spacer3.grid(column=0, row=0)
+
+        player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton retour
+        player_2_hint_button.grid(column=2, row=0) # Le bouton est placé
+        
+        player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20)
+        player_2_score_label.grid(column=1, row=0, sticky='ew')
+        player_2_score_label['text'] = f'Score : {player_2_score}'
 
         for line in range(board_size):
             row = []
@@ -225,12 +265,20 @@ class App:
                 x2 = x1 + board_cell_size + 1
                 y2 = y1 + board_cell_size + 1
                 cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill=background_color, outline=board_cell_outline_color) # On crée un rectangle pour chaque case
-                if line == board_size - 1 and column == 0:
-                    red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0)
-                elif line == 0 and column == board_size - 1:
-                    blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0)
                 row.append(cell)
             board_cells.append(row)
+        
+        x1 = 1
+        y1 = (board_size - 1) * board_cell_size + 1
+        x2 = x1 + board_cell_size + 1
+        y2 = y1 + board_cell_size + 1
+        red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0)
+
+        x1 = (board_size - 1) * board_cell_size + 1
+        y1 = 1
+        x2 = x1 + board_cell_size + 1
+        y2 = y1 + board_cell_size + 1
+        blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0)
 
         for line in range(28):
             row_j1 = []
@@ -284,6 +332,7 @@ class App:
     def on_plateau_click(self, event):
         global board, current_player, adjacent_coords, relative_positions, j1_has_selected_piece, j2_has_selected_piece
         global board_cell_size, board_size
+        global player_1_score, player_2_score
         column_event = event.x // board_cell_size
         line_event = event.y // board_cell_size
         if line_event > board_size - 1: line_event = board_size - 1;
@@ -302,11 +351,28 @@ class App:
                         for k in adjacent_coords:
                             player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color)
                         j2_has_selected_piece = False
+            
+            if current_player == 0:
+                player_1_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
+            else:
+                player_2_score += len(adjacent_coords)
+
             self.define_possible_corners()
-            current_player = (current_player + 1) % 2 # On change de joueur
+            
+            if current_player == 0:
+                if self.can_still_play(player=1):
+                    current_player = (current_player + 1) % 2 # On change de joueur
+            else:
+                if self.can_still_play(player=0):
+                    current_player = (current_player + 1) % 2 # On change de joueur
+            
+            if not self.can_still_play(player=0) and not self.can_still_play(player=1):
+                current_player = 999 # Le jeu est bloqué
+            
             adjacent_coords = []
             relative_positions = [[0, 0]]
             self.update_canvas()
+            playsound.playsound('./res/audio/piece_place.wav')
 
     def on_plateau_hover(self, event):
         global board, board_canvas, board_cells
@@ -339,12 +405,12 @@ class App:
                         if board[line][column] == 'H':
                             board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement)
 
-            os.system('CLS')
-            for line in board:
-                print(line)
-            print(red_corners_coordinates)
-            print(blue_corners_coordinates)
-            print(common_corners_coordinates)
+            # os.system('CLS')
+            # for line in board:
+            #     print(line)
+            # print(red_corners_coordinates)
+            # print(blue_corners_coordinates)
+            # print(common_corners_coordinates)
 
         for red_corner_coord in red_corners_coordinates:
             if board[red_corner_coord[1]][red_corner_coord[0]] == ' ':
@@ -432,6 +498,175 @@ class App:
                     blue_corners_coordinates.remove(element)
                 except ValueError:
                     pass
+        
+        for red_corner_coord in red_corners_coordinates:
+            if board[red_corner_coord[1]][red_corner_coord[0]] == ' ':
+                board[red_corner_coord[1]][red_corner_coord[0]] = 'RC'
+
+        for blue_corner_coord in blue_corners_coordinates:
+            if board[blue_corner_coord[1]][blue_corner_coord[0]] == ' ':
+                board[blue_corner_coord[1]][blue_corner_coord[0]] = 'BC'
+
+        for common_corner_coord in common_corners_coordinates:
+            if board[common_corner_coord[1]][common_corner_coord[0]] in ['RC', 'BC']:
+                board[common_corner_coord[1]][common_corner_coord[0]] = 'RBC'
+    
+    def can_still_play(self, player):
+        global player_1_pieces_list, player_2_pieces_list
+        global board_size, relative_positions
+        global orientation_id
+
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        has_found_a_piece = False
+        can_still_play = False
+
+        if player == 0:
+            player_pieces_list = player_1_pieces_list
+            player_corner_value = 'RC'
+        else:
+            player_pieces_list = player_2_pieces_list
+            player_corner_value = 'BC'
+
+        for line in range(board_size):
+            for column in range(board_size):
+                if board[line][column] == player_corner_value or board[line][column] == 'RBC':
+                    for piece_line in range(len(player_pieces_list)):
+                        for piece_column in range(len(player_pieces_list[0])):
+                            if player_pieces_list[piece_line][piece_column] == 'O':
+                                if not has_found_a_piece:
+                                    self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line)
+
+                                    directions_from_center_rotated = [list(direction) for direction in relative_positions]
+
+                                    orientation_id = (orientation_id + 1) % 4
+
+                                    if orientation_id == 0:
+                                        pass  # 0°
+                                    elif orientation_id == 1:
+                                        for i, direction in enumerate(relative_positions):
+                                            directions_from_center_rotated[i][0] = -direction[1]
+                                            directions_from_center_rotated[i][1] = direction[0] # 90°
+                                    elif orientation_id == 2:
+                                        for i, direction in enumerate(relative_positions):
+                                            directions_from_center_rotated[i][0] = -direction[0]
+                                            directions_from_center_rotated[i][1] = -direction[1] # 180°
+                                    elif orientation_id == 3:
+                                        for i, direction in enumerate(relative_positions):
+                                            directions_from_center_rotated[i][0] = direction[1]
+                                            directions_from_center_rotated[i][1] = -direction[0] # 270°
+
+                                    relative_positions = directions_from_center_rotated
+
+                                    out_of_bounds = False
+                                    can_fit = True
+                                    can_be_placed = True
+
+                                    for position in relative_positions:
+                                        if not self.is_within_the_main_board(column + position[0], line + position[1]):
+                                            out_of_bounds = True
+                                            can_fit = False
+                                            can_be_placed = False
+                                        
+                                    if not out_of_bounds:
+                                        for position in relative_positions:
+                                            if board[line + position[1]][column + position[0]] in ['R', 'B']:
+                                                can_fit = False
+                                                can_be_placed = False
+                                    
+                                    if can_fit:
+                                        for position in relative_positions:
+                                            for direction in directions:
+                                                if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]):
+                                                    if current_player == 0:
+                                                        if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'R':
+                                                            can_be_placed = False
+                                                    else:
+                                                        if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'B':
+                                                            can_be_placed = False
+                                    
+                                    if can_be_placed:
+                                        can_still_play = True
+        return can_still_play
+
+    def get_hint(self):
+        global player_1_pieces_list, player_2_pieces_list
+        global board_size, relative_positions
+        global orientation_id
+
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        has_found_a_piece = False
+
+        if current_player == 0:
+            player_pieces_list = player_1_pieces_list
+            player_corner_value = 'RC'
+        else:
+            player_pieces_list = player_2_pieces_list
+            player_corner_value = 'BC'
+
+        for line in range(board_size):
+            for column in range(board_size):
+                if board[line][column] == player_corner_value or board[line][column] == 'RBC':
+                    for piece_line in range(len(player_pieces_list)):
+                        for piece_column in range(len(player_pieces_list[0])):
+                            if player_pieces_list[piece_line][piece_column] == 'O':
+                                if not has_found_a_piece:
+                                    self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line)
+
+                                    directions_from_center_rotated = [list(direction) for direction in relative_positions]
+
+                                    orientation_id = (orientation_id + 1) % 4
+
+                                    if orientation_id == 0:
+                                        pass  # 0°
+                                    elif orientation_id == 1:
+                                        for i, direction in enumerate(relative_positions):
+                                            directions_from_center_rotated[i][0] = -direction[1]
+                                            directions_from_center_rotated[i][1] = direction[0] # 90°
+                                    elif orientation_id == 2:
+                                        for i, direction in enumerate(relative_positions):
+                                            directions_from_center_rotated[i][0] = -direction[0]
+                                            directions_from_center_rotated[i][1] = -direction[1] # 180°
+                                    elif orientation_id == 3:
+                                        for i, direction in enumerate(relative_positions):
+                                            directions_from_center_rotated[i][0] = direction[1]
+                                            directions_from_center_rotated[i][1] = -direction[0] # 270°
+
+                                    relative_positions = directions_from_center_rotated
+
+                                    out_of_bounds = False
+                                    can_fit = True
+                                    can_be_placed = True
+
+                                    for position in relative_positions:
+                                        if not self.is_within_the_main_board(column + position[0], line + position[1]):
+                                            out_of_bounds = True
+                                            can_fit = False
+                                            can_be_placed = False
+                                        
+                                    if not out_of_bounds:
+                                        for position in relative_positions:
+                                            if board[line + position[1]][column + position[0]] in ['R', 'B']:
+                                                can_fit = False
+                                                can_be_placed = False
+                                    
+                                    if can_fit:
+                                        for position in relative_positions:
+                                            for direction in directions:
+                                                if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]):
+                                                    if current_player == 0:
+                                                        if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'R':
+                                                            can_be_placed = False
+                                                    else:
+                                                        if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'B':
+                                                            can_be_placed = False
+                                    
+                                    if can_be_placed:
+                                        for position in relative_positions:
+                                            board[line + position[1]][column + position[0]] = 'H'
+                                        for line in range(board_size):
+                                            for column in range(board_size):
+                                                if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
+                                                has_found_a_piece = True
 
     def draw_piece_on_board(self, event_x, event_y):
         global board, board_canvas, board_cells
@@ -505,12 +740,13 @@ class App:
         for i in range(board_size):
             for j in range(board_size):
                 if board[i][j] == ' ':
-                    board_canvas.itemconfig(board_cells[i][j], fill=background_color)
+                    board_canvas.itemconfig(board_cells[i][j], fill=background_color, outline=board_cell_outline_color)
 
     def update_canvas(self):
         global board, board_canvas, board_cells
         global red_starting_corner, blue_starting_corner
-        global player_turn_label
+        global player_turn_label, player_1_score_label, player_2_score_label
+        global player_1_score, player_2_score
         global board_size
         for i in range(board_size):
             for j in range(board_size):
@@ -530,6 +766,10 @@ class App:
             board_canvas.itemconfig(blue_starting_corner, fill=placed_piece_blue)
         player_turn_label['text'] = f"Joueur {current_player + 1}" # On met à jour le texte qui affiche le tour du joueur actif
         player_turn_label.update()
+        player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le tour du joueur actif
+        player_1_score_label.update()
+        player_2_score_label['text'] = f"Score : {player_2_score}" # On met à jour le texte qui affiche le tour du joueur actif
+        player_2_score_label.update()
 
     def on_player_pieces_click(self, event):
         global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
@@ -548,7 +788,9 @@ class App:
                     j2_has_selected_piece = False
                     j1_has_selected_piece = True
                     orientation_id = 0 # On réinitialise l'orientation
+                playsound.playsound('./res/audio/piece_taken.wav', block=False)
             else:
+                playsound.playsound('./res/audio/piece_back.wav', block=False)
                 for k in adjacent_coords: # La pièce est replacée
                     player_1_pieces_list[k[1]][k[0]] = 'O'
                     player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=placed_piece_red)
@@ -568,7 +810,9 @@ class App:
                     j1_has_selected_piece = False
                     j2_has_selected_piece = True
                     orientation_id = 0 
+                playsound.playsound('./res/audio/piece_taken.wav', block=False)
             else:
+                playsound.playsound('./res/audio/piece_back.wav', block=False)
                 for k in adjacent_coords:
                     player_2_pieces_list[k[1]][k[0]] = 'O'
                     player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=placed_piece_blue)
@@ -599,6 +843,8 @@ class App:
         global orientation_id, relative_positions
         orientation_id = (orientation_id + 1) % 4
 
+        playsound.playsound('./res/audio/piece_rotate.wav', block=False)
+
         directions_from_center_rotated = [list(direction) for direction in relative_positions]
 
         if orientation_id == 0:
@@ -618,7 +864,6 @@ class App:
 
         relative_positions = directions_from_center_rotated
         self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
-
 
     def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y):
         global relative_positions
