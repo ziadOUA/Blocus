@@ -80,50 +80,155 @@ player_2_score = 0
 
 # Palette source
 
-md_sys_color_primary_light = "#164fe1"
-md_ref_palette_primary70 = "#90a7ff"
-md_sys_color_on_primary_light = "#ffffff"
-md_sys_color_primary_container_light = "#dce1ff"
-md_sys_color_on_primary_container_light = "#001551"
-
-md_sys_color_secondary_light = "#595d72"
-md_sys_color_on_secondary_light = "#ffffff"
-md_sys_color_secondary_container_light = "#dee1f9"
-md_sys_color_on_secondary_container_light = "#161b2c"
-
-md_sys_color_tertiary_light = "#c00100"
+# PRIMARY
+md_ref_palette_primary0 = "#000000"
+md_ref_palette_primary10 = "#00006e"
+md_ref_palette_primary20 = "#0001ac"
+md_ref_palette_primary25 = "#0001cd"
+md_ref_palette_primary30 = "#0000ef"
+md_ref_palette_primary35 = "#1a21ff"
+md_ref_palette_primary40 = "#343dff"
+md_ref_palette_primary50 = "#5a64ff"
+md_ref_palette_primary60 = "#7c84ff"
+md_ref_palette_primary70 = "#9da3ff"
+md_ref_palette_primary80 = "#bec2ff"
+md_ref_palette_primary90 = "#e0e0ff"
+md_ref_palette_primary95 = "#f1efff"
+md_ref_palette_primary98 = "#fbf8ff"
+md_ref_palette_primary99 = "#fffbff"
+md_ref_palette_primary100 = "#ffffff"
+# TERTIARY
+md_ref_palette_tertiary0 = "#000000"
+md_ref_palette_tertiary10 = "#410000"
+md_ref_palette_tertiary20 = "#690100"
+md_ref_palette_tertiary25 = "#7e0100"
+md_ref_palette_tertiary30 = "#930100"
+md_ref_palette_tertiary35 = "#a90100"
+md_ref_palette_tertiary40 = "#c00100"
+md_ref_palette_tertiary50 = "#ef0000"
+md_ref_palette_tertiary60 = "#ff5540"
 md_ref_palette_tertiary70 = "#ff8a78"
+md_ref_palette_tertiary80 = "#ffb4a8"
+md_ref_palette_tertiary90 = "#ffdad4"
+md_ref_palette_tertiary95 = "#ffedea"
+md_ref_palette_tertiary98 = "#fff8f6"
+md_ref_palette_tertiary99 = "#fffbff"
+md_ref_palette_tertiary100 = "#ffffff"
+# NEUTRAL
+md_ref_palette_neutral0 = "#000000"
+md_ref_palette_neutral10 = "#1b1b1f"
+md_ref_palette_neutral20 = "#303034"
+md_ref_palette_neutral25 = "#3c3b3f"
+md_ref_palette_neutral30 = "#47464a"
+md_ref_palette_neutral35 = "#535256"
+md_ref_palette_neutral40 = "#5f5e62"
+md_ref_palette_neutral50 = "#78767a"
+md_ref_palette_neutral60 = "#929094"
+md_ref_palette_neutral70 = "#adaaaf"
+md_ref_palette_neutral80 = "#c8c5ca"
+md_ref_palette_neutral90 = "#e5e1e6"
+md_ref_palette_neutral95 = "#f3eff4"
+md_ref_palette_neutral98 = "#fcf8fd"
+md_ref_palette_neutral99 = "#fffbff"
+md_ref_palette_neutral100 = "#ffffff"
+# NEUTRAL VARIANT
+md_ref_palette_neutral_variant0 = "#000000"
+md_ref_palette_neutral_variant10 = "#1b1b23"
+md_ref_palette_neutral_variant20 = "#303038"
+md_ref_palette_neutral_variant25 = "#3b3b43"
+md_ref_palette_neutral_variant30 = "#46464f"
+md_ref_palette_neutral_variant35 = "#52515b"
+md_ref_palette_neutral_variant40 = "#5e5d67"
+md_ref_palette_neutral_variant50 = "#777680"
+md_ref_palette_neutral_variant60 = "#91909a"
+md_ref_palette_neutral_variant70 = "#acaab4"
+md_ref_palette_neutral_variant80 = "#c7c5d0"
+md_ref_palette_neutral_variant90 = "#e4e1ec"
+md_ref_palette_neutral_variant95 = "#f2effa"
+md_ref_palette_neutral_variant98 = "#fbf8ff"
+md_ref_palette_neutral_variant99 = "#fffbff"
+md_ref_palette_neutral_variant100 = "#ffffff"
+# LIGHT
+md_sys_color_primary_light = "#343dff"
+md_sys_color_on_primary_light = "#ffffff"
+md_sys_color_primary_container_light = "#e0e0ff"
+md_sys_color_on_primary_container_light = "#00006e"
+md_sys_color_secondary_light = "#984061"
+md_sys_color_on_secondary_light = "#ffffff"
+md_sys_color_secondary_container_light = "#ffd9e2"
+md_sys_color_on_secondary_container_light = "#3e001d"
+md_sys_color_tertiary_light = "#c00100"
 md_sys_color_on_tertiary_light = "#ffffff"
 md_sys_color_tertiary_container_light = "#ffdad4"
 md_sys_color_on_tertiary_container_light = "#410000"
-
-md_sys_color_background_light = "#ffffff"
+md_sys_color_error_light = "#ba1a1a"
+md_sys_color_error_container_light = "#ffdad6"
+md_sys_color_on_error_light = "#ffffff"
+md_sys_color_on_error_container_light = "#410002"
+md_sys_color_background_light = "#fffbff"
 md_sys_color_on_background_light = "#1b1b1f"
-md_sys_color_surface_light = "#fefbff"
+md_sys_color_surface_light = "#fffbff"
 md_sys_color_on_surface_light = "#1b1b1f"
-md_sys_color_surface_variant_light = "#e2e1ec"
-md_sys_color_on_surface_variant_light = "#45464f"
-md_sys_color_outline_light = "#767680"
-md_sys_color_inverse_on_surface_light = "#f2f0f4"
+md_sys_color_surface_variant_light = "#e4e1ec"
+md_sys_color_on_surface_variant_light = "#46464f"
+md_sys_color_outline_light = "#777680"
+md_sys_color_inverse_on_surface_light = "#f3eff4"
 md_sys_color_inverse_surface_light = "#303034"
-md_sys_color_inverse_primary_light = "#b7c4ff"
+md_sys_color_inverse_primary_light = "#bec2ff"
 md_sys_color_shadow_light = "#000000"
-md_sys_color_surface_tint_light = "#164fe1"
-md_sys_color_outline_variant_light = "#c6c5d0"
+md_sys_color_surface_tint_light = "#343dff"
+md_sys_color_outline_variant_light = "#c7c5d0"
 md_sys_color_scrim_light = "#000000"
+# DARK
+md_sys_color_primary_dark = "#bec2ff"
+md_sys_color_on_primary_dark = "#0001ac"
+md_sys_color_primary_container_dark = "#0000ef"
+md_sys_color_on_primary_container_dark = "#e0e0ff"
+md_sys_color_secondary_dark = "#ffb1c8"
+md_sys_color_on_secondary_dark = "#5e1133"
+md_sys_color_secondary_container_dark = "#7b2949"
+md_sys_color_on_secondary_container_dark = "#ffd9e2"
+md_sys_color_tertiary_dark = "#ffb4a8"
+md_sys_color_on_tertiary_dark = "#690100"
+md_sys_color_tertiary_container_dark = "#930100"
+md_sys_color_on_tertiary_container_dark = "#ffdad4"
+md_sys_color_error_dark = "#ffb4ab"
+md_sys_color_error_container_dark = "#93000a"
+md_sys_color_on_error_dark = "#690005"
+md_sys_color_on_error_container_dark = "#ffdad6"
+md_sys_color_background_dark = "#1b1b1f"
+md_sys_color_on_background_dark = "#e5e1e6"
+md_sys_color_surface_dark = "#1b1b1f"
+md_sys_color_on_surface_dark = "#e5e1e6"
+md_sys_color_surface_variant_dark = "#46464f"
+md_sys_color_on_surface_variant_dark = "#c7c5d0"
+md_sys_color_outline_dark = "#91909a"
+md_sys_color_inverse_on_surface_dark = "#1b1b1f"
+md_sys_color_inverse_surface_dark = "#e5e1e6"
+md_sys_color_inverse_primary_dark = "#343dff"
+md_sys_color_shadow_dark = "#000000"
+md_sys_color_surface_tint_dark = "#bec2ff"
+md_sys_color_outline_variant_dark = "#46464f"
+md_sys_color_scrim_dark = "#000000"
 
 # Palette
 
-background_color = md_sys_color_background_light # Couleur de fond du programme
-surface_color = md_sys_color_surface_variant_light # Couleur de surface (là où les pièces sont placées par exemple)
+background_color = md_sys_color_background_dark # Couleur de fond du programme
+button_background_color = md_sys_color_background_dark
+button_outline_color = md_sys_color_on_surface_dark
+button_text_color = md_sys_color_on_surface_dark
+surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
+on_surface_color = md_sys_color_on_surface_dark
 
-placed_piece_red = md_sys_color_tertiary_light # Couleur d'une pièce rouge placée
-valid_placement_red = md_ref_palette_tertiary70 # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
-placed_piece_blue = md_sys_color_primary_light # Couleur d'une pièce bleue placée
-valid_placement_blue = md_ref_palette_primary70 # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
-invalid_placement = md_sys_color_outline_variant_light # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
+valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
 
-board_cell_outline_color = md_sys_color_outline_variant_light # Couleur de bordure des cases du plateau
+placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
+valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+
+invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+
+board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordure des cases du plateau
 
 # ══════════ Classe principale
 
@@ -136,9 +241,9 @@ class App:
 
         style = Style() # On définit un style
         style.theme_use('default') # On utilise le style par défaut pour modifier plus facilement les boutons
-        style.configure('TButton', font=('Arial', 30, 'bold'), background='red') # On ajoute du style pour les boutons
+        style.configure('TButton', font=('Arial', 30, 'bold'), background=button_background_color, focuscolor=button_background_color, relief='flat') # On ajoute du style pour les boutons
         style.configure('TFrame', background=background_color) # On change la couleur de fond des cadres "Frame"
-        style.map('TButton', background=[('active', '#ff0000'), ('disabled', '#f0f0f0')])
+        style.map('TButton', background=[('active', button_background_color), ('disabled', button_background_color)], relief=[('pressed', 'flat')])
 
         self.main_menu() # Affiche le menu principal dès le démarrage du programme
 
@@ -151,46 +256,31 @@ class App:
 
         game_mode_grid_style = {"padx": 10, "sticky": "ew"} # On définit un style par défaut pour les éléments ajoutés à la grille
 
-        label = Label(main_menu_frame, text="BLOCUS") # On crée le texte "BLOCUS"
-        label.grid(column=1, row=1, pady=10, **game_mode_grid_style) # On affiche le texte dans le cadre
+        play = Label(self.master, text="Appuyez pour Jouer", background=background_color, foreground=on_surface_color, font=('Arial', 15)) # On crée un texte
+        play.pack(pady=50) # On affiche le texte dans le cadre
 
-        play_button = Button(main_menu_frame, text="Jouer", command=self.select_game_mode) # On crée le bouton "Jouer"
-        play_button.grid(row=4, column=1, **game_mode_grid_style) # On affiche le bouton "Jouer"
+        blocus_logo_canvas = Canvas(main_menu_frame, width=840, height=224, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        blocus_logo_canvas.grid(column=0, row=0)
 
-        about_button = Button(main_menu_frame, text="À propos", command=lambda: messagebox.showinfo("Blocus", "Projet supervisé de NSI\nZiad & Djibril")) # On crée le bouton "À propos"
-        about_button.grid(row=5, column=1, **game_mode_grid_style, pady=10) # On affiche le bouton
+        self.blocus_logo = PhotoImage(file="res/img/blocus_logo.png")
+        blocus_logo_canvas.create_image(0, 0, anchor='nw', image=self.blocus_logo)
 
-    def select_game_mode(self):
-        for i in self.master.winfo_children():
-            i.destroy() # idem
+        main_menu_frame.bind("<Button-1>", self.blocus_duo)
+        play.bind("<Button-1>", self.blocus_duo)
+        blocus_logo_canvas.bind("<Button-1>", self.about_blocus_duo)
+    
+    def about_blocus_duo(self, event):
+        messagebox.showinfo("Blocus", "Projet supervisé de NSI\nZiad & Djibril")
 
-        main_menu_frame = Frame(self.master)
-        main_menu_frame.pack(expand=True)
-
-        game_mode_grid_style = {"padx": 10, "sticky": "ew"}
-
-        label = Label(main_menu_frame, text="Sélectionnez le mode de jeu")
-        label.grid(row=0, column=1, pady=10, **game_mode_grid_style)
-
-        back_button = Button(main_menu_frame, text="Retour", command=self.main_menu, style='TButton') #
-        back_button.grid(row=1, column=1, **game_mode_grid_style)
-
-        start_blocus_classic_game_button = Button(main_menu_frame, text="Blocus Classic", command=self.blocus_classic, style='TButton') #
-        start_blocus_classic_game_button.grid(row=2, column=1, **game_mode_grid_style, pady=10)
-
-        start_blocus_power_game_button = Button(main_menu_frame, text="Blocus Power", command=self.blocus_power)
-        start_blocus_power_game_button.grid(row=3, column=1, **game_mode_grid_style)
-
-        start_tetrix_duo_game_button = Button(main_menu_frame, text="Tetrix Duo", command=self.tetrix_duo)
-        start_tetrix_duo_game_button.grid(row=4, column=1, **game_mode_grid_style, pady=10)
-
-    def blocus_classic(self):
+    def blocus_duo(self, event):
         global board_canvas, board_cells, board, player_turn_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
         global board_cells, player_1_pieces_cells, player_2_pieces_cells
         global board_cell_size, board_size
         global red_starting_corner, blue_starting_corner
         global player_1_score_label, player_2_score_label
+        global player_1_hint_button, player_2_hint_button
+        global player_1_pieces_top_part, player_2_pieces_top_part
         for i in self.master.winfo_children():
             i.destroy() # idem
 
@@ -204,13 +294,13 @@ class App:
         red_corners_coordinates.append([0, board_size - 1]) # On ajoute les coordonées des cases de coin mentionnées ci-dessus
         blue_corners_coordinates.append([board_size - 1, 0])
 
-        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size + 3, height=board_size * board_cell_size + 3, bd=0, highlightthickness=0, relief='ridge') # On crée un canvas pour le board
+        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color) # On crée un canvas pour le board
         board_canvas.grid(column=1, row=2, padx=10) # On place le canvas
 
-        player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='ridge')
+        player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid')
         player_1_pieces.grid(column=0, row=2)
 
-        player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='ridge')
+        player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid')
         player_2_pieces.grid(column=2, row=2)
 
         board_top_part = Frame(main_menu_frame, padding=10) # On crée un cadre pour la partie supérieure au plateau
@@ -221,13 +311,12 @@ class App:
         back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2) # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
         
-        player_turn_label = Label(board_top_part, font=('default', 20), background=background_color)
+        player_turn_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_surface_color)
         player_turn_label.grid(column=1, row=0, sticky='ew')
         player_turn_label['text'] = f'Joueur {current_player + 1}'
 
-        spacer1 = Label(board_top_part, text='                ', background=background_color) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
-        spacer1.grid(column=2, row=0)
-
+        Label(board_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
+        
         player_1_pieces_top_part = Frame(main_menu_frame)
         player_1_pieces_top_part.grid(column=0, row=1, sticky='ew')
         player_1_pieces_top_part.columnconfigure(1, weight=1)
@@ -236,13 +325,12 @@ class App:
         player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton retour
         player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
 
-        player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20)
+        player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_surface_color)
         player_1_score_label.grid(column=1, row=0, sticky='ew')
         player_1_score_label['text'] = f'Score : {player_1_score}'
 
-        spacer2 = Label(player_1_pieces_top_part, text='                ', background=background_color) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
-        spacer2.grid(column=2, row=0)
-
+        Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
+        
         player_2_pieces_top_part = Frame(main_menu_frame)
         player_2_pieces_top_part.grid(column=2, row=1, sticky='ew')
         player_2_pieces_top_part.columnconfigure(1, weight=1)
@@ -251,9 +339,9 @@ class App:
         spacer3.grid(column=0, row=0)
 
         player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton retour
-        player_2_hint_button.grid(column=2, row=0) # Le bouton est placé
-        
-        player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20)
+        Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0)
+
+        player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_surface_color)
         player_2_score_label.grid(column=1, row=0, sticky='ew')
         player_2_score_label['text'] = f'Score : {player_2_score}'
 
@@ -262,22 +350,22 @@ class App:
             for column in range(board_size):
                 x1 = column * board_cell_size + 1
                 y1 = line * board_cell_size + 1
-                x2 = x1 + board_cell_size + 1
-                y2 = y1 + board_cell_size + 1
+                x2 = x1 + board_cell_size - 1
+                y2 = y1 + board_cell_size - 1
                 cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill=background_color, outline=board_cell_outline_color) # On crée un rectangle pour chaque case
                 row.append(cell)
             board_cells.append(row)
         
         x1 = 1
         y1 = (board_size - 1) * board_cell_size + 1
-        x2 = x1 + board_cell_size + 1
-        y2 = y1 + board_cell_size + 1
+        x2 = x1 + board_cell_size - 1
+        y2 = y1 + board_cell_size - 1
         red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0)
 
         x1 = (board_size - 1) * board_cell_size + 1
         y1 = 1
-        x2 = x1 + board_cell_size + 1
-        y2 = y1 + board_cell_size + 1
+        x2 = x1 + board_cell_size - 1
+        y2 = y1 + board_cell_size - 1
         blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0)
 
         for line in range(28):
@@ -313,32 +401,18 @@ class App:
         # player_2_pieces.bind("<Motion>", self.on_pièces_hover) # La souris bouge
         # player_2_pieces.bind("<Leave>", self.on_pièces_leave) # La souris quitte le canvas
 
-    def blocus_power(self):
-        for i in self.master.winfo_children():
-            i.destroy()
-        label = Label(text="Page Two!!!")
-        label.pack(pady=50, padx=50)
-        button1 = Button(text="Back to Home", command=self.main_menu)
-        button1.pack()
-
-    def tetrix_duo(self):
-        for i in self.master.winfo_children():
-            i.destroy()
-        label = Label(text="Page THREE!!!")
-        label.pack(pady=50, padx=50)
-        button1 = Button(text="Back to Home", command=self.main_menu)
-        button1.pack()
-
     def on_plateau_click(self, event):
         global board, current_player, adjacent_coords, relative_positions, j1_has_selected_piece, j2_has_selected_piece
         global board_cell_size, board_size
         global player_1_score, player_2_score
+        global player_1_pieces_top_part, player_2_pieces_top_part
+        global player_1_hint_button, player_2_hint_button
         column_event = event.x // board_cell_size
         line_event = event.y // board_cell_size
         if line_event > board_size - 1: line_event = board_size - 1;
         if column_event > board_size - 1: column_event = board_size - 1;
 
-        if board[line_event][column_event] == 'RH' or board[line_event][column_event] == 'BH':
+        if board[line_event][column_event] in ['RH', 'BH']:
             for line in board:
                 for k, n in enumerate(line):
                     if n == 'RH':
@@ -362,9 +436,17 @@ class App:
             if current_player == 0:
                 if self.can_still_play(player=1):
                     current_player = (current_player + 1) % 2 # On change de joueur
+                    player_1_hint_button.grid_forget()
+                    Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0)
+                    player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2)
+                    player_2_hint_button.grid(column=2, row=0)
             else:
                 if self.can_still_play(player=0):
                     current_player = (current_player + 1) % 2 # On change de joueur
+                    player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2)
+                    player_1_hint_button.grid(column=0, row=0)
+                    player_2_hint_button.grid_forget()
+                    Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0)
             
             if not self.can_still_play(player=0) and not self.can_still_play(player=1):
                 current_player = 999 # Le jeu est bloqué
@@ -911,5 +993,7 @@ class App:
 if __name__ == "__main__":
     root = Tk()
     root.configure(bg=background_color)
+    icon = PhotoImage(file='res/img/blocus_icon.png')
+    root.iconphoto(True, icon)
     App(root)
     root.mainloop()
