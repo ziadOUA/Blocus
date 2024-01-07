@@ -16,12 +16,15 @@ from tkinter import messagebox
 from tkinter.ttk import Style, Button, Frame
 import os
 from playsound import playsound
+import webbrowser
 
 # ════════════════════════════════════════════════════════════════════════════
 # ════════════════════════════ CORPS DU PROGRAMME ════════════════════════════
 # ════════════════════════════════════════════════════════════════════════════
 
 # ══════════ Variables & Constantes
+
+version_number = '1.0.0' # Version du projet
 
 player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                         [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
@@ -50,9 +53,9 @@ player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
                         [' ', 'O', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
                         [' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', 'O', ' '],
                         [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
-                        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
+                        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']] # Ensemble de pièces du joueur 1
 
-player_2_pieces_list = [i[:] for i in player_1_pieces_list]
+player_2_pieces_list = [i[:] for i in player_1_pieces_list] # Ensemble de pièces du joueur 2, copiée depuis celui du joueur 1
 
 j1_has_selected_piece = False
 j2_has_selected_piece = False
@@ -68,14 +71,14 @@ player_1_pieces_cells = []
 player_2_pieces_cells = []
 
 current_player = 0 # Le joueur 1 commence
-board_cell_size = 38
-board_size = 16
+board_cell_size = 38 # On définit la taille d'une case du plateau
+board_size = 16 # On définit la taille du plateau
 
 red_corners_coordinates = []
 blue_corners_coordinates = []
 common_corners_coordinates = []
 
-player_1_score = 0
+player_1_score = 0 # Scores des joueurs
 player_2_score = 0
 
 # Palette source
@@ -180,7 +183,8 @@ md_sys_color_surface_tint_light = "#343dff"
 md_sys_color_outline_variant_light = "#c7c5d0"
 md_sys_color_scrim_light = "#000000"
 # DARK
-md_sys_color_primary_dark = "#bec2ff"
+# md_sys_color_primary_dark = "#bec2ff"
+md_sys_color_primary_dark = "#7c84ff"
 md_sys_color_on_primary_dark = "#0001ac"
 md_sys_color_primary_container_dark = "#0000ef"
 md_sys_color_on_primary_container_dark = "#e0e0ff"
@@ -188,7 +192,8 @@ md_sys_color_secondary_dark = "#ffb1c8"
 md_sys_color_on_secondary_dark = "#5e1133"
 md_sys_color_secondary_container_dark = "#7b2949"
 md_sys_color_on_secondary_container_dark = "#ffd9e2"
-md_sys_color_tertiary_dark = "#ffb4a8"
+# md_sys_color_tertiary_dark = "#ffb4a8"
+md_sys_color_tertiary_dark = "#ff5540"
 md_sys_color_on_tertiary_dark = "#690100"
 md_sys_color_tertiary_container_dark = "#930100"
 md_sys_color_on_tertiary_container_dark = "#ffdad4"
@@ -214,11 +219,11 @@ md_sys_color_scrim_dark = "#000000"
 # Palette
 
 background_color = md_sys_color_background_dark # Couleur de fond du programme
-button_background_color = md_sys_color_background_dark
-button_outline_color = md_sys_color_on_surface_dark
-button_text_color = md_sys_color_on_surface_dark
+on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
+button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
+button_outline_color = md_sys_color_on_surface_dark # Couleur de bordure des boutons
+button_text_color = md_sys_color_on_surface_dark # Couleur du texte des boutons
 surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
-on_surface_color = md_sys_color_on_surface_dark
 
 placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
 valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
@@ -243,34 +248,106 @@ class App:
         style.theme_use('default') # On utilise le style par défaut pour modifier plus facilement les boutons
         style.configure('TButton', font=('Arial', 30, 'bold'), background=button_background_color, focuscolor=button_background_color, relief='flat') # On ajoute du style pour les boutons
         style.configure('TFrame', background=background_color) # On change la couleur de fond des cadres "Frame"
-        style.map('TButton', background=[('active', button_background_color), ('disabled', button_background_color)], relief=[('pressed', 'flat')])
+        style.map('TButton', background=[('active', button_background_color), ('disabled', button_background_color)], relief=[('pressed', 'flat')]) # Modification du thème en fonction de l'état des boutons
 
         self.main_menu() # Affiche le menu principal dès le démarrage du programme
+    
+    def reset_variables(self): # Toutes les variables sont réinitialisées
+        global player_1_pieces_list, player_2_pieces_list
+        global j1_has_selected_piece, j2_has_selected_piece
+        global orientation_id, last_event_coordinates_copy, directions_from_center_copy
+        global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
+        global current_player, player_1_score, player_2_score
+        global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
+
+        player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
+                                [' ', 'O', 'O', ' ', 'O', 'O', 'O', ' ', 'O', 'O', 'O', ' '],
+                                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
+                                [' ', ' ', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
+                                [' ', 'O', 'O', ' ', 'O', 'O', 'O', ' ', ' ', 'O', 'O', ' '],
+                                [' ', ' ', 'O', ' ', ' ', ' ', ' ', ' ', 'O', 'O', ' ', ' '],
+                                [' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
+                                [' ', 'O', 'O', ' ', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' '],
+                                [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', 'O', 'O', ' '],
+                                [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', 'O', ' ', ' '],
+                                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', 'O', ' ', ' '],
+                                [' ', ' ', 'O', ' ', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' '],
+                                [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' ', ' ', 'O', ' '],
+                                [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' ', 'O', 'O', ' '],
+                                [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', 'O', 'O', ' ', ' '],
+                                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                [' ', 'O', 'O', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', ' '],
+                                [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+                                [' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+                                [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
+                                [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+                                [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', 'O', 'O', 'O', ' '],
+                                [' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+                                [' ', 'O', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
+                                [' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', 'O', ' '],
+                                [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
+                                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
+
+        player_2_pieces_list = [i[:] for i in player_1_pieces_list]
+
+        j1_has_selected_piece = False
+        j2_has_selected_piece = False
+
+        orientation_id = 0
+
+        last_event_coordinates_copy = []
+        directions_from_center_copy = []
+
+        board = []
+        board_cells = []
+        player_1_pieces_cells = []
+        player_2_pieces_cells = []
+
+        current_player = 0 # Le joueur 1 commence
+
+        red_corners_coordinates = []
+        blue_corners_coordinates = []
+        common_corners_coordinates = []
+
+        player_1_score = 0
+        player_2_score = 0
 
     def main_menu(self):
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
+        
+        self.reset_variables() # On appelle la fonction qui réinitialise les variables du programme
 
         main_menu_frame = Frame(self.master) # On crée le cadre principal
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
+        main_menu_frame.columnconfigure(2, weight=1)
 
-        game_mode_grid_style = {"padx": 10, "sticky": "ew"} # On définit un style par défaut pour les éléments ajoutés à la grille
-
-        play = Label(self.master, text="Appuyez pour Jouer", background=background_color, foreground=on_surface_color, font=('Arial', 15)) # On crée un texte
+        play = Label(self.master, text="Appuyez pour Jouer", background=background_color, foreground=on_background_color, font=('Arial', 15)) # On crée le texte "Appuyez pour Jouer"
         play.pack(pady=50) # On affiche le texte dans le cadre
 
-        blocus_logo_canvas = Canvas(main_menu_frame, width=840, height=224, bd=0, highlightthickness=0, relief='flat', background=background_color)
-        blocus_logo_canvas.grid(column=0, row=0)
+        version_label = Label(main_menu_frame, text=version_number, background=background_color, foreground=invalid_placement, font=('Consolas', 15)) # On crée le texte qui affiche la version du programme
+        version_label.grid(row=0, column=3) # Le texte est affiché
 
-        self.blocus_logo = PhotoImage(file="res/img/blocus_logo.png")
-        blocus_logo_canvas.create_image(0, 0, anchor='nw', image=self.blocus_logo)
+        blocus_logo_canvas = Canvas(main_menu_frame, width=840, height=224, bd=0, highlightthickness=0, relief='flat', background=background_color) # On crée le canvas sur lequel sera placé le logo du programme
+        blocus_logo_canvas.grid(column=0, row=1, columnspan=4, pady=10) # Le canvas est placé
+        self.blocus_logo = PhotoImage(file="res/img/blocus_logo.png") # On récupère l'image du logo
+        blocus_logo_canvas.create_image(0, 0, anchor='nw', image=self.blocus_logo) # On place le logo sur le canvas mentionné ci-dessus
 
-        main_menu_frame.bind("<Button-1>", self.blocus_duo)
-        play.bind("<Button-1>", self.blocus_duo)
-        blocus_logo_canvas.bind("<Button-1>", self.about_blocus_duo)
+        self.github_logo = PhotoImage(file='res/img/github_logo.png') # On récupère l'image du logo GitHub
+        github_button = Button(main_menu_frame, image=self.github_logo, command=lambda: webbrowser.open_new('https://github.com/ziadOUA/Blocus'), compound='center', width=2) # On crée le bouton qui ouvrira le lien GitHub du projet dans le navigateur
+        github_button.grid(column=0, row=0) # Le bouton est placé
+
+        self.about_icon = PhotoImage(file='res/img/about_icon.png') # On récupère l'image de l'icône "about_icon.png"
+        about_button = Button(main_menu_frame, image=self.about_icon, command=self.about_blocus_duo, compound='center', width=2) # On crée le bouton qui affichera les auteurs du projet
+        about_button.grid(column=1, row=0) # Le bouton est placé
+
+        main_menu_frame.bind("<Button-1>", self.blocus_duo)    #
+        play.bind("<Button-1>", self.blocus_duo)               # On "bind" plusieurs éléments pour que le jeu soit lancé en cliquant sur ces éléments
+        blocus_logo_canvas.bind("<Button-1>", self.blocus_duo) #
     
-    def about_blocus_duo(self, event):
-        messagebox.showinfo("Blocus", "Projet supervisé de NSI\nZiad & Djibril")
+    def about_blocus_duo(self):
+        messagebox.showinfo("Blocus", "Projet supervisé de NSI\nZiad (ziadOUA) & Djibril")
 
     def blocus_duo(self, event):
         global board_canvas, board_cells, board, player_turn_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
@@ -285,67 +362,65 @@ class App:
         for i in self.master.winfo_children():
             i.destroy() # idem
 
-        main_menu_frame = Frame(self.master)
+        main_menu_frame = Frame(self.master) # On crée un cadre principal, pour pouvoir facilement centrer les différents éléments
         main_menu_frame.pack(expand=True)
 
         board = [[' ' for _ in range(board_size)] for _ in range(board_size)] # Création du plateau grâce à une compréhension de liste
         board[-1][0] = 'RC' # On place les coins initiaux, où la première pièce de couleur correspondante devra être placée
         board[0][-1] = 'BC'
 
-        red_corners_coordinates.append([0, board_size - 1]) # On ajoute les coordonées des cases de coin mentionnées ci-dessus
+        red_corners_coordinates.append([0, board_size - 1]) # On ajoute les coordonnées des cases de coin mentionnées ci-dessus
         blue_corners_coordinates.append([board_size - 1, 0])
 
-        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color) # On crée un canvas pour le board
+        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color) # On crée un canvas pour le plateau
         board_canvas.grid(column=1, row=2, padx=10) # On place le canvas
 
-        player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid')
-        player_1_pieces.grid(column=0, row=2)
+        player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 1
+        player_1_pieces.grid(column=0, row=2) # On place le canvas
 
-        player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid')
-        player_2_pieces.grid(column=2, row=2)
+        player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 2
+        player_2_pieces.grid(column=2, row=2) # On place le canvas
 
         board_top_part = Frame(main_menu_frame, padding=10) # On crée un cadre pour la partie supérieure au plateau
         board_top_part.grid(row=1, column=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
-        board_top_part.columnconfigure(1, weight=1)
+        board_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
-        self.back_icon = PhotoImage(file='res/img/back_icon.png')
+        self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
         back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2) # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
         
-        player_turn_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_surface_color)
-        player_turn_label.grid(column=1, row=0, sticky='ew')
-        player_turn_label['text'] = f'Joueur {current_player + 1}'
+        player_turn_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_background_color) #On crée un texte qui affiche le tour du joueur
+        player_turn_label.grid(column=1, row=0, sticky='ew') # On place le texte 
+        player_turn_label['text'] = f'Joueur {current_player + 1}' # On met à jour le contenu du texte
 
         Label(board_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
         
-        player_1_pieces_top_part = Frame(main_menu_frame)
-        player_1_pieces_top_part.grid(column=0, row=1, sticky='ew')
-        player_1_pieces_top_part.columnconfigure(1, weight=1)
+        player_1_pieces_top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure aux pièces du joueur 1
+        player_1_pieces_top_part.grid(column=0, row=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
+        player_1_pieces_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
-        self.hint_icon = PhotoImage(file='res/img/hint_icon.png')
-        player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(0), compound='center', width=2) # On crée un bouton retour
+        self.hint_icon = PhotoImage(file='res/img/hint_icon.png') # On récupère l'image de l'icône "hint_icon.png"
+        player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(0), compound='center', width=2) # On crée un bouton indice pour le joueur 1
         player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
 
-        player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_surface_color)
-        player_1_score_label.grid(column=1, row=0, sticky='ew')
-        player_1_score_label['text'] = f'Score : {player_1_score}'
+        player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 1
+        player_1_score_label.grid(column=1, row=0, sticky='ew') # Le texte est placé
+        player_1_score_label['text'] = f'Score : {player_1_score}' # Le contenu du texte est mis à jour
 
-        Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
+        Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le score du joueur 1
         
-        player_2_pieces_top_part = Frame(main_menu_frame)
-        player_2_pieces_top_part.grid(column=2, row=1, sticky='ew')
-        player_2_pieces_top_part.columnconfigure(1, weight=1)
+        player_2_pieces_top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure aux pièces du joueur 2
+        player_2_pieces_top_part.grid(column=2, row=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
+        player_2_pieces_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
-        spacer3 = Label(player_2_pieces_top_part, text='                ', background=background_color) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
-        spacer3.grid(column=0, row=0)
+        Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) # Création d'un objet servant à centrer le texte qui affiche le score du joueur 2
 
-        player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(1), compound='center', width=2) # On crée un bouton retour
-        # player_2_hint_button.grid(column=2, row=0)
-        Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0)
+        player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(1), compound='center', width=2) # On crée un bouton indice pour le joueur 2
+        Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # On crée un objet qui prend la place du bouton indice du joueur 2, caché par défaut
 
-        player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_surface_color)
-        player_2_score_label.grid(column=1, row=0, sticky='ew')
-        player_2_score_label['text'] = f'Score : {player_2_score}'
+        player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 2
+        player_2_score_label.grid(column=1, row=0, sticky='ew') # Le texte est placé
+        player_2_score_label['text'] = f'Score : {player_2_score}' # Le contenu du texte est mis à jour
 
         for line in range(board_size):
             row = []
@@ -354,21 +429,21 @@ class App:
                 y1 = line * board_cell_size + 1
                 x2 = x1 + board_cell_size - 1
                 y2 = y1 + board_cell_size - 1
-                cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill=background_color, outline=board_cell_outline_color) # On crée un rectangle pour chaque case
+                cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill=background_color, outline=board_cell_outline_color) # On crée un rectangle pour chaque case du plateau
                 row.append(cell)
-            board_cells.append(row)
+            board_cells.append(row) # Tous les objets correspondant aux cases sont ajoutés à la liste "board_cells", qui permettra de les éditer facilement
         
         x1 = 1
         y1 = (board_size - 1) * board_cell_size + 1
         x2 = x1 + board_cell_size - 1
         y2 = y1 + board_cell_size - 1
-        red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0)
+        red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0) # On crée un cercle rouge dans le coin de départ du joueur 1
 
         x1 = (board_size - 1) * board_cell_size + 1
         y1 = 1
         x2 = x1 + board_cell_size - 1
         y2 = y1 + board_cell_size - 1
-        blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0)
+        blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0) # On crée un cercle rouge dans le coin de départ du joueur 2
 
         for line in range(28):
             row_j1 = []
@@ -379,29 +454,29 @@ class App:
                 x2 = x1 + 22
                 y2 = y1 + 22
                 if player_1_pieces_list[line][column] == 'O':
-                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill=placed_piece_red, width=0)
-                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill=placed_piece_blue, width=0)
-                else:
-                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill=surface_color, width=0) # On crée un rectangle pour chaque case
-                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill=surface_color, width=0)
+                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill=placed_piece_red, width=0)  #
+                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill=placed_piece_blue, width=0) #
+                else:                                                                                           # On crée un rectangle coloré en fonction du joueur pour chaque case contenant "O", sinon la case est grise
+                    cell_j1 = player_1_pieces.create_rectangle(x1, y1, x2, y2, fill=surface_color, width=0)     #
+                    cell_j2 = player_2_pieces.create_rectangle(x1, y1, x2, y2, fill=surface_color, width=0)     #
                 row_j1.append(cell_j1)
                 row_j2.append(cell_j2)
-            player_1_pieces_cells.append(row_j1)
+            player_1_pieces_cells.append(row_j1) # Tous les objets correspondant aux cases sont ajoutés aux listes "player_1_pieces_cells" et "player_1_pieces_cells", qui permettera de les éditer facilement
             player_2_pieces_cells.append(row_j2)
 
         # On "bind" le board à des événements
-        board_canvas.bind("<Button-1>", self.on_plateau_click) # Clic : la pièce selectionnée est placée
-        board_canvas.bind("<Button-3>", self.rotate_piece) # Clic droit : rotation de la pièce selectionnée
-        board_canvas.bind("<Motion>", self.on_plateau_hover) # La souris bouge
-        board_canvas.bind("<Leave>", self.on_plateau_leave) # La souris quitte le canvas
+        board_canvas.bind("<Button-1>", self.on_plateau_click) # Clic : la pièce sélectionnée est placée
+        board_canvas.bind("<Button-3>", self.rotate_piece) # Clic droit : rotation de la pièce sélectionnée
+        board_canvas.bind("<Motion>", self.on_plateau_hover) # La souris bouge sur le plateau
+        board_canvas.bind("<Leave>", self.on_board_leave) # La souris quitte le canvas
 
         # On "bind" les pièces à des événements
-        player_1_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic
-        player_1_pieces.bind("<Motion>", self.on_pièces_hover_j1) # La souris bouge
-        # player_1_pieces.bind("<Leave>", self.on_plateau_leave) # La souris quitte le canvas
-        player_2_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic
-        # player_2_pieces.bind("<Motion>", self.on_pièces_hover) # La souris bouge
-        # player_2_pieces.bind("<Leave>", self.on_pièces_leave) # La souris quitte le canvas
+        player_1_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
+        # player_1_pieces.bind("<Motion>", self.on_pièces_hover_j1)
+        # player_1_pieces.bind("<Leave>", self.on_plateau_leave)
+        player_2_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
+        # player_2_pieces.bind("<Motion>", self.on_pièces_hover)
+        # player_2_pieces.bind("<Leave>", self.on_pièces_leave)
 
     def on_plateau_click(self, event):
         global board, current_player, adjacent_coords, relative_positions, j1_has_selected_piece, j2_has_selected_piece
@@ -410,23 +485,24 @@ class App:
         global player_1_pieces_top_part, player_2_pieces_top_part
         global player_1_hint_button, player_2_hint_button
         global player_turn_label
+        
         column_event = event.x // board_cell_size
         line_event = event.y // board_cell_size
         if line_event > board_size - 1: line_event = board_size - 1;
         if column_event > board_size - 1: column_event = board_size - 1;
 
-        if board[line_event][column_event] in ['RH', 'BH']:
+        if board[line_event][column_event] in ['RH', 'BH']: # Vérifie que, lorsque le plateau est cliqué, la pièce pouvait bien être placée
             for line in board:
                 for k, n in enumerate(line):
                     if n == 'RH':
-                        line[k] = 'R'
+                        line[k] = 'R' # Remplace tous les "RH" par des "R"
                         j1_has_selected_piece = False
                         for k in adjacent_coords:
-                            player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color)
+                            player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color) # La pièce est retirée de l'ensemble de pièces du joueur 1
                     elif n == 'BH':
-                        line[k] = 'B'
+                        line[k] = 'B' # Remplace tous les "BH" par des "B"
                         for k in adjacent_coords:
-                            player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color)
+                            player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color) # La pièce est retirée de l'ensemble de pièces du joueur 2
                         j2_has_selected_piece = False
             
             if current_player == 0:
@@ -434,68 +510,60 @@ class App:
             else:
                 player_2_score += len(adjacent_coords)
 
-            self.define_possible_corners()
-
-            can_player_1_play = self.can_still_play(player=0)
-            can_player_2_play = self.can_still_play(player=1)
+            self.define_possible_corners() # On place les coins où des pièces peuvent être placées
 
             if current_player == 0:
-                if can_player_2_play:
-                    current_player = 1
-                    self.update_turn_label()
-                    player_1_hint_button.grid_forget()
-                    Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0)
-                    player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(1), compound='center', width=2)
-                    player_2_hint_button.grid(column=2, row=0)
-                else:
-                    current_player = 0
-            elif current_player == 1:
-                if can_player_1_play:
-                    current_player = 0
-                    self.update_turn_label()
-                    player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(0), compound='center', width=2)
-                    player_1_hint_button.grid(column=0, row=0)
-                    player_2_hint_button.grid_forget()
-                    Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0)
+                if self.can_still_play(player=1): # On vérifie si le joueur 2 peut bien jouer
+                    current_player = 1 # On change de joueur
+                    self.update_turn_label() # On met à jour le texte du joueur que concerne le tour
+                    player_1_hint_button.grid_forget() # On retire le bouton indice du joueur 1...
+                    Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacé par un objet vide, pour centrer le texte du score
+                    player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(1), compound='center', width=2) # Le bouton indice du joueur 2 est redéfini
+                    player_2_hint_button.grid(column=2, row=0) # Le bouton est placé
+            else:
+                if self.can_still_play(player=0): # On vérifie si le joueur 1 peut bien jouer
+                    current_player = 0 # On change de joueur
+                    self.update_turn_label() # On met à jour le texte du joueur que concerne le tour
+                    player_2_hint_button.grid_forget() # On retire le bouton indice du joueur 2...
+                    Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) #... remplacé par un objet vide, pour centrer le texte du score
+                    player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(0), compound='center', width=2) # Le bouton indice du joueur 1 est redéfini
+                    player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
             
-            if not can_player_1_play and not can_player_2_play:
+            if not self.can_still_play(player=0) and not self.can_still_play(player=1): # Si aucun des deux joueurs ne peut jouer
                 current_player = 999 # Le jeu est bloqué
                 if player_1_score > player_2_score:
-                    player_turn_label['text'] = 'Victoire du Joueur 1'
+                    player_turn_label['text'] = 'Victoire du Joueur 1' # Si le score du joueur 1 est supérieur à celui du joueur 2, alors victoire du joueur 1
                 elif player_1_score < player_2_score:
-                    player_turn_label['text'] = 'Victoire du Joueur 2'
+                    player_turn_label['text'] = 'Victoire du Joueur 2' # Si le score du joueur 1 est inférieur à celui du joueur 2, alors victoire du joueur 2
                 elif player_1_score == player_2_score:
-                    player_turn_label['text'] = 'Égalité'
-                player_turn_label.update()
-                player_1_hint_button.grid_forget()
-                Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0)
+                    player_turn_label['text'] = 'Égalité' # Si les deux scores sont égaux, alors égalité
+                player_turn_label.update() # On met à jour le texte pour qu'il affiche l'état du jeu
+                player_1_hint_button.grid_forget() # On retire les boutons indice des deux joueurs...
                 player_2_hint_button.grid_forget()
+                Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacés par des objets vides pour centrer les scores
                 Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0)
-
-            # os.system('cls')
-            # print(f'CAN PLAYER 1 PLAY ? : {can_player_1_play}')
-            # print(f'CAN PLAYER 2 PLAY ? : {can_player_2_play}')
             
             adjacent_coords = []
             relative_positions = [[0, 0]]
 
-            self.update_canvas()
+            self.update_board_canvas() # On met à jour le canvas du plateau
             # playsound.playsound('./res/audio/piece_place.wav')
 
     def on_plateau_hover(self, event):
         global board, board_canvas, board_cells
         global last_event_coordinates_copy, relative_positions
         global board_cell_size, board_size
+        
         column_event = event.x // board_cell_size
         line_event = event.y // board_cell_size
         if line_event > board_size - 1: line_event = board_size - 1;
         if column_event > board_size - 1: column_event = board_size - 1;
 
         last_coords = [column_event, line_event]
-        if last_event_coordinates_copy != last_coords:
+        if last_event_coordinates_copy != last_coords: # Le code ci-dessous n'est exécuté qu'à chaque fois que la souris change de case du plateau, au lieu de l'exécuter au moindre mouvement
             last_event_coordinates_copy = [i for i in last_coords]
             if j1_has_selected_piece or j2_has_selected_piece:
-                self.draw_piece_on_board(column_event, line_event)
+                self.draw_piece_on_board(column_event, line_event) # "Déssine" la pièce sélectionnée sur le plateau
 
             else: # À OPTIMISER / SIMPLIFIER CAR RÉPÉTITION INUTILE
                 for line in board:
@@ -513,63 +581,63 @@ class App:
                         if board[line][column] == 'H':
                             board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement)
 
-            # os.system('CLS')
-            # for line in board:
-            #     print(line)
-            # print(red_corners_coordinates)
-            # print(blue_corners_coordinates)
-            # print(common_corners_coordinates)
+            # os.system('CLS')   # DEBUG
+            # for line in board: # -> Affichage du plateau
+            #     print(line)    # DEBUG
 
         for red_corner_coord in red_corners_coordinates:
             if board[red_corner_coord[1]][red_corner_coord[0]] == ' ':
-                board[red_corner_coord[1]][red_corner_coord[0]] = 'RC'
+                board[red_corner_coord[1]][red_corner_coord[0]] = 'RC' # S'assure de replacer les coins rouges "RC", au cas où ils ont été retirés par une pièce en survol
 
         for blue_corner_coord in blue_corners_coordinates:
             if board[blue_corner_coord[1]][blue_corner_coord[0]] == ' ':
-                board[blue_corner_coord[1]][blue_corner_coord[0]] = 'BC'
+                board[blue_corner_coord[1]][blue_corner_coord[0]] = 'BC' # S'assure de replacer les coins bleus "BC", au cas où ils ont été retirés par une pièce en survol
 
         for common_corner_coord in common_corners_coordinates:
             if board[common_corner_coord[1]][common_corner_coord[0]] in ['RC', 'BC']:
-                board[common_corner_coord[1]][common_corner_coord[0]] = 'RBC'
+                board[common_corner_coord[1]][common_corner_coord[0]] = 'RBC' # S'assure de replacer les coins communs "RBC", au cas où ils ont été retirés par une pièce en survol
 
     def is_within_the_main_board(self, event_x, event_y):
         global board_size
         if event_x < 0 or event_y < 0 or event_x > board_size - 1 or event_y > board_size - 1:
-            return False
-        return True
+            return False 
+        return True # Renvoie "True" si la pièce est en dehors du plateau
 
     def define_possible_corners(self):
         global board_size
-        memoire = []
+        
+        memoire = [] # Création de variables "mémoires" dans le but de stocker des choses
         memoire2 = []
 
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        directions_corners = [(1, 1), (-1, -1), (1, -1), (-1, 1)]
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)] # Directions : HAUT, BAS, DROITE, GAUCHE
+        directions_corners = [(1, 1), (-1, -1), (1, -1), (-1, 1)] # Coins : DROIT SUPÉRIEUR, GAUCHE INFÉRIEUR, DROIT INFÉRIEUR, GAUCHE SUPÉRIEUR
+        
         for line in range(board_size):
-            for column in range(board_size):
-                invalid_element = False
+            for column in range(board_size): # On fait une itération sur l'ensemble des cases du plateau
+                invalid_element = False # Divers drapeaux
                 touches_corner = False
                 touches_red_corner = False
                 touches_blue_corner = False
-                if board[line][column] == ' ':
+                
+                if board[line][column] == ' ': # Si la case est vide
                     for direction in directions:
-                        if self.is_within_the_main_board(column + direction[0], line + direction[1]):
+                        if self.is_within_the_main_board(column + direction[0], line + direction[1]): # On vérifie si la direction dans laquelle on recherche est comprise dans le plateau, pour éviter des erreurs de dépassement d'index
                             if current_player == 0:
-                                if board[line + direction[1]][column + direction[0]] == 'R':
-                                    invalid_element = True
+                                if board[line + direction[1]][column + direction[0]] == 'R': # On vérifie si la case est en contact direct avec une case de couleur (rouge dans ce cas)
+                                    invalid_element = True # La case est invalidée le cas échéant
                             else:
-                                if board[line + direction[1]][column + direction[0]] == 'B':
-                                    invalid_element = True
+                                if board[line + direction[1]][column + direction[0]] == 'B': # On vérifie si la case est en contact direct avec une case de couleur (rouge dans ce cas)
+                                    invalid_element = True # La case est invalidée le cas échéant
 
-                    if not invalid_element:
+                    if not invalid_element: # Si la case n'est pas déjà invalide
                         for direction in directions_corners:
-                            if self.is_within_the_main_board(column + direction[0], line + direction[1]):
+                            if self.is_within_the_main_board(column + direction[0], line + direction[1]): # On vérifie si le coin qu'on essaie de voir est bien compris dans le plateau, pour les mêmes raisons que ci-dessus
                                 if current_player == 0:
-                                    if board[line + direction[1]][column + direction[0]] == 'R':
-                                        touches_corner = True
+                                    if board[line + direction[1]][column + direction[0]] == 'R': # Si au moins un des coins est rouge, et que le joueur actif est le joueur 1...
+                                        touches_corner = True #... on lève le drapeau "touches_corner"
                                 else:
-                                    if board[line + direction[1]][column + direction[0]] == 'B':
-                                        touches_corner = True
+                                    if board[line + direction[1]][column + direction[0]] == 'B': # Si au moins un des coins est bleu, et que le joueur actif est le joueur 2...
+                                        touches_corner = True #... on lève le drapeau "touches_corner"
 
                         if touches_corner:
                             memoire.append([column, line])
@@ -700,7 +768,7 @@ class App:
     def get_hint(self, player):
         global player_1_pieces_list, player_2_pieces_list
         global board_size, relative_positions
-        global orientation_id
+        global orientation_id, player_1_score, player_2_score
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         has_found_a_piece = False
@@ -775,15 +843,24 @@ class App:
                                                             if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'B':
                                                                 can_be_placed = False
                                         
-                                        if can_be_placed:
-                                            if not has_found_a_piece:
-                                                for position in relative_positions:
-                                                    board[line + position[1]][column + position[0]] = 'H'
-                                                for line in range(board_size):
-                                                    for column in range(board_size):
-                                                        if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
-                                                        if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
-                                                        has_found_a_piece = True
+                                        if (current_player == 0 and player_1_score >= 2) or (current_player == 1 and player_2_score >= 2):
+                                            if can_be_placed:
+                                                if not has_found_a_piece:
+                                                    for position in relative_positions:
+                                                        board[line + position[1]][column + position[0]] = 'H'
+                                                    for line in range(board_size):
+                                                        for column in range(board_size):
+                                                            if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
+                                                            if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
+                                                            has_found_a_piece = True
+                                                    if current_player == 0:
+                                                        player_1_score -= 2
+                                                        player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le tour du joueur actif
+                                                        player_1_score_label.update()
+                                                    else:
+                                                        player_2_score -= 2
+                                                        player_2_score_label['text'] = f"Score : {player_2_score}" # On met à jour le texte qui affiche le tour du joueur actif
+                                                        player_2_score_label.update()
 
     def draw_piece_on_board(self, event_x, event_y):
         global board, board_canvas, board_cells
@@ -848,7 +925,7 @@ class App:
                 if board[line][column] == 'RH': board_canvas.itemconfig(board_cells[line][column], fill=valid_placement_red, outline=valid_placement_red);
                 if board[line][column] == 'BH': board_canvas.itemconfig(board_cells[line][column], fill=valid_placement_blue, outline=valid_placement_blue);
 
-    def on_plateau_leave(self, event):
+    def on_board_leave(self, event):
         global board_size
         for line in board:
             for k, n in enumerate(line):
@@ -859,7 +936,7 @@ class App:
                 if board[i][j] == ' ':
                     board_canvas.itemconfig(board_cells[i][j], fill=background_color, outline=board_cell_outline_color)
 
-    def update_canvas(self):
+    def update_board_canvas(self):
         global board, board_canvas, board_cells
         global red_starting_corner, blue_starting_corner
         global player_turn_label, player_1_score_label, player_2_score_label
@@ -902,7 +979,7 @@ class App:
                 if column_event > 11: column_event = 11;
                 if line_event > 28: line_event = 28;
                 if player_1_pieces_list[line_event][column_event] != ' ': # On vérifie que la case choisie n'est pas vide
-                    adjacent_coords = self.get_adjacent_pieces_coordinates(player_1_pieces_list, column_event, line_event) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées clickées
+                    adjacent_coords = self.get_adjacent_pieces_coordinates(player_1_pieces_list, column_event, line_event) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées cliquées
                     for k in adjacent_coords:
                         player_1_pieces_list[k[1]][k[0]] = ' '
                         player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=valid_placement_red)
