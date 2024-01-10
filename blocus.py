@@ -2,7 +2,7 @@
              ,adba,             88  Projet : Blocus
              8I  I8             88  But : Créer une version à deux joueurs du jeu 'Blokus' 
              "8bdP'             88  Création : 15/12/2023 10:22
-888888888   ,d8"8b  88  ,adPPYb,88  Dernière modification : 08/01/2024
+888888888   ,d8"8b  88  ,adPPYb,88  Dernière modification : 10/01/2024
      a8P" .dP'   Yb,8I a8"    `Y88  
   ,d8P'   8P      888' 8b       88  
 ,d8"      8b,   ,dP8b  "8a,   ,d88  
@@ -17,6 +17,7 @@ from tkinter.ttk import Style, Button, Frame
 import os
 from playsound import playsound
 import webbrowser
+from timeit import default_timer as timer
 
 # ════════════════════════════════════════════════════════════════════════════
 # ════════════════════════════ CORPS DU PROGRAMME ════════════════════════════
@@ -65,6 +66,7 @@ mirror_id = 0
 
 last_event_coordinates_copy = []
 directions_from_center_copy = []
+relative_positions = [[0, 0]]
 
 board = []
 board_cells = []
@@ -219,6 +221,8 @@ md_sys_color_scrim_dark = "#000000"
 
 # Palette
 
+transparent = ''
+
 background_color = md_sys_color_background_dark # Couleur de fond du programme
 on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
 button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
@@ -256,7 +260,7 @@ class App:
     def reset_variables(self): # Toutes les variables sont réinitialisées
         global player_1_pieces_list, player_2_pieces_list
         global j1_has_selected_piece, j2_has_selected_piece
-        global orientation_id, last_event_coordinates_copy, directions_from_center_copy
+        global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions
         global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
         global current_player, player_1_score, player_2_score
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
@@ -299,6 +303,7 @@ class App:
 
         last_event_coordinates_copy = []
         directions_from_center_copy = []
+        relative_positions = [[0, 0]]
 
         board = []
         board_cells = []
@@ -373,7 +378,7 @@ class App:
         red_corners_coordinates.append([0, board_size - 1]) # On ajoute les coordonnées des cases de coin mentionnées ci-dessus
         blue_corners_coordinates.append([board_size - 1, 0])
 
-        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color) # On crée un canvas pour le plateau
+        board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color, background=background_color) # On crée un canvas pour le plateau
         board_canvas.grid(column=1, row=2, padx=10) # On place le canvas
 
         player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 1
@@ -382,7 +387,7 @@ class App:
         player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 2
         player_2_pieces.grid(column=2, row=2) # On place le canvas
 
-        board_top_part = Frame(main_menu_frame, padding=10) # On crée un cadre pour la partie supérieure au plateau
+        board_top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure au plateau
         board_top_part.grid(row=1, column=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
         board_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
@@ -401,7 +406,7 @@ class App:
         player_1_pieces_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
         self.hint_icon = PhotoImage(file='res/img/hint_icon.png') # On récupère l'image de l'icône "hint_icon.png"
-        player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(0), compound='center', width=2) # On crée un bouton indice pour le joueur 1
+        player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton indice pour le joueur 1
         player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
 
         player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 1
@@ -416,24 +421,13 @@ class App:
 
         Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) # Création d'un objet servant à centrer le texte qui affiche le score du joueur 2
 
-        player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(1), compound='center', width=2) # On crée un bouton indice pour le joueur 2
+        player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton indice pour le joueur 2
         Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # On crée un objet qui prend la place du bouton indice du joueur 2, caché par défaut
 
         player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 2
         player_2_score_label.grid(column=1, row=0, sticky='ew') # Le texte est placé
         player_2_score_label['text'] = f'Score : {player_2_score}' # Le contenu du texte est mis à jour
 
-        for line in range(board_size):
-            row = []
-            for column in range(board_size):
-                x1 = column * board_cell_size + 1
-                y1 = line * board_cell_size + 1
-                x2 = x1 + board_cell_size - 1
-                y2 = y1 + board_cell_size - 1
-                cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill=background_color, outline=board_cell_outline_color) # On crée un rectangle pour chaque case du plateau
-                row.append(cell)
-            board_cells.append(row) # Tous les objets correspondant aux cases sont ajoutés à la liste "board_cells", qui permettra de les éditer facilement
-        
         x1 = 1
         y1 = (board_size - 1) * board_cell_size + 1
         x2 = x1 + board_cell_size - 1
@@ -445,6 +439,17 @@ class App:
         x2 = x1 + board_cell_size - 1
         y2 = y1 + board_cell_size - 1
         blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0) # On crée un cercle rouge dans le coin de départ du joueur 2
+
+        for line in range(board_size):
+            row = []
+            for column in range(board_size):
+                x1 = column * board_cell_size + 1
+                y1 = line * board_cell_size + 1
+                x2 = x1 + board_cell_size - 1
+                y2 = y1 + board_cell_size - 1 
+                cell = board_canvas.create_rectangle(x1, y1, x2, y2, fill=transparent, outline=board_cell_outline_color) # On crée un rectangle pour chaque case du plateau
+                row.append(cell)
+            board_cells.append(row) # Tous les objets correspondant aux cases sont ajoutés à la liste "board_cells", qui permettra de les éditer facilement
 
         for line in range(28):
             row_j1 = []
@@ -493,6 +498,8 @@ class App:
         if line_event > board_size - 1: line_event = board_size - 1;
         if column_event > board_size - 1: column_event = board_size - 1;
 
+        start = timer()
+
         if board[line_event][column_event] in ['RH', 'BH']: # Vérifie que, lorsque le plateau est cliqué, la pièce pouvait bien être placée
             for line in board:
                 for k, n in enumerate(line):
@@ -513,7 +520,6 @@ class App:
                 player_2_score += len(adjacent_coords)
 
             self.define_possible_corners() # On place les coins où des pièces peuvent être placées
-            self.update_board_canvas() # On met à jour le canvas du plateau
 
             if current_player == 0:
                 if self.can_still_play(player=1): # On vérifie si le joueur 2 peut bien jouer
@@ -521,7 +527,7 @@ class App:
                     self.update_turn_label() # On met à jour le texte du joueur que concerne le tour
                     player_1_hint_button.grid_forget() # On retire le bouton indice du joueur 1...
                     Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacé par un objet vide, pour centrer le texte du score
-                    player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(1), compound='center', width=2) # Le bouton indice du joueur 2 est redéfini
+                    player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 2 est redéfini
                     player_2_hint_button.grid(column=2, row=0) # Le bouton est placé
             else:
                 if self.can_still_play(player=0): # On vérifie si le joueur 1 peut bien jouer
@@ -529,7 +535,7 @@ class App:
                     self.update_turn_label() # On met à jour le texte du joueur que concerne le tour
                     player_2_hint_button.grid_forget() # On retire le bouton indice du joueur 2...
                     Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) #... remplacé par un objet vide, pour centrer le texte du score
-                    player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=lambda:self.get_hint(0), compound='center', width=2) # Le bouton indice du joueur 1 est redéfini
+                    player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 1 est redéfini
                     player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
             
             if not self.can_still_play(player=0) and not self.can_still_play(player=1): # Si aucun des deux joueurs ne peut jouer
@@ -548,6 +554,11 @@ class App:
             
             adjacent_coords = []
             relative_positions = [[0, 0]]
+            self.update_board_canvas() # On met à jour le canvas du plateau
+
+            end = timer()
+
+            print(f'Piece placed in {round((end - start) * 1000)} ms')
 
             # playsound.playsound('./res/audio/piece_place.wav')
 
@@ -564,24 +575,7 @@ class App:
         last_coords = [column_event, line_event]
         if last_event_coordinates_copy != last_coords: # Le code ci-dessous n'est exécuté qu'à chaque fois que la souris change de case du plateau, au lieu de l'exécuter au moindre mouvement
             last_event_coordinates_copy = [i for i in last_coords]
-            if j1_has_selected_piece or j2_has_selected_piece:
-                self.draw_piece_on_board(column_event, line_event) # "Déssine" la pièce sélectionnée sur le plateau
-
-            else: # À OPTIMISER / SIMPLIFIER CAR RÉPÉTITION INUTILE
-                for line in board:
-                    for k, n in enumerate(line):
-                        if n == 'H':
-                            line[k] = ' '
-
-                if board[line_event][column_event] == ' ':
-                    board[line_event][column_event] = 'H'
-
-                for line in range(board_size):
-                    for column in range(board_size):
-                        if board[line][column] == ' ':
-                            board_canvas.itemconfig(board_cells[line][column], fill=background_color)
-                        if board[line][column] == 'H':
-                            board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement)
+            self.draw_piece_on_board(column_event, line_event) # "Dessine" la pièce sélectionnée sur le plateau, ou bien un carré si aucun pièce n'est sélectionnée
 
             # os.system('CLS')   # DEBUG
             # for line in board: # -> Affichage du plateau
@@ -602,8 +596,16 @@ class App:
     def is_within_the_main_board(self, event_x, event_y):
         global board_size
         if event_x < 0 or event_y < 0 or event_x > board_size - 1 or event_y > board_size - 1:
-            return False 
-        return True # Renvoie "True" si la pièce est en dehors du plateau
+            return False # Renvoie "False" si la pièce est en dehors du plateau
+        return True
+
+    def reset_hover(self):
+        global board
+        
+        for line in board:
+            for k, n in enumerate(line):
+                if n == 'H' or n == 'RH' or n == 'BH':
+                    line[k] = ' '
 
     def define_possible_corners(self):
         global board_size
@@ -695,15 +697,15 @@ class App:
         global orientation_id, mirror_id
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        has_found_a_piece = False
-        can_still_play = False
 
         if player == 0:
             player_pieces_list = player_1_pieces_list
             player_corner_value = 'RC'
+            player_color = 'R'
         else:
             player_pieces_list = player_2_pieces_list
             player_corner_value = 'BC'
+            player_color = 'B'
 
         for line in range(board_size):
             for column in range(board_size):
@@ -711,103 +713,86 @@ class App:
                     for piece_line in range(len(player_pieces_list)):
                         for piece_column in range(len(player_pieces_list[0])):
                             if player_pieces_list[piece_line][piece_column] == 'O':
-                                if not has_found_a_piece:
-                                    self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line)
+                                self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line)
+                                
+                                for _ in range(4):
+                                    directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
+
+                                    if orientation_id == 0:
+                                        directions_from_center_rotated = [list(direction) for direction in relative_positions_reference] # 0°
+                                    elif orientation_id == 1:
+                                        directions_from_center_rotated = [[-direction[1], direction[0]] for direction in relative_positions_reference] # 90°
+                                    elif orientation_id == 2:
+                                        directions_from_center_rotated = [[-direction[0], -direction[1]] for direction in relative_positions_reference] # 180°
+                                    elif orientation_id == 3:
+                                        directions_from_center_rotated = [[direction[1], -direction[0]] for direction in relative_positions_reference] # 270°
                                     
+                                    orientation_id = (orientation_id + 1) % 4
+
                                     for _ in range(4):
-                                        orientation_id = (orientation_id + 1) % 4
-                                        directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
+                                        directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
 
-                                        if orientation_id == 0:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = direction[0]
-                                                directions_from_center_rotated[i][1] = direction[1] # 0°
-                                        elif orientation_id == 1:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = -direction[1]
-                                                directions_from_center_rotated[i][1] = direction[0] # 90°
-                                        elif orientation_id == 2:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = -direction[0]
-                                                directions_from_center_rotated[i][1] = -direction[1] # 180°
-                                        elif orientation_id == 3:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = direction[1]
-                                                directions_from_center_rotated[i][1] = -direction[0] # 270°
+                                        for i, direction in enumerate(relative_positions_reference):
+                                            directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
+                                            directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
+                                        
+                                        mirror_id = (mirror_id + 1) % 4
 
-                                        for _ in range(4):
-                                            mirror_id = (mirror_id + 1) % 4
-                                            directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
+                                        relative_positions = directions_from_center_mirrored
 
-                                            if mirror_id == 0:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = direction[0]
-                                                    directions_from_center_mirrored[i][1] = direction[1]
-                                            elif mirror_id == 1:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = -direction[0]
-                                                    directions_from_center_mirrored[i][1] = direction[1]
-                                            elif mirror_id == 2:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = direction[0]
-                                                    directions_from_center_mirrored[i][1] = direction[1]
-                                            elif mirror_id == 3:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = direction[0]
-                                                    directions_from_center_mirrored[i][1] = -direction[1]
+                                        out_of_bounds = False
+                                        can_fit = True
+                                        can_be_placed = True
 
-                                            relative_positions = directions_from_center_mirrored
-
-                                            out_of_bounds = False
-                                            can_fit = True
-                                            can_be_placed = True
-
+                                        for position in relative_positions:
+                                            if not self.is_within_the_main_board(column + position[0], line + position[1]):
+                                                out_of_bounds = True
+                                                can_fit = False
+                                                can_be_placed = False
+                                            
+                                        if not out_of_bounds:
                                             for position in relative_positions:
-                                                if not self.is_within_the_main_board(column + position[0], line + position[1]):
-                                                    out_of_bounds = True
+                                                if board[line + position[1]][column + position[0]] in ['R', 'B']:
                                                     can_fit = False
                                                     can_be_placed = False
-                                                
-                                            if not out_of_bounds:
-                                                for position in relative_positions:
-                                                    if board[line + position[1]][column + position[0]] in ['R', 'B']:
-                                                        can_fit = False
-                                                        can_be_placed = False
-                                            
-                                            if can_fit:
-                                                for position in relative_positions:
-                                                    for direction in directions:
-                                                        if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]):
-                                                            if player == 0:
-                                                                if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'R':
-                                                                    can_be_placed = False
-                                                            else:
-                                                                if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'B':
-                                                                    can_be_placed = False
                                         
-                                            if can_be_placed:
-                                                can_still_play = True
-        return can_still_play
+                                        if can_fit:
+                                            for position in relative_positions:
+                                                for direction in directions:
+                                                    if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]):
+                                                        if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == player_color:
+                                                            can_be_placed = False
+                                    
+                                        if can_be_placed:
+                                            return True
+        return False
 
-    def get_hint(self, player):
+    def get_hint(self):
         global player_1_pieces_list, player_2_pieces_list
         global board_size, relative_positions
         global orientation_id, player_1_score, player_2_score, mirror_id
+        global j1_has_selected_piece, j2_has_selected_piece
+
+        if j1_has_selected_piece or j2_has_selected_piece: # Empêche le joueur de demander un indice tout en ayant une pièce sélectionnée
+            return None # Si tel est le cas, l'éxecution de la fonction est stoppée, afin d'économiser du temps de calcul
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         has_found_a_piece = False
 
-        if player == 0:
+        if current_player == 0:
             player_pieces_list = player_1_pieces_list
             player_corner_value = 'RC'
+            player_color = 'R'
+            player_score = player_1_score
+            player_score_label = player_1_score_label
         else:
             player_pieces_list = player_2_pieces_list
             player_corner_value = 'BC'
+            player_color = 'B'
+            player_score = player_2_score
+            player_score_label = player_2_score_label
         
-        for line in board:
-            for k, n in enumerate(line):
-                if n == 'H':
-                    line[k] = ' '
+        self.reset_hover()
 
         for line in range(board_size):
             for column in range(board_size):
@@ -822,43 +807,22 @@ class App:
                                         directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
 
                                         if orientation_id == 0:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = direction[0]
-                                                directions_from_center_rotated[i][1] = direction[1] # 0°
+                                            directions_from_center_rotated = [list(direction) for direction in relative_positions_reference] # 0°
                                         elif orientation_id == 1:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = -direction[1]
-                                                directions_from_center_rotated[i][1] = direction[0] # 90°
+                                            directions_from_center_rotated = [[-direction[1], direction[0]] for direction in relative_positions_reference] # 90°
                                         elif orientation_id == 2:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = -direction[0]
-                                                directions_from_center_rotated[i][1] = -direction[1] # 180°
+                                            directions_from_center_rotated = [[-direction[0], -direction[1]] for direction in relative_positions_reference] # 180°
                                         elif orientation_id == 3:
-                                            for i, direction in enumerate(relative_positions_reference):
-                                                directions_from_center_rotated[i][0] = direction[1]
-                                                directions_from_center_rotated[i][1] = -direction[0] # 270°
+                                            directions_from_center_rotated = [[direction[1], -direction[0]] for direction in relative_positions_reference] # 270°
                                         
                                         orientation_id = (orientation_id + 1) % 4
 
                                         for _ in range(4):
                                             directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
 
-                                            if mirror_id == 0:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = direction[0]
-                                                    directions_from_center_mirrored[i][1] = direction[1]
-                                            elif mirror_id == 1:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = -direction[0]
-                                                    directions_from_center_mirrored[i][1] = direction[1]
-                                            elif mirror_id == 2:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = direction[0]
-                                                    directions_from_center_mirrored[i][1] = direction[1]
-                                            elif mirror_id == 3:
-                                                for i, direction in enumerate(relative_positions_reference):
-                                                    directions_from_center_mirrored[i][0] = direction[0]
-                                                    directions_from_center_mirrored[i][1] = -direction[1]
+                                            for i, direction in enumerate(relative_positions_reference):
+                                                directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
+                                                directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
 
                                             relative_positions = directions_from_center_mirrored
                                             mirror_id = (mirror_id + 1) % 4
@@ -883,35 +847,26 @@ class App:
                                                 for position in relative_positions:
                                                     for direction in directions:
                                                         if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]):
-                                                            if current_player == 0:
-                                                                if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'R':
-                                                                    can_be_placed = False
-                                                            else:
-                                                                if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == 'B':
-                                                                    can_be_placed = False
+                                                            if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == player_color:
+                                                                can_be_placed = False
                                             
-                                            if (current_player == 0 and player_1_score >= 2) or (current_player == 1 and player_2_score >= 2):
-                                                if can_be_placed:
-                                                    if not has_found_a_piece:
-                                                        for position in relative_positions:
-                                                            board[line + position[1]][column + position[0]] = 'H'
-                                                        for line in range(board_size):
-                                                            for column in range(board_size):
-                                                                if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
-                                                                if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
-                                                                has_found_a_piece = True
-                                                        if current_player == 0:
-                                                            player_1_score -= 2
-                                                            player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le tour du joueur actif
-                                                            player_1_score_label.update()
-                                                        else:
-                                                            player_2_score -= 2
-                                                            player_2_score_label['text'] = f"Score : {player_2_score}" # On met à jour le texte qui affiche le tour du joueur actif
-                                                            player_2_score_label.update()
+                                            if player_score >= 2 and can_be_placed and not has_found_a_piece:
+                                                for position in relative_positions:
+                                                    board[line + position[1]][column + position[0]] = 'H'
+                                                for line in range(board_size):
+                                                    for column in range(board_size):
+                                                        if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
+                                                        if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color); # On colore en gris là où une pièce peut être posée
+                                                has_found_a_piece = True
+                                                player_1_score -= 2 if current_player == 0 else player_1_score # On retire 2 points au score du joueur actif si un indice a été donné
+                                                player_2_score -= 2 if current_player == 1 else player_2_score
+                                                player_score_label['text'] = f"Score : {player_1_score if current_player == 0 else player_2_score}" # On met à jour le texte qui affiche le score du joueur actif
+                                                player_score_label.update()
 
     def draw_piece_on_board(self, event_x, event_y):
-        global board, board_canvas, board_cells
+        global board, board_canvas, board_cells, relative_positions
         global board_size
+        
         out_of_bounds = False
         can_be_drawn = True
         can_be_placed = False
@@ -919,14 +874,10 @@ class App:
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
         for position in relative_positions:
-            adj_x, adj_y = event_x + position[0], event_y + position[1]
-            if not (0 <= adj_x <= board_size - 1 and 0 <= adj_y <= board_size - 1):
+            if not self.is_within_the_main_board(event_x + position[0], event_y + position[1]):
                 out_of_bounds = True
 
-        for line in board:
-            for k, n in enumerate(line):
-                if n == 'H' or n == 'RH' or n == 'BH':
-                    line[k] = ' '
+        self.reset_hover()
 
         if not out_of_bounds:
             memoire = []
@@ -935,22 +886,12 @@ class App:
                     if self.is_within_the_main_board(event_x + position[0] + direction[0], event_y + position[1] + direction[1]):
                         memoire.append(board[event_y + position[1] + direction[1]][event_x + position[0] + direction[0]])
 
-                if current_player == 0:
-                    if 'R' not in memoire:
-                        if [event_x + position[0], event_y + position[1]] in red_corners_coordinates:
-                            can_be_placed = True
-                        if [event_x + position[0], event_y + position[1]] in common_corners_coordinates:
-                            can_be_placed = True
-                    else:
-                        can_be_placed = False
+                if (current_player == 0 and 'R' not in memoire) or (current_player == 1 and 'B' not in memoire):
+                    color_corners_coordinates = red_corners_coordinates if current_player == 0 else blue_corners_coordinates
+                    if [event_x + position[0], event_y + position[1]] in color_corners_coordinates or [event_x + position[0], event_y + position[1]] in common_corners_coordinates:
+                        can_be_placed = True
                 else:
-                    if 'B' not in memoire:
-                        if [event_x + position[0], event_y + position[1]] in blue_corners_coordinates:
-                            can_be_placed = True
-                        if [event_x + position[0], event_y + position[1]] in common_corners_coordinates:
-                            can_be_placed = True
-                    else:
-                        can_be_placed = False
+                    can_be_placed = False
 
             for position in relative_positions:
                 if board[event_y + position[1]][event_x + position[0]] == 'R' or board[event_y + position[1]][event_x + position[0]] == 'B':
@@ -967,21 +908,19 @@ class App:
 
         for line in range(board_size):
             for column in range(board_size):
-                if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
+                if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=transparent, outline=board_cell_outline_color);
                 if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
                 if board[line][column] == 'RH': board_canvas.itemconfig(board_cells[line][column], fill=valid_placement_red, outline=valid_placement_red);
                 if board[line][column] == 'BH': board_canvas.itemconfig(board_cells[line][column], fill=valid_placement_blue, outline=valid_placement_blue);
 
     def on_board_leave(self, event):
         global board_size
-        for line in board:
-            for k, n in enumerate(line):
-                if n == 'H' or n == 'RH' or n == 'BH':
-                    line[k] = ' '
-        for i in range(board_size):
-            for j in range(board_size):
-                if board[i][j] == ' ':
-                    board_canvas.itemconfig(board_cells[i][j], fill=background_color, outline=board_cell_outline_color)
+        self.reset_hover()
+        
+        for line in range(board_size):
+            for column in range(board_size):
+                if board[line][column] == ' ':
+                    board_canvas.itemconfig(board_cells[line][column], fill=transparent, outline=board_cell_outline_color)
 
     def update_board_canvas(self):
         global board, board_canvas, board_cells
@@ -999,17 +938,13 @@ class App:
                     color = placed_piece_blue
                     outline = placed_piece_blue
                 else:
-                    color = background_color
+                    color = transparent
                     outline = board_cell_outline_color
                 board_canvas.itemconfig(board_cells[line][column], fill=color, outline=outline) # Édite la couleur des cases en fonction de ce qu'il y a dedans
-        if board[-1][0] == 'R':
-            board_canvas.itemconfig(red_starting_corner, fill=placed_piece_red)
-        if board[0][-1] == 'B':
-            board_canvas.itemconfig(blue_starting_corner, fill=placed_piece_blue)
         
-        player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le tour du joueur actif
+        player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le score du joueur actif
         player_1_score_label.update()
-        player_2_score_label['text'] = f"Score : {player_2_score}" # On met à jour le texte qui affiche le tour du joueur actif
+        player_2_score_label['text'] = f"Score : {player_2_score}"
         player_2_score_label.update()
     
     def update_turn_label(self):
@@ -1043,8 +978,7 @@ class App:
             valid_placement_color = valid_placement_blue
             placed_piece_color = placed_piece_blue
 
-        if player_id == current_player and not player_has_selected_piece and player_pieces_list[line_event][column_event] == 'O':
-            # if  # On vérifie que la case choisie n'est pas vide
+        if player_id == current_player and not player_has_selected_piece and player_pieces_list[line_event][column_event] == 'O': # On vérifie que la case choisie n'est pas vide
             adjacent_coords = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées cliquées
             for k in adjacent_coords:
                 player_pieces_list[k[1]][k[0]] = ' '
@@ -1090,21 +1024,13 @@ class App:
         directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
 
         if orientation_id == 0:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_rotated[i][0] = direction[0]
-                directions_from_center_rotated[i][1] = direction[1] # 0°
+            directions_from_center_rotated = [list(direction) for direction in relative_positions_reference] # 0°
         elif orientation_id == 1:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_rotated[i][0] = -direction[1]
-                directions_from_center_rotated[i][1] = direction[0] # 90°
+            directions_from_center_rotated = [[-direction[1], direction[0]] for direction in relative_positions_reference] # 90°
         elif orientation_id == 2:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_rotated[i][0] = -direction[0]
-                directions_from_center_rotated[i][1] = -direction[1] # 180°
+            directions_from_center_rotated = [[-direction[0], -direction[1]] for direction in relative_positions_reference] # 180°
         elif orientation_id == 3:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_rotated[i][0] = direction[1]
-                directions_from_center_rotated[i][1] = -direction[0] # 270°
+            directions_from_center_rotated = [[direction[1], -direction[0]] for direction in relative_positions_reference] # 270°
 
         relative_positions = directions_from_center_rotated
         self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
@@ -1114,23 +1040,10 @@ class App:
 
         mirror_id = (mirror_id + 1) % 4
         directions_from_center_mirrored = [list(direction) for direction in relative_positions_reference]
-
-        if mirror_id == 0:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_mirrored[i][0] = direction[0]
-                directions_from_center_mirrored[i][1] = direction[1]
-        elif mirror_id == 1:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_mirrored[i][0] = -direction[0]
-                directions_from_center_mirrored[i][1] = direction[1]
-        elif mirror_id == 2:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_mirrored[i][0] = direction[0]
-                directions_from_center_mirrored[i][1] = direction[1]
-        elif mirror_id == 3:
-            for i, direction in enumerate(relative_positions_reference):
-                directions_from_center_mirrored[i][0] = direction[0]
-                directions_from_center_mirrored[i][1] = -direction[1]
+        
+        for i, direction in enumerate(relative_positions_reference):
+            directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
+            directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
 
         relative_positions = directions_from_center_mirrored
         self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
@@ -1171,7 +1084,7 @@ class App:
                             memoire.append([adj_x, adj_y])
 
         for adjacent_coords in cases_adjacentes:
-            relative_positions.append([adjacent_coords[0] - selected_case_x, -(selected_case_y - adjacent_coords[1])])
+            relative_positions.append([adjacent_coords[0] - selected_case_x, adjacent_coords[1] - selected_case_y])
         relative_positions_reference = [list(direction) for direction in relative_positions]
 
         # Return the list of coordinates of connected 'O's
