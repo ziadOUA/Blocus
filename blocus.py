@@ -646,6 +646,13 @@ class App:
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)] # Directions : HAUT, BAS, DROITE, GAUCHE
         directions_corners = [(1, 1), (-1, -1), (1, -1), (-1, 1)] # Coins : DROIT SUPÉRIEUR, GAUCHE INFÉRIEUR, DROIT INFÉRIEUR, GAUCHE SUPÉRIEUR
+
+        if current_player == 0:
+            player_color = 'R'
+            color_corners_coordinates = red_corners_coordinates
+        else:
+            player_color = 'B'
+            color_corners_coordinates = blue_corners_coordinates
         
         for line in range(board_size):
             for column in range(board_size): # On fait une itération sur l'ensemble des cases du plateau
@@ -657,44 +664,32 @@ class App:
                 if board[line][column] == ' ': # Si la case est vide
                     for direction in directions:
                         if self.is_within_the_main_board(column + direction[0], line + direction[1]): # On vérifie si la direction dans laquelle on recherche est comprise dans le plateau, pour éviter des erreurs de dépassement d'index
-                            if current_player == 0:
-                                if board[line + direction[1]][column + direction[0]] == 'R': # On vérifie si la case est en contact direct avec une case de couleur (rouge dans ce cas)
-                                    invalid_element = True # La case est invalidée le cas échéant
-                            else:
-                                if board[line + direction[1]][column + direction[0]] == 'B': # On vérifie si la case est en contact direct avec une case de couleur (rouge dans ce cas)
-                                    invalid_element = True # La case est invalidée le cas échéant
+                            if board[line + direction[1]][column + direction[0]] == player_color: # On vérifie si la case est en contact direct avec une case de couleur du joueur actif
+                                invalid_element = True # La case est invalidée le cas échéant
 
                     if not invalid_element: # Si la case n'est pas déjà invalide
                         for direction in directions_corners:
                             if self.is_within_the_main_board(column + direction[0], line + direction[1]): # On vérifie si le coin qu'on essaie de voir est bien compris dans le plateau, pour les mêmes raisons que ci-dessus
-                                if current_player == 0:
-                                    if board[line + direction[1]][column + direction[0]] == 'R': # Si au moins un des coins est rouge, et que le joueur actif est le joueur 1...
-                                        touches_corner = True #... on lève le drapeau "touches_corner"
-                                else:
-                                    if board[line + direction[1]][column + direction[0]] == 'B': # Si au moins un des coins est bleu, et que le joueur actif est le joueur 2...
-                                        touches_corner = True #... on lève le drapeau "touches_corner"
+                                if board[line + direction[1]][column + direction[0]] == player_color: # Si au moins un des coins est de la couleur du joueur actif
+                                    touches_corner = True #... on lève le drapeau "touches_corner"
 
                         if touches_corner:
                             memoire.append([column, line])
 
-                if board[line][column] == 'RC' or board[line][column] == 'BC':
+                if board[line][column] in ['RC', 'BC']:
                     for direction in directions_corners:
                         if self.is_within_the_main_board(column + direction[0], line + direction[1]):
                             if board[line + direction[1]][column + direction[0]] == 'R':
                                 touches_red_corner = True
-                            if board[line + direction[1]][column + direction[0]] == 'B':
+                            elif board[line + direction[1]][column + direction[0]] == 'B':
                                 touches_blue_corner = True
 
                     if touches_red_corner and touches_blue_corner:
                         memoire2.append([column, line])
 
         for element in memoire:
-            if current_player == 0:
-                if board[element[1]][element[0]] == ' ':
-                    red_corners_coordinates.append(element)
-            else:
-                if board[element[1]][element[0]] == ' ':
-                    blue_corners_coordinates.append(element)
+            if board[element[1]][element[0]] == ' ':
+                color_corners_coordinates.append(element)
 
         for element in memoire2:
             if board[element[1]][element[0]] in ['R', 'B']:
