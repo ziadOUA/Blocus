@@ -763,7 +763,7 @@ class App:
                                     for _ in range(4):
                                         directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
 
-                                        for i, direction in enumerate(relative_positions_reference):
+                                        for i, direction in enumerate(directions_from_center_rotated):
                                             directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
                                             directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
                                         
@@ -851,7 +851,7 @@ class App:
                                         for _ in range(4):
                                             directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
 
-                                            for i, direction in enumerate(relative_positions_reference):
+                                            for i, direction in enumerate(directions_from_center_rotated):
                                                 directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
                                                 directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
 
@@ -1088,7 +1088,7 @@ class App:
                 player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=placed_piece_blue)
 
     def rotate_piece(self, event):
-        global orientation_id, relative_positions, relative_positions_reference
+        global orientation_id, relative_positions, relative_positions_reference, directions_from_center_rotated
 
         # playsound.playsound('./res/audio/piece_rotate.wav', block=False)
         orientation_id = (orientation_id + 1) % 4
@@ -1107,12 +1107,12 @@ class App:
         self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
     
     def mirror_piece(self, event):
-        global mirror_id, relative_positions, relative_positions_reference
+        global mirror_id, relative_positions, relative_positions_reference, directions_from_center_rotated
 
         mirror_id = (mirror_id + 1) % 4
-        directions_from_center_mirrored = [list(direction) for direction in relative_positions_reference]
+        directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
         
-        for i, direction in enumerate(relative_positions_reference):
+        for i, direction in enumerate(directions_from_center_rotated):
             directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
             directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
 
@@ -1120,7 +1120,7 @@ class App:
         self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
 
     def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y, generate_relative_positions):
-        global relative_positions, relative_positions_reference
+        global relative_positions, relative_positions_reference, directions_from_center_rotated
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         cases_adjacentes = []
         relative_positions = []
@@ -1158,6 +1158,7 @@ class App:
             for adjacent_coords in cases_adjacentes:
                 relative_positions.append([adjacent_coords[0] - selected_case_x, adjacent_coords[1] - selected_case_y])
             relative_positions_reference = [list(direction) for direction in relative_positions]
+            directions_from_center_rotated = [list(direction) for direction in relative_positions]
 
         # Return the list of coordinates of connected 'O's
         # This is the final output of the function
