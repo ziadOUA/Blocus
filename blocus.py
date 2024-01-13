@@ -11,9 +11,9 @@
 
 # ═══════════════════════════════ IMPORTATIONS ═══════════════════════════════
 
-from tkinter import Label, Tk, Canvas, PhotoImage
+from tkinter import Label, Tk, Canvas, PhotoImage, Frame
 from tkinter import messagebox
-from tkinter.ttk import Style, Button, Frame
+from tkinter.ttk import Style, Button
 import os
 from playsound import playsound
 import webbrowser
@@ -58,8 +58,9 @@ player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
 
 player_2_pieces_list = [i[:] for i in player_1_pieces_list] # Ensemble de pièces du joueur 2, copiée depuis celui du joueur 1
 
-j1_has_selected_piece = False
-j2_has_selected_piece = False
+player_1_has_selected_piece = False
+player_2_has_selected_piece = False
+has_a_player_won = False
 
 orientation_id = 0
 mirror_id = 0
@@ -72,6 +73,8 @@ board = []
 board_cells = []
 player_1_pieces_cells = []
 player_2_pieces_cells = []
+
+adjacent_coords_hover = []
 
 current_player = 0 # Le joueur 1 commence
 board_cell_size = 38 # On définit la taille d'une case du plateau
@@ -232,9 +235,13 @@ surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où 
 
 placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
 valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
+piece_hover_red = md_ref_palette_tertiary70
 
 placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
 valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+piece_hover_blue = md_ref_palette_primary70
+
+cannot_play_border_color = '#e7c349'
 
 invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
 
@@ -251,7 +258,7 @@ class App:
 
         style = Style() # On définit un style
         style.theme_use('default') # On utilise le style par défaut pour modifier plus facilement les boutons
-        style.configure('TButton', font=('Arial', 30, 'bold'), background=button_background_color, focuscolor=button_background_color, relief='flat') # On ajoute du style pour les boutons
+        style.configure('TButton', background=button_background_color, focuscolor=button_background_color, relief='flat') # On ajoute du style pour les boutons
         style.configure('TFrame', background=background_color) # On change la couleur de fond des cadres "Frame"
         style.map('TButton', background=[('active', button_background_color), ('disabled', button_background_color)], relief=[('pressed', 'flat')]) # Modification du thème en fonction de l'état des boutons
 
@@ -259,7 +266,7 @@ class App:
     
     def reset_variables(self): # Toutes les variables sont réinitialisées
         global player_1_pieces_list, player_2_pieces_list
-        global j1_has_selected_piece, j2_has_selected_piece
+        global player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
         global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions
         global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
         global current_player, player_1_score, player_2_score
@@ -296,8 +303,9 @@ class App:
 
         player_2_pieces_list = [i[:] for i in player_1_pieces_list]
 
-        j1_has_selected_piece = False
-        j2_has_selected_piece = False
+        player_1_has_selected_piece = False
+        player_2_has_selected_piece = False
+        has_a_player_won = False
 
         orientation_id = 0
 
@@ -325,7 +333,7 @@ class App:
         
         self.reset_variables() # On appelle la fonction qui réinitialise les variables du programme
 
-        main_menu_frame = Frame(self.master) # On crée le cadre principal
+        main_menu_frame = Frame(self.master, background=background_color) # On crée le cadre principal
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
         main_menu_frame.columnconfigure(2, weight=1)
 
@@ -364,11 +372,12 @@ class App:
         global player_1_score_label, player_2_score_label
         global player_1_hint_button, player_2_hint_button
         global player_1_pieces_top_part, player_2_pieces_top_part
+        global player_1_pieces_container, player_2_pieces_container
         
         for i in self.master.winfo_children():
             i.destroy() # idem
 
-        main_menu_frame = Frame(self.master) # On crée un cadre principal, pour pouvoir facilement centrer les différents éléments
+        main_menu_frame = Frame(self.master, background=background_color) # On crée un cadre principal, pour pouvoir facilement centrer les différents éléments
         main_menu_frame.pack(expand=True)
 
         board = [[' ' for _ in range(board_size)] for _ in range(board_size)] # Création du plateau grâce à une compréhension de liste
@@ -381,13 +390,17 @@ class App:
         board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color, background=background_color) # On crée un canvas pour le plateau
         board_canvas.grid(column=1, row=2, padx=10) # On place le canvas
 
-        player_1_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 1
-        player_1_pieces.grid(column=0, row=2) # On place le canvas
+        player_1_pieces_container = Frame(main_menu_frame, highlightbackground=placed_piece_red, highlightthickness=5, height=626, width=274)
+        player_1_pieces_container.grid(row=2, column=0) # On place le nouveau cadre dans le cadre principal
+        player_1_pieces = Canvas(player_1_pieces_container, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 1
+        player_1_pieces.pack() # On place le canvas
 
-        player_2_pieces = Canvas(main_menu_frame, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 2
-        player_2_pieces.grid(column=2, row=2) # On place le canvas
+        player_2_pieces_container = Frame(main_menu_frame, highlightbackground=background_color, highlightthickness=5, height=626, width=274)
+        player_2_pieces_container.grid(row=2, column=2) # On place le nouveau cadre dans le cadre principal
+        player_2_pieces = Canvas(player_2_pieces_container, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 2
+        player_2_pieces.pack() # On place le canvas
 
-        board_top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure au plateau
+        board_top_part = Frame(main_menu_frame, background=background_color) # On crée un cadre pour la partie supérieure au plateau
         board_top_part.grid(row=1, column=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
         board_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
@@ -401,7 +414,7 @@ class App:
 
         Label(board_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
         
-        player_1_pieces_top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure aux pièces du joueur 1
+        player_1_pieces_top_part = Frame(main_menu_frame, background=background_color) # On crée un cadre pour la partie supérieure aux pièces du joueur 1
         player_1_pieces_top_part.grid(column=0, row=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
         player_1_pieces_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
@@ -415,7 +428,7 @@ class App:
 
         Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le score du joueur 1
         
-        player_2_pieces_top_part = Frame(main_menu_frame) # On crée un cadre pour la partie supérieure aux pièces du joueur 2
+        player_2_pieces_top_part = Frame(main_menu_frame, background=background_color) # On crée un cadre pour la partie supérieure aux pièces du joueur 2
         player_2_pieces_top_part.grid(column=2, row=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
         player_2_pieces_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
@@ -471,26 +484,27 @@ class App:
             player_2_pieces_cells.append(row_j2)
 
         # On "bind" le board à des événements
-        board_canvas.bind("<Button-1>", self.on_plateau_click) # Clic : la pièce sélectionnée est placée
+        board_canvas.bind("<Button-1>", self.on_board_click) # Clic : la pièce sélectionnée est placée
         board_canvas.bind('<Button-2>', self.mirror_piece)
         board_canvas.bind("<Button-3>", self.rotate_piece) # Clic droit : rotation de la pièce sélectionnée
-        board_canvas.bind("<Motion>", self.on_plateau_hover) # La souris bouge sur le plateau
+        board_canvas.bind("<Motion>", self.on_board_hover) # La souris bouge sur le plateau
         board_canvas.bind("<Leave>", self.on_board_leave) # La souris quitte le canvas
 
         # On "bind" les pièces à des événements
         player_1_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
-        # player_1_pieces.bind("<Motion>", self.on_pièces_hover_j1)
-        # player_1_pieces.bind("<Leave>", self.on_plateau_leave)
+        player_1_pieces.bind("<Motion>", self.on_pieces_hover)
+        player_1_pieces.bind("<Leave>", self.on_pieces_leave)
         player_2_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
-        # player_2_pieces.bind("<Motion>", self.on_pièces_hover)
-        # player_2_pieces.bind("<Leave>", self.on_pièces_leave)
+        player_2_pieces.bind("<Motion>", self.on_pieces_hover)
+        player_2_pieces.bind("<Leave>", self.on_pieces_leave)
 
-    def on_plateau_click(self, event):
-        global board, current_player, adjacent_coords, relative_positions, j1_has_selected_piece, j2_has_selected_piece
+    def on_board_click(self, event):
+        global board, current_player, adjacent_coords, relative_positions, player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
         global board_cell_size, board_size
         global player_1_score, player_2_score
         global player_1_pieces_top_part, player_2_pieces_top_part
         global player_1_hint_button, player_2_hint_button
+        global player_1_pieces_container, player_2_pieces_container
         global player_turn_label
         
         column_event = event.x // board_cell_size
@@ -505,19 +519,20 @@ class App:
                 for k, n in enumerate(line):
                     if n == 'RH':
                         line[k] = 'R' # Remplace tous les "RH" par des "R"
-                        j1_has_selected_piece = False
                         for k in adjacent_coords:
                             player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color) # La pièce est retirée de l'ensemble de pièces du joueur 1
+                        player_1_has_selected_piece = False
                     elif n == 'BH':
                         line[k] = 'B' # Remplace tous les "BH" par des "B"
                         for k in adjacent_coords:
                             player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color) # La pièce est retirée de l'ensemble de pièces du joueur 2
-                        j2_has_selected_piece = False
+                        player_2_has_selected_piece = False
             
             if current_player == 0:
                 player_1_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
             else:
-                player_2_score += len(adjacent_coords)
+                player_2_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
+
 
             self.define_possible_corners() # On place les coins où des pièces peuvent être placées
 
@@ -529,6 +544,10 @@ class App:
                     Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacé par un objet vide, pour centrer le texte du score
                     player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 2 est redéfini
                     player_2_hint_button.grid(column=2, row=0) # Le bouton est placé
+                    player_1_pieces_container.configure(highlightbackground=background_color)
+                    player_2_pieces_container.configure(highlightbackground=placed_piece_blue)
+                else:
+                    player_2_pieces_container.configure(highlightbackground=cannot_play_border_color)
             else:
                 if self.can_still_play(player=0): # On vérifie si le joueur 1 peut bien jouer
                     current_player = 0 # On change de joueur
@@ -537,20 +556,29 @@ class App:
                     Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) #... remplacé par un objet vide, pour centrer le texte du score
                     player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 1 est redéfini
                     player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
+                    player_1_pieces_container.configure(highlightbackground=placed_piece_red)
+                    player_2_pieces_container.configure(highlightbackground=background_color)
+                else:
+                    player_1_pieces_container.configure(highlightbackground=cannot_play_border_color)
             
             if not self.can_still_play(player=0) and not self.can_still_play(player=1): # Si aucun des deux joueurs ne peut jouer
                 current_player = 999 # Le jeu est bloqué
                 if player_1_score > player_2_score:
                     player_turn_label['text'] = 'Victoire du Joueur 1' # Si le score du joueur 1 est supérieur à celui du joueur 2, alors victoire du joueur 1
+                    has_a_player_won = True
                 elif player_1_score < player_2_score:
                     player_turn_label['text'] = 'Victoire du Joueur 2' # Si le score du joueur 1 est inférieur à celui du joueur 2, alors victoire du joueur 2
+                    has_a_player_won = True
                 elif player_1_score == player_2_score:
                     player_turn_label['text'] = 'Égalité' # Si les deux scores sont égaux, alors égalité
+                    has_a_player_won = False
                 player_turn_label.update() # On met à jour le texte pour qu'il affiche l'état du jeu
                 player_1_hint_button.grid_forget() # On retire les boutons indice des deux joueurs...
                 player_2_hint_button.grid_forget()
                 Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacés par des objets vides pour centrer les scores
                 Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0)
+                player_1_pieces_container.configure(highlightbackground=cannot_play_border_color)
+                player_2_pieces_container.configure(highlightbackground=cannot_play_border_color)
             
             adjacent_coords = []
             relative_positions = [[0, 0]]
@@ -560,9 +588,12 @@ class App:
 
             print(f'Piece placed in {round((end - start) * 1000)} ms')
 
+            if has_a_player_won:
+                playsound.playsound('./res/audio/victory_sound.wav')
+
             # playsound.playsound('./res/audio/piece_place.wav')
 
-    def on_plateau_hover(self, event):
+    def on_board_hover(self, event):
         global board, board_canvas, board_cells
         global last_event_coordinates_copy, relative_positions
         global board_cell_size, board_size
@@ -713,7 +744,7 @@ class App:
                     for piece_line in range(len(player_pieces_list)):
                         for piece_column in range(len(player_pieces_list[0])):
                             if player_pieces_list[piece_line][piece_column] == 'O':
-                                self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line)
+                                self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line, True)
                                 
                                 for _ in range(4):
                                     directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
@@ -771,9 +802,9 @@ class App:
         global player_1_pieces_list, player_2_pieces_list
         global board_size, relative_positions
         global orientation_id, player_1_score, player_2_score, mirror_id
-        global j1_has_selected_piece, j2_has_selected_piece
+        global player_1_has_selected_piece, player_2_has_selected_piece
 
-        if j1_has_selected_piece or j2_has_selected_piece: # Empêche le joueur de demander un indice tout en ayant une pièce sélectionnée
+        if player_1_has_selected_piece or player_2_has_selected_piece: # Empêche le joueur de demander un indice tout en ayant une pièce sélectionnée
             return None # Si tel est le cas, l'éxecution de la fonction est stoppée, afin d'économiser du temps de calcul
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -801,7 +832,7 @@ class App:
                         for piece_column in range(len(player_pieces_list[0])):
                             if player_pieces_list[piece_line][piece_column] == 'O':
                                 if not has_found_a_piece:
-                                    self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line)
+                                    self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line, True)
 
                                     for _ in range(4):
                                         directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
@@ -858,10 +889,16 @@ class App:
                                                         if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
                                                         if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color); # On colore en gris là où une pièce peut être posée
                                                 has_found_a_piece = True
-                                                player_1_score -= 2 if current_player == 0 else player_1_score # On retire 2 points au score du joueur actif si un indice a été donné
-                                                player_2_score -= 2 if current_player == 1 else player_2_score
-                                                player_score_label['text'] = f"Score : {player_1_score if current_player == 0 else player_2_score}" # On met à jour le texte qui affiche le score du joueur actif
-                                                player_score_label.update()
+                                                # player_1_score -= 2 if current_player == 0 else player_1_score # On retire 2 points au score du joueur actif si un indice a été donné
+                                                # player_2_score -= 2 if current_player == 1 else player_2_score
+                                                if current_player == 0:
+                                                    player_1_score -= 2
+                                                    player_1_score_label['text'] = f'Score : {player_1_score}' # On met à jour le texte qui affiche le score du joueur actif
+                                                    player_1_score_label.update()
+                                                else:
+                                                    player_2_score -= 2
+                                                    player_2_score_label['text'] = f'Score : {player_2_score}' # On met à jour le texte qui affiche le score du joueur actif
+                                                    player_2_score_label.update()
 
     def draw_piece_on_board(self, event_x, event_y):
         global board, board_canvas, board_cells, relative_positions
@@ -899,9 +936,9 @@ class App:
 
             for position in relative_positions:
                 if can_be_drawn:
-                    if j1_has_selected_piece and can_be_placed:
+                    if player_1_has_selected_piece and can_be_placed:
                         board[event_y + position[1]][event_x + position[0]] = 'RH'
-                    elif j2_has_selected_piece and can_be_placed:
+                    elif player_2_has_selected_piece and can_be_placed:
                         board[event_y + position[1]][event_x + position[0]] = 'BH'
                     else:
                         board[event_y + position[1]][event_x + position[0]] = 'H'
@@ -954,7 +991,7 @@ class App:
 
     def on_player_pieces_click(self, event):
         global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
-        global current_player, adjacent_coords, j1_has_selected_piece, relative_positions, orientation_id, j2_has_selected_piece
+        global current_player, adjacent_coords, player_1_has_selected_piece, relative_positions, orientation_id, player_2_has_selected_piece
 
         column_event = event.x // 22
         line_event = event.y // 22
@@ -966,7 +1003,7 @@ class App:
             player_pieces_list = player_1_pieces_list
             player_pieces_cells = player_1_pieces_cells
             player_id = 0
-            player_has_selected_piece = j1_has_selected_piece
+            player_has_selected_piece = player_1_has_selected_piece
             valid_placement_color = valid_placement_red
             placed_piece_color = placed_piece_red
         else:
@@ -974,17 +1011,17 @@ class App:
             player_pieces_list = player_2_pieces_list
             player_pieces_cells = player_2_pieces_cells
             player_id = 1
-            player_has_selected_piece = j2_has_selected_piece
+            player_has_selected_piece = player_2_has_selected_piece
             valid_placement_color = valid_placement_blue
             placed_piece_color = placed_piece_blue
 
         if player_id == current_player and not player_has_selected_piece and player_pieces_list[line_event][column_event] == 'O': # On vérifie que la case choisie n'est pas vide
-            adjacent_coords = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées cliquées
+            adjacent_coords = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, True) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées cliquées
             for k in adjacent_coords:
                 player_pieces_list[k[1]][k[0]] = ' '
                 player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=valid_placement_color)
-            j1_has_selected_piece = True if player_id == 0 else False
-            j2_has_selected_piece = True if player_id == 1 else False
+            player_1_has_selected_piece = True if player_id == 0 else False
+            player_2_has_selected_piece = True if player_id == 1 else False
             orientation_id = 0 # On réinitialise l'orientation
             # playsound.playsound('./res/audio/piece_taken.wav', block=False)
         elif player_id == current_player and player_has_selected_piece:
@@ -992,29 +1029,63 @@ class App:
             for k in adjacent_coords: # La pièce est replacée
                 player_pieces_list[k[1]][k[0]] = 'O'
                 player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=placed_piece_color)
-            j1_has_selected_piece = False if player_id == 0 else j1_has_selected_piece
-            j2_has_selected_piece = False if player_id == 1 else j2_has_selected_piece
+            player_1_has_selected_piece = False if player_id == 0 else player_1_has_selected_piece
+            player_2_has_selected_piece = False if player_id == 1 else player_2_has_selected_piece
             adjacent_coords = []
     
-    def on_pièces_hover_j1(self, event):
-        global current_player
-        # column_event = event.x // 22
-        # line_event = event.y // 22
-        # if column_event > 11: column_event = 11;
-        # if line_event > 28: line_event = 28;
+    def on_pieces_hover(self, event):
+        global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
+        global current_player, adjacent_coords_hover, relative_positions, last_event_coordinates_copy
+        global player_1_has_selected_piece, player_2_has_selected_piece
 
-        # if current_player == 0:
-        #     if pièces_joueur_1_liste[line_event][column_event] != ' ': # On vérifie que la case choisie n'est pas vide
-        #         adjacent_coords = self.get_adjacent_pieces_coordinates(pièces_joueur_1_liste, column_event, line_event)
-        #         for k in adjacent_coords:
-        #             player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill='white')
-        #         player_1_pieces.update()
+        column_event = event.x // 22
+        line_event = event.y // 22
+        if column_event > 11: column_event = 11;
+        if line_event > 28: line_event = 28;
 
-    # def on_pièces_leave(self, event):
-        # if last_cell is not None:
-        #     last_color = board_canvas.itemcget(last_cell, "fill")
-        #     if last_color != "red" and last_color != 'blue':
-        #         board_canvas.itemconfig(last_cell, fill="white")
+        adjacent_coords_hover = []
+
+        last_coords = [column_event, line_event]
+        if last_event_coordinates_copy != last_coords: # Le code ci-dessous n'est exécuté qu'à chaque fois que la souris change de case du plateau, au lieu de l'exécuter au moindre mouvement
+            last_event_coordinates_copy = [i for i in last_coords]
+
+            if event.widget == player_1_pieces:
+                player_pieces = player_1_pieces
+                player_pieces_list = player_1_pieces_list
+                player_pieces_cells = player_1_pieces_cells
+                player_id = 0
+                player_has_selected_piece = player_1_has_selected_piece
+                placed_piece_color = placed_piece_red
+                hover_piece_color = piece_hover_red
+            else:
+                player_pieces = player_2_pieces
+                player_pieces_list = player_2_pieces_list
+                player_pieces_cells = player_2_pieces_cells
+                player_id = 1
+                player_has_selected_piece = player_2_has_selected_piece
+                placed_piece_color = placed_piece_blue
+                hover_piece_color = piece_hover_blue
+
+            if player_id == current_player and not player_has_selected_piece:
+                if player_pieces_list[line_event][column_event] == 'O': # On vérifie que la case choisie n'est pas vide
+                    adjacent_coords_hover = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, False)
+                    for k in adjacent_coords_hover:
+                        player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=hover_piece_color)
+                else:
+                    relative_positions = [[0, 0]]
+                    for line in range(28):
+                        for column in range(11):
+                            if player_pieces_list[line][column] == 'O':
+                                player_pieces.itemconfig(player_pieces_cells[line][column], fill=placed_piece_color)
+
+    def on_pieces_leave(self, event):
+        global adjacent_coords_hover
+        if event.widget == player_1_pieces and not player_1_has_selected_piece and current_player == 0:
+            for k in adjacent_coords_hover:
+                player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=placed_piece_red)
+        elif event.widget == player_2_pieces and not player_2_has_selected_piece and current_player == 1:
+            for k in adjacent_coords_hover:
+                player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=placed_piece_blue)
 
     def rotate_piece(self, event):
         global orientation_id, relative_positions, relative_positions_reference
@@ -1048,7 +1119,7 @@ class App:
         relative_positions = directions_from_center_mirrored
         self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
 
-    def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y):
+    def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y, generate_relative_positions):
         global relative_positions, relative_positions_reference
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         cases_adjacentes = []
@@ -1083,9 +1154,10 @@ class App:
                         if liste_pièces[adj_y][adj_x] == 'O':
                             memoire.append([adj_x, adj_y])
 
-        for adjacent_coords in cases_adjacentes:
-            relative_positions.append([adjacent_coords[0] - selected_case_x, adjacent_coords[1] - selected_case_y])
-        relative_positions_reference = [list(direction) for direction in relative_positions]
+        if generate_relative_positions:
+            for adjacent_coords in cases_adjacentes:
+                relative_positions.append([adjacent_coords[0] - selected_case_x, adjacent_coords[1] - selected_case_y])
+            relative_positions_reference = [list(direction) for direction in relative_positions]
 
         # Return the list of coordinates of connected 'O's
         # This is the final output of the function
