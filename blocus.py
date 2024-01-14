@@ -83,6 +83,8 @@ board_size = 16 # On définit la taille du plateau
 red_corners_coordinates = []
 blue_corners_coordinates = []
 common_corners_coordinates = []
+red_cases_coordinates = []
+blue_cases_coordinates = []
 
 player_1_score = 0 # Scores des joueurs
 player_2_score = 0
@@ -236,10 +238,12 @@ surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où 
 placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
 valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
 piece_hover_red = md_ref_palette_tertiary70
+piece_hover_red_overlay = '#bf857c'
 
 placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
 valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
 piece_hover_blue = md_ref_palette_primary70
+piece_hover_blue_overlay = '#8e91bf'
 
 cannot_play_border_color = '#e7c349'
 
@@ -270,7 +274,7 @@ class App:
         global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions
         global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
         global current_player, player_1_score, player_2_score
-        global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
+        global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates, red_cases_coordinates, blue_cases_coordinates
 
         player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                                 [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
@@ -323,6 +327,8 @@ class App:
         red_corners_coordinates = []
         blue_corners_coordinates = []
         common_corners_coordinates = []
+        red_cases_coordinates = []
+        blue_cases_coordinates = []
 
         player_1_score = 0
         player_2_score = 0
@@ -515,19 +521,20 @@ class App:
         start = timer()
 
         if board[line_event][column_event] in ['RH', 'BH']: # Vérifie que, lorsque le plateau est cliqué, la pièce pouvait bien être placée
-            for line in board:
-                for k, n in enumerate(line):
-                    if n == 'RH':
-                        line[k] = 'R' # Remplace tous les "RH" par des "R"
+            for line in range(board_size):
+                for column in range(board_size):
+                    if board[line][column] == 'RH':
+                        board[line][column] = 'R'
+                        red_cases_coordinates.append([column, line])
                         for k in adjacent_coords:
-                            player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color) # La pièce est retirée de l'ensemble de pièces du joueur 1
+                            player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color)
                         player_1_has_selected_piece = False
-                    elif n == 'BH':
-                        line[k] = 'B' # Remplace tous les "BH" par des "B"
+                    elif board[line][column] == 'BH':
+                        board[line][column] = 'B'
+                        blue_cases_coordinates.append([column, line])
                         for k in adjacent_coords:
-                            player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color) # La pièce est retirée de l'ensemble de pièces du joueur 2
-                        player_2_has_selected_piece = False
-            
+                            player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color)
+
             if current_player == 0:
                 player_1_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
             else:
@@ -898,6 +905,7 @@ class App:
     def draw_piece_on_board(self, event_x, event_y):
         global board, board_canvas, board_cells, relative_positions
         global board_size
+        global red_cases_coordinates, blue_cases_coordinates
         
         out_of_bounds = False
         can_be_drawn = True
@@ -908,6 +916,11 @@ class App:
         for position in relative_positions:
             if not self.is_within_the_main_board(event_x + position[0], event_y + position[1]):
                 out_of_bounds = True
+                for red_case_coordinate in red_cases_coordinates:
+                    board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red)
+                
+                for blue_case_coordinate in blue_cases_coordinates:
+                    board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue)
 
         self.reset_hover()
 
@@ -924,18 +937,29 @@ class App:
                         can_be_placed = True
                 else:
                     can_be_placed = False
-
-            for position in relative_positions:
-                if board[event_y + position[1]][event_x + position[0]] == 'R' or board[event_y + position[1]][event_x + position[0]] == 'B':
+                
+                if board[event_y + position[1]][event_x + position[0]] in ['R', 'B']:
                     can_be_drawn = False
 
+            for red_case_coordinate in red_cases_coordinates:
+                board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red)
+                board[red_case_coordinate[1]][red_case_coordinate[0]] = 'R'
+            
+            for blue_case_coordinate in blue_cases_coordinates:
+                board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue)
+                board[blue_case_coordinate[1]][blue_case_coordinate[0]] = 'B'
+
             for position in relative_positions:
-                if can_be_drawn:
-                    if player_1_has_selected_piece and can_be_placed:
-                        board[event_y + position[1]][event_x + position[0]] = 'RH'
-                    elif player_2_has_selected_piece and can_be_placed:
-                        board[event_y + position[1]][event_x + position[0]] = 'BH'
-                    else:
+                if player_1_has_selected_piece and can_be_placed and can_be_drawn:
+                    board[event_y + position[1]][event_x + position[0]] = 'RH'
+                elif player_2_has_selected_piece and can_be_placed and can_be_drawn:
+                    board[event_y + position[1]][event_x + position[0]] = 'BH'
+                else:
+                    if board[event_y + position[1]][event_x + position[0]] == 'R':
+                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_red_overlay, outline=piece_hover_red_overlay)
+                    elif board[event_y + position[1]][event_x + position[0]] == 'B':
+                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_blue_overlay, outline=piece_hover_blue_overlay)
+                    elif board[event_y + position[1]][event_x + position[0]] in ['RC', 'BC', 'RBC', ' ']:
                         board[event_y + position[1]][event_x + position[0]] = 'H'
 
         for line in range(board_size):
@@ -953,6 +977,12 @@ class App:
             for column in range(board_size):
                 if board[line][column] == ' ':
                     board_canvas.itemconfig(board_cells[line][column], fill=transparent, outline=board_cell_outline_color)
+        
+        for red_case_coordinate in red_cases_coordinates:
+            board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red)
+            
+        for blue_case_coordinate in blue_cases_coordinates:
+            board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue)
 
     def update_board_canvas(self):
         global board, board_canvas, board_cells
