@@ -237,15 +237,15 @@ surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où 
 
 placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
 valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
-piece_hover_red = md_ref_palette_tertiary70
-piece_hover_red_overlay = '#bf857c'
+piece_hover_red = md_ref_palette_tertiary70 # Couleur de survol pour les pièces rouges
+piece_hover_red_overlay = '#bf857c' # Couleur de bordure quand le joueur actif est le joueur 1
 
 placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
 valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
-piece_hover_blue = md_ref_palette_primary70
-piece_hover_blue_overlay = '#8e91bf'
+piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
+piece_hover_blue_overlay = '#8e91bf' # Couleur de bordure quand le joueur actif est le joueur 2
 
-cannot_play_border_color = '#e7c349'
+cannot_play_border_color = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
 
 invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
 
@@ -498,11 +498,11 @@ class App:
 
         # On "bind" les pièces à des événements
         player_1_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
-        player_1_pieces.bind("<Motion>", self.on_pieces_hover)
-        player_1_pieces.bind("<Leave>", self.on_pieces_leave)
+        player_1_pieces.bind("<Motion>", self.on_pieces_hover) # Survol
+        player_1_pieces.bind("<Leave>", self.on_pieces_leave) # La souris quitte les pièces du joueur 1
         player_2_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
-        player_2_pieces.bind("<Motion>", self.on_pieces_hover)
-        player_2_pieces.bind("<Leave>", self.on_pieces_leave)
+        player_2_pieces.bind("<Motion>", self.on_pieces_hover) # Survol
+        player_2_pieces.bind("<Leave>", self.on_pieces_leave) # La souris quitte les pièces du joueur 2
 
     def on_board_click(self, event):
         global board, current_player, adjacent_coords, relative_positions, player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
@@ -534,12 +534,12 @@ class App:
                         blue_cases_coordinates.append([column, line])
                         for k in adjacent_coords:
                             player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color)
+                        player_2_has_selected_piece = False
 
             if current_player == 0:
                 player_1_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
             else:
                 player_2_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
-
 
             self.define_possible_corners() # On place les coins où des pièces peuvent être placées
 
@@ -584,7 +584,7 @@ class App:
                 player_2_hint_button.grid_forget()
                 Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacés par des objets vides pour centrer les scores
                 Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0)
-                player_1_pieces_container.configure(highlightbackground=cannot_play_border_color)
+                player_1_pieces_container.configure(highlightbackground=cannot_play_border_color) # On ajoute une bordure jaune autour des pièces des deux joueurs
                 player_2_pieces_container.configure(highlightbackground=cannot_play_border_color)
             
             adjacent_coords = []
@@ -596,7 +596,7 @@ class App:
             print(f'Piece placed in {round((end - start) * 1000)} ms')
 
             if has_a_player_won:
-                playsound.playsound('./res/audio/victory_sound.wav')
+                playsound.playsound('./res/audio/victory_sound.wav') # Son joué lorsque l'un des deux joueurs a gagné
 
             # playsound.playsound('./res/audio/piece_place.wav')
 
@@ -619,17 +619,17 @@ class App:
             # for line in board: # -> Affichage du plateau
             #     print(line)    # DEBUG
 
-        for red_corner_coord in red_corners_coordinates:
-            if board[red_corner_coord[1]][red_corner_coord[0]] == ' ':
-                board[red_corner_coord[1]][red_corner_coord[0]] = 'RC' # S'assure de replacer les coins rouges "RC", au cas où ils ont été retirés par une pièce en survol
+            for red_corner_coord in red_corners_coordinates:
+                if board[red_corner_coord[1]][red_corner_coord[0]] == ' ':
+                    board[red_corner_coord[1]][red_corner_coord[0]] = 'RC' # S'assure de replacer les coins rouges "RC", au cas où ils ont été retirés par une pièce en survol
 
-        for blue_corner_coord in blue_corners_coordinates:
-            if board[blue_corner_coord[1]][blue_corner_coord[0]] == ' ':
-                board[blue_corner_coord[1]][blue_corner_coord[0]] = 'BC' # S'assure de replacer les coins bleus "BC", au cas où ils ont été retirés par une pièce en survol
+            for blue_corner_coord in blue_corners_coordinates:
+                if board[blue_corner_coord[1]][blue_corner_coord[0]] == ' ':
+                    board[blue_corner_coord[1]][blue_corner_coord[0]] = 'BC' # S'assure de replacer les coins bleus "BC", au cas où ils ont été retirés par une pièce en survol
 
-        for common_corner_coord in common_corners_coordinates:
-            if board[common_corner_coord[1]][common_corner_coord[0]] in ['RC', 'BC']:
-                board[common_corner_coord[1]][common_corner_coord[0]] = 'RBC' # S'assure de replacer les coins communs "RBC", au cas où ils ont été retirés par une pièce en survol
+            for common_corner_coord in common_corners_coordinates:
+                if board[common_corner_coord[1]][common_corner_coord[0]] in ['RC', 'BC']:
+                    board[common_corner_coord[1]][common_corner_coord[0]] = 'RBC' # S'assure de replacer les coins communs "RBC", au cas où ils ont été retirés par une pièce en survol
 
     def is_within_the_main_board(self, event_x, event_y):
         global board_size
@@ -740,15 +740,15 @@ class App:
             player_corner_value = 'BC'
             player_color = 'B'
 
-        for line in range(board_size):
+        for line in range(board_size): # Itération sur l'ensemble du plateau
             for column in range(board_size):
                 if board[line][column] == player_corner_value or board[line][column] == 'RBC':
                     for piece_line in range(len(player_pieces_list)):
                         for piece_column in range(len(player_pieces_list[0])):
-                            if player_pieces_list[piece_line][piece_column] == 'O':
+                            if player_pieces_list[piece_line][piece_column] == 'O': # Itération sur l'ensemble des pièces du joueur passé comme paramètre dans la fonction
                                 self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line, True)
                                 
-                                for _ in range(4):
+                                for _ in range(4): # Teste les différentes rotations possibles
                                     directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
 
                                     if orientation_id == 0:
@@ -762,7 +762,7 @@ class App:
                                     
                                     orientation_id = (orientation_id + 1) % 4
 
-                                    for _ in range(4):
+                                    for _ in range(4): # Miroite les pièces
                                         directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
 
                                         for i, direction in enumerate(directions_from_center_rotated):
@@ -778,27 +778,27 @@ class App:
                                         can_be_placed = True
 
                                         for position in relative_positions:
-                                            if not self.is_within_the_main_board(column + position[0], line + position[1]):
+                                            if not self.is_within_the_main_board(column + position[0], line + position[1]): # La pièce est invalidée si une partie dépasse le plateau
                                                 out_of_bounds = True
                                                 can_fit = False
                                                 can_be_placed = False
                                             
                                         if not out_of_bounds:
                                             for position in relative_positions:
-                                                if board[line + position[1]][column + position[0]] in ['R', 'B']:
+                                                if board[line + position[1]][column + position[0]] in ['R', 'B']: # La pièce est invalidée si elle empiète sur d'autres pièces
                                                     can_fit = False
                                                     can_be_placed = False
                                         
                                         if can_fit:
                                             for position in relative_positions:
                                                 for direction in directions:
-                                                    if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]):
+                                                    if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]): # La pièce est invalidée si elle est en contact avec d'autres pièces du même joueur
                                                         if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == player_color:
                                                             can_be_placed = False
                                     
                                         if can_be_placed:
-                                            return True
-        return False
+                                            return True # On retourne "True" dès qu'une pièce est valide, pour économiser du temps de calcul
+        return False # Le joueur ne peut plus jouer
 
     def get_hint(self):
         global player_1_pieces_list, player_2_pieces_list
@@ -891,8 +891,6 @@ class App:
                                                         if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
                                                         if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color); # On colore en gris là où une pièce peut être posée
                                                 has_found_a_piece = True
-                                                # player_1_score -= 2 if current_player == 0 else player_1_score # On retire 2 points au score du joueur actif si un indice a été donné
-                                                # player_2_score -= 2 if current_player == 1 else player_2_score
                                                 if current_player == 0:
                                                     player_1_score -= 2
                                                     player_1_score_label['text'] = f'Score : {player_1_score}' # On met à jour le texte qui affiche le score du joueur actif
@@ -917,7 +915,7 @@ class App:
             if not self.is_within_the_main_board(event_x + position[0], event_y + position[1]):
                 out_of_bounds = True
                 for red_case_coordinate in red_cases_coordinates:
-                    board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red)
+                    board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red) # On restore les couleurs des pièces placées
                 
                 for blue_case_coordinate in blue_cases_coordinates:
                     board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue)
@@ -929,11 +927,11 @@ class App:
             for position in relative_positions:
                 for direction in directions:
                     if self.is_within_the_main_board(event_x + position[0] + direction[0], event_y + position[1] + direction[1]):
-                        memoire.append(board[event_y + position[1] + direction[1]][event_x + position[0] + direction[0]])
+                        memoire.append(board[event_y + position[1] + direction[1]][event_x + position[0] + direction[0]]) # On enregistre les cases qui entourent la pièce sélectionnée
 
                 if (current_player == 0 and 'R' not in memoire) or (current_player == 1 and 'B' not in memoire):
                     color_corners_coordinates = red_corners_coordinates if current_player == 0 else blue_corners_coordinates
-                    if [event_x + position[0], event_y + position[1]] in color_corners_coordinates or [event_x + position[0], event_y + position[1]] in common_corners_coordinates:
+                    if [event_x + position[0], event_y + position[1]] in color_corners_coordinates or [event_x + position[0], event_y + position[1]] in common_corners_coordinates: # Le placement de la pièce est valide si la mémoire ne contient pas de case de la couleur du joueur actif
                         can_be_placed = True
                 else:
                     can_be_placed = False
@@ -963,7 +961,7 @@ class App:
                         board[event_y + position[1]][event_x + position[0]] = 'H'
 
         for line in range(board_size):
-            for column in range(board_size):
+            for column in range(board_size): # On ajoute les couleurs en fonction du contenu de la liste
                 if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=transparent, outline=board_cell_outline_color);
                 if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
                 if board[line][column] == 'RH': board_canvas.itemconfig(board_cells[line][column], fill=valid_placement_red, outline=valid_placement_red);
