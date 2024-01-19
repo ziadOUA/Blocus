@@ -2,7 +2,7 @@
              ,adba,             88  Projet : Blocus
              8I  I8             88  But : Créer une version à deux joueurs du jeu 'Blokus' 
              "8bdP'             88  Création : 15/12/2023 10:22
-888888888   ,d8"8b  88  ,adPPYb,88  Dernière modification : 10/01/2024
+888888888   ,d8"8b  88  ,adPPYb,88  
      a8P" .dP'   Yb,8I a8"    `Y88  
   ,d8P'   8P      888' 8b       88  
 ,d8"      8b,   ,dP8b  "8a,   ,d88  
@@ -11,10 +11,11 @@
 
 # ═══════════════════════════════ IMPORTATIONS ═══════════════════════════════
 
-from tkinter import Label, Tk, Canvas, PhotoImage, Frame
+from tkinter import Label, Tk, Canvas, PhotoImage, Frame, BooleanVar, Checkbutton, Radiobutton, IntVar
 from tkinter import messagebox
 from tkinter.ttk import Style, Button
 import os
+import json
 from playsound import playsound
 import webbrowser
 from timeit import default_timer as timer
@@ -22,6 +23,11 @@ from timeit import default_timer as timer
 # ════════════════════════════════════════════════════════════════════════════
 # ════════════════════════════ CORPS DU PROGRAMME ════════════════════════════
 # ════════════════════════════════════════════════════════════════════════════
+
+# ══════════ Paramètres
+
+with open("settings.json", "r") as settings_file:
+    settings_data = json.load(settings_file)
 
 # ══════════ Variables & Constantes
 
@@ -61,6 +67,7 @@ player_2_pieces_list = [i[:] for i in player_1_pieces_list] # Ensemble de pièce
 player_1_has_selected_piece = False
 player_2_has_selected_piece = False
 has_a_player_won = False
+color_blind_mode = settings_data['color_blind_mode']
 
 orientation_id = 0
 mirror_id = 0
@@ -76,7 +83,7 @@ player_2_pieces_cells = []
 
 adjacent_coords_hover = []
 
-current_player = 0 # Le joueur 1 commence
+current_player = settings_data['starting_player'] # Le joueur paramétré commence
 board_cell_size = 38 # On définit la taille d'une case du plateau
 board_size = 16 # On définit la taille du plateau
 
@@ -88,6 +95,8 @@ blue_cases_coordinates = []
 
 player_1_score = 0 # Scores des joueurs
 player_2_score = 0
+
+settings_file.close()
 
 # Palette source
 
@@ -264,17 +273,327 @@ class App:
         style.theme_use('default') # On utilise le style par défaut pour modifier plus facilement les boutons
         style.configure('TButton', background=button_background_color, focuscolor=button_background_color, relief='flat') # On ajoute du style pour les boutons
         style.configure('TFrame', background=background_color) # On change la couleur de fond des cadres "Frame"
+        style.configure("TCombobox", fieldbackground=background_color, background=background_color, foreground=background_color, relief='flat')
+        
         style.map('TButton', background=[('active', button_background_color), ('disabled', button_background_color)], relief=[('pressed', 'flat')]) # Modification du thème en fonction de l'état des boutons
 
+        style.map('TCombobox', fieldbackground=[('readonly', background_color)])
+        style.map('TCombobox', selectbackground=[('readonly', background_color)])
+        style.map('TCombobox', selectforeground=[('readonly', on_background_color)])
+        style.map('TCombobox', background=[('readonly', background_color)])
+        style.map('TCombobox', foreground=[('readonly', on_background_color)])
         self.main_menu() # Affiche le menu principal dès le démarrage du programme
     
     def reset_variables(self): # Toutes les variables sont réinitialisées
-        global player_1_pieces_list, player_2_pieces_list
+        global player_1_pieces_list, player_2_pieces_list, color_blind_mode
         global player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
         global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions
         global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
         global current_player, player_1_score, player_2_score
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates, red_cases_coordinates, blue_cases_coordinates
+        global background_color, on_background_color, surface_color
+        global button_background_color, button_outline_color, button_text_color
+        global placed_piece_red, valid_placement_red, piece_hover_red, piece_hover_red_overlay
+        global placed_piece_blue, valid_placement_blue, piece_hover_blue, piece_hover_blue_overlay
+        global cannot_play_border_color, invalid_placement, board_cell_outline_color
+
+        with open("settings.json", "r") as settings_file:
+            settings_data = json.load(settings_file)
+        
+        if settings_data['use_purple_and_yellow']:
+            # Primary
+            md_ref_palette_primary0 = "#000000"
+            md_ref_palette_primary10 = "#22005d"
+            md_ref_palette_primary20 = "#3a0092"
+            md_ref_palette_primary25 = "#4700af"
+            md_ref_palette_primary30 = "#5400cc"
+            md_ref_palette_primary35 = "#6109e7"
+            md_ref_palette_primary40 = "#6e28f3"
+            md_ref_palette_primary50 = "#8653ff"
+            md_ref_palette_primary60 = "#9e79ff"
+            md_ref_palette_primary70 = "#b69bff"
+            md_ref_palette_primary80 = "#cfbcff"
+            md_ref_palette_primary90 = "#e9ddff"
+            md_ref_palette_primary95 = "#f6eeff"
+            md_ref_palette_primary98 = "#fdf7ff"
+            md_ref_palette_primary99 = "#fffbff"
+            md_ref_palette_primary100 = "#ffffff"
+            # Tertiary
+            md_ref_palette_tertiary0 = "#000000"
+            md_ref_palette_tertiary10 = "#211b00"
+            md_ref_palette_tertiary20 = "#393000"
+            md_ref_palette_tertiary25 = "#463b00"
+            md_ref_palette_tertiary30 = "#534600"
+            md_ref_palette_tertiary35 = "#605200"
+            md_ref_palette_tertiary40 = "#6e5e00"
+            md_ref_palette_tertiary50 = "#8a7600"
+            md_ref_palette_tertiary60 = "#a89000"
+            md_ref_palette_tertiary70 = "#c6aa00"
+            md_ref_palette_tertiary80 = "#e5c500"
+            md_ref_palette_tertiary90 = "#ffe259"
+            md_ref_palette_tertiary95 = "#fff1bc"
+            md_ref_palette_tertiary98 = "#fff9ed"
+            md_ref_palette_tertiary99 = "#fffbff"
+            md_ref_palette_tertiary100 = "#ffffff"
+            # Neutral
+            md_ref_palette_neutral0 = "#000000"
+            md_ref_palette_neutral10 = "#1c1b1e"
+            md_ref_palette_neutral20 = "#313033"
+            md_ref_palette_neutral25 = "#3d3b3e"
+            md_ref_palette_neutral30 = "#48464a"
+            md_ref_palette_neutral35 = "#545156"
+            md_ref_palette_neutral40 = "#605d62"
+            md_ref_palette_neutral50 = "#79767a"
+            md_ref_palette_neutral60 = "#938f94"
+            md_ref_palette_neutral70 = "#aeaaae"
+            md_ref_palette_neutral80 = "#cac5ca"
+            md_ref_palette_neutral90 = "#e6e1e6"
+            md_ref_palette_neutral95 = "#f4eff4"
+            md_ref_palette_neutral98 = "#fdf8fd"
+            md_ref_palette_neutral99 = "#fffbff"
+            md_ref_palette_neutral100 = "#ffffff"
+            # Neutral Variant
+            md_ref_palette_neutral_variant0 = "#000000"
+            md_ref_palette_neutral_variant10 = "#1d1a22"
+            md_ref_palette_neutral_variant20 = "#322f38"
+            md_ref_palette_neutral_variant25 = "#3d3a43"
+            md_ref_palette_neutral_variant30 = "#49454e"
+            md_ref_palette_neutral_variant35 = "#54515a"
+            md_ref_palette_neutral_variant40 = "#615d66"
+            md_ref_palette_neutral_variant50 = "#7a757f"
+            md_ref_palette_neutral_variant60 = "#948f99"
+            md_ref_palette_neutral_variant70 = "#afa9b4"
+            md_ref_palette_neutral_variant80 = "#cac4cf"
+            md_ref_palette_neutral_variant90 = "#e7e0eb"
+            md_ref_palette_neutral_variant95 = "#f5eefa"
+            md_ref_palette_neutral_variant98 = "#fdf7ff"
+            md_ref_palette_neutral_variant99 = "#fffbff"
+            md_ref_palette_neutral_variant100 = "#ffffff"
+            # Light
+            md_sys_color_primary_light = "#6e28f3"
+            md_sys_color_on_primary_light = "#ffffff"
+            md_sys_color_primary_container_light = "#e9ddff"
+            md_sys_color_on_primary_container_light = "#22005d"
+            md_sys_color_secondary_light = "#6e5e00"
+            md_sys_color_on_secondary_light = "#ffffff"
+            md_sys_color_secondary_container_light = "#ffe259"
+            md_sys_color_on_secondary_container_light = "#211b00"
+            md_sys_color_tertiary_light = "#6e5e00"
+            md_sys_color_on_tertiary_light = "#ffffff"
+            md_sys_color_tertiary_container_light = "#ffe259"
+            md_sys_color_on_tertiary_container_light = "#211b00"
+            md_sys_color_error_light = "#ba1a1a"
+            md_sys_color_error_container_light = "#ffdad6"
+            md_sys_color_on_error_light = "#ffffff"
+            md_sys_color_on_error_container_light = "#410002"
+            md_sys_color_background_light = "#fffbff"
+            md_sys_color_on_background_light = "#1c1b1e"
+            md_sys_color_surface_light = "#fffbff"
+            md_sys_color_on_surface_light = "#1c1b1e"
+            md_sys_color_surface_variant_light = "#e7e0eb"
+            md_sys_color_on_surface_variant_light = "#49454e"
+            md_sys_color_outline_light = "#7a757f"
+            md_sys_color_inverse_on_surface_light = "#f4eff4"
+            md_sys_color_inverse_surface_light = "#313033"
+            md_sys_color_inverse_primary_light = "#cfbcff"
+            md_sys_color_shadow_light = "#000000"
+            md_sys_color_surface_tint_light = "#6e28f3"
+            md_sys_color_outline_variant_light = "#cac4cf"
+            md_sys_color_scrim_light = "#000000"
+            # Dark
+            # md_sys_color_primary_dark = "#cfbcff"
+            md_sys_color_primary_dark = "#9e79ff"
+            md_sys_color_on_primary_dark = "#3a0092"
+            md_sys_color_primary_container_dark = "#5400cc"
+            md_sys_color_on_primary_container_dark = "#e9ddff"
+            md_sys_color_secondary_dark = "#e5c500"
+            md_sys_color_on_secondary_dark = "#393000"
+            md_sys_color_secondary_container_dark = "#534600"
+            md_sys_color_on_secondary_container_dark = "#ffe259"
+            md_sys_color_tertiary_dark = "#e5c500"
+            md_sys_color_on_tertiary_dark = "#393000"
+            # md_sys_color_tertiary_container_dark = "#534600"
+            md_sys_color_tertiary_container_dark = "#6e5e00"
+            md_sys_color_on_tertiary_container_dark = "#ffe259"
+            md_sys_color_error_dark = "#ffb4ab"
+            md_sys_color_error_container_dark = "#93000a"
+            md_sys_color_on_error_dark = "#690005"
+            md_sys_color_on_error_container_dark = "#ffdad6"
+            md_sys_color_background_dark = "#1c1b1e"
+            md_sys_color_on_background_dark = "#e6e1e6"
+            md_sys_color_surface_dark = "#1c1b1e"
+            md_sys_color_on_surface_dark = "#e6e1e6"
+            md_sys_color_surface_variant_dark = "#49454e"
+            md_sys_color_on_surface_variant_dark = "#cac4cf"
+            md_sys_color_outline_dark = "#948f99"
+            md_sys_color_inverse_on_surface_dark = "#1c1b1e"
+            md_sys_color_inverse_surface_dark = "#e6e1e6"
+            md_sys_color_inverse_primary_dark = "#6e28f3"
+            md_sys_color_shadow_dark = "#000000"
+            md_sys_color_surface_tint_dark = "#cfbcff"
+            md_sys_color_outline_variant_dark = "#49454e"
+            md_sys_color_scrim_dark = "#000000"
+
+            piece_hover_red_overlay = '#b2a240' # Couleur de bordure quand le joueur actif est le joueur 1
+            piece_hover_blue_overlay = '#8f7cbf' # Couleur de bordure quand le joueur actif est le joueur 
+        
+        else:
+            # PRIMARY
+            md_ref_palette_primary0 = "#000000"
+            md_ref_palette_primary10 = "#00006e"
+            md_ref_palette_primary20 = "#0001ac"
+            md_ref_palette_primary25 = "#0001cd"
+            md_ref_palette_primary30 = "#0000ef"
+            md_ref_palette_primary35 = "#1a21ff"
+            md_ref_palette_primary40 = "#343dff"
+            md_ref_palette_primary50 = "#5a64ff"
+            md_ref_palette_primary60 = "#7c84ff"
+            md_ref_palette_primary70 = "#9da3ff"
+            md_ref_palette_primary80 = "#bec2ff"
+            md_ref_palette_primary90 = "#e0e0ff"
+            md_ref_palette_primary95 = "#f1efff"
+            md_ref_palette_primary98 = "#fbf8ff"
+            md_ref_palette_primary99 = "#fffbff"
+            md_ref_palette_primary100 = "#ffffff"
+            # TERTIARY
+            md_ref_palette_tertiary0 = "#000000"
+            md_ref_palette_tertiary10 = "#410000"
+            md_ref_palette_tertiary20 = "#690100"
+            md_ref_palette_tertiary25 = "#7e0100"
+            md_ref_palette_tertiary30 = "#930100"
+            md_ref_palette_tertiary35 = "#a90100"
+            md_ref_palette_tertiary40 = "#c00100"
+            md_ref_palette_tertiary50 = "#ef0000"
+            md_ref_palette_tertiary60 = "#ff5540"
+            md_ref_palette_tertiary70 = "#ff8a78"
+            md_ref_palette_tertiary80 = "#ffb4a8"
+            md_ref_palette_tertiary90 = "#ffdad4"
+            md_ref_palette_tertiary95 = "#ffedea"
+            md_ref_palette_tertiary98 = "#fff8f6"
+            md_ref_palette_tertiary99 = "#fffbff"
+            md_ref_palette_tertiary100 = "#ffffff"
+            # NEUTRAL
+            md_ref_palette_neutral0 = "#000000"
+            md_ref_palette_neutral10 = "#1b1b1f"
+            md_ref_palette_neutral20 = "#303034"
+            md_ref_palette_neutral25 = "#3c3b3f"
+            md_ref_palette_neutral30 = "#47464a"
+            md_ref_palette_neutral35 = "#535256"
+            md_ref_palette_neutral40 = "#5f5e62"
+            md_ref_palette_neutral50 = "#78767a"
+            md_ref_palette_neutral60 = "#929094"
+            md_ref_palette_neutral70 = "#adaaaf"
+            md_ref_palette_neutral80 = "#c8c5ca"
+            md_ref_palette_neutral90 = "#e5e1e6"
+            md_ref_palette_neutral95 = "#f3eff4"
+            md_ref_palette_neutral98 = "#fcf8fd"
+            md_ref_palette_neutral99 = "#fffbff"
+            md_ref_palette_neutral100 = "#ffffff"
+            # NEUTRAL VARIANT
+            md_ref_palette_neutral_variant0 = "#000000"
+            md_ref_palette_neutral_variant10 = "#1b1b23"
+            md_ref_palette_neutral_variant20 = "#303038"
+            md_ref_palette_neutral_variant25 = "#3b3b43"
+            md_ref_palette_neutral_variant30 = "#46464f"
+            md_ref_palette_neutral_variant35 = "#52515b"
+            md_ref_palette_neutral_variant40 = "#5e5d67"
+            md_ref_palette_neutral_variant50 = "#777680"
+            md_ref_palette_neutral_variant60 = "#91909a"
+            md_ref_palette_neutral_variant70 = "#acaab4"
+            md_ref_palette_neutral_variant80 = "#c7c5d0"
+            md_ref_palette_neutral_variant90 = "#e4e1ec"
+            md_ref_palette_neutral_variant95 = "#f2effa"
+            md_ref_palette_neutral_variant98 = "#fbf8ff"
+            md_ref_palette_neutral_variant99 = "#fffbff"
+            md_ref_palette_neutral_variant100 = "#ffffff"
+            # LIGHT
+            md_sys_color_primary_light = "#343dff"
+            md_sys_color_on_primary_light = "#ffffff"
+            md_sys_color_primary_container_light = "#e0e0ff"
+            md_sys_color_on_primary_container_light = "#00006e"
+            md_sys_color_secondary_light = "#984061"
+            md_sys_color_on_secondary_light = "#ffffff"
+            md_sys_color_secondary_container_light = "#ffd9e2"
+            md_sys_color_on_secondary_container_light = "#3e001d"
+            md_sys_color_tertiary_light = "#c00100"
+            md_sys_color_on_tertiary_light = "#ffffff"
+            md_sys_color_tertiary_container_light = "#ffdad4"
+            md_sys_color_on_tertiary_container_light = "#410000"
+            md_sys_color_error_light = "#ba1a1a"
+            md_sys_color_error_container_light = "#ffdad6"
+            md_sys_color_on_error_light = "#ffffff"
+            md_sys_color_on_error_container_light = "#410002"
+            md_sys_color_background_light = "#fffbff"
+            md_sys_color_on_background_light = "#1b1b1f"
+            md_sys_color_surface_light = "#fffbff"
+            md_sys_color_on_surface_light = "#1b1b1f"
+            md_sys_color_surface_variant_light = "#e4e1ec"
+            md_sys_color_on_surface_variant_light = "#46464f"
+            md_sys_color_outline_light = "#777680"
+            md_sys_color_inverse_on_surface_light = "#f3eff4"
+            md_sys_color_inverse_surface_light = "#303034"
+            md_sys_color_inverse_primary_light = "#bec2ff"
+            md_sys_color_shadow_light = "#000000"
+            md_sys_color_surface_tint_light = "#343dff"
+            md_sys_color_outline_variant_light = "#c7c5d0"
+            md_sys_color_scrim_light = "#000000"
+            # DARK
+            # md_sys_color_primary_dark = "#bec2ff"
+            md_sys_color_primary_dark = "#7c84ff"
+            md_sys_color_on_primary_dark = "#0001ac"
+            md_sys_color_primary_container_dark = "#0000ef"
+            md_sys_color_on_primary_container_dark = "#e0e0ff"
+            md_sys_color_secondary_dark = "#ffb1c8"
+            md_sys_color_on_secondary_dark = "#5e1133"
+            md_sys_color_secondary_container_dark = "#7b2949"
+            md_sys_color_on_secondary_container_dark = "#ffd9e2"
+            # md_sys_color_tertiary_dark = "#ffb4a8"
+            md_sys_color_tertiary_dark = "#ff5540"
+            md_sys_color_on_tertiary_dark = "#690100"
+            md_sys_color_tertiary_container_dark = "#930100"
+            md_sys_color_on_tertiary_container_dark = "#ffdad4"
+            md_sys_color_error_dark = "#ffb4ab"
+            md_sys_color_error_container_dark = "#93000a"
+            md_sys_color_on_error_dark = "#690005"
+            md_sys_color_on_error_container_dark = "#ffdad6"
+            md_sys_color_background_dark = "#1b1b1f"
+            md_sys_color_on_background_dark = "#e5e1e6"
+            md_sys_color_surface_dark = "#1b1b1f"
+            md_sys_color_on_surface_dark = "#e5e1e6"
+            md_sys_color_surface_variant_dark = "#46464f"
+            md_sys_color_on_surface_variant_dark = "#c7c5d0"
+            md_sys_color_outline_dark = "#91909a"
+            md_sys_color_inverse_on_surface_dark = "#1b1b1f"
+            md_sys_color_inverse_surface_dark = "#e5e1e6"
+            md_sys_color_inverse_primary_dark = "#343dff"
+            md_sys_color_shadow_dark = "#000000"
+            md_sys_color_surface_tint_dark = "#bec2ff"
+            md_sys_color_outline_variant_dark = "#46464f"
+            md_sys_color_scrim_dark = "#000000"
+        
+            piece_hover_red_overlay = '#bf857c' # Couleur de bordure quand le joueur actif est le joueur 1
+            piece_hover_blue_overlay = '#8e91bf' # Couleur de bordure quand le joueur actif est le joueur 2
+        
+        background_color = md_sys_color_background_dark # Couleur de fond du programme
+        on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
+        button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
+        button_outline_color = md_sys_color_on_surface_dark # Couleur de bordure des boutons
+        button_text_color = md_sys_color_on_surface_dark # Couleur du texte des boutons
+        surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
+
+        placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
+        valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
+        piece_hover_red = md_ref_palette_tertiary70 # Couleur de survol pour les pièces rouges
+
+        placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
+        valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+        piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
+
+        cannot_play_border_color = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
+
+        invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+
+        board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordure des cases du plateau
 
         player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                                 [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
@@ -310,6 +629,7 @@ class App:
         player_1_has_selected_piece = False
         player_2_has_selected_piece = False
         has_a_player_won = False
+        color_blind_mode = settings_data['color_blind_mode']
 
         orientation_id = 0
 
@@ -322,7 +642,7 @@ class App:
         player_1_pieces_cells = []
         player_2_pieces_cells = []
 
-        current_player = 0 # Le joueur 1 commence
+        current_player = settings_data['starting_player'] # Le joueur 1 commence
 
         red_corners_coordinates = []
         blue_corners_coordinates = []
@@ -333,6 +653,8 @@ class App:
         player_1_score = 0
         player_2_score = 0
 
+        settings_file.close()
+
     def main_menu(self):
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
@@ -341,16 +663,16 @@ class App:
 
         main_menu_frame = Frame(self.master, background=background_color) # On crée le cadre principal
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
-        main_menu_frame.columnconfigure(2, weight=1)
+        main_menu_frame.columnconfigure(3, weight=1)
 
         play = Label(self.master, text="Appuyez pour Jouer", background=background_color, foreground=on_background_color, font=('Arial', 15)) # On crée le texte "Appuyez pour Jouer"
         play.pack(pady=50) # On affiche le texte dans le cadre
 
         version_label = Label(main_menu_frame, text=version_number, background=background_color, foreground=invalid_placement, font=('Consolas', 15)) # On crée le texte qui affiche la version du programme
-        version_label.grid(row=0, column=3) # Le texte est affiché
+        version_label.grid(row=0, column=4) # Le texte est affiché
 
         blocus_logo_canvas = Canvas(main_menu_frame, width=840, height=224, bd=0, highlightthickness=0, relief='flat', background=background_color) # On crée le canvas sur lequel sera placé le logo du programme
-        blocus_logo_canvas.grid(column=0, row=1, columnspan=4, pady=10) # Le canvas est placé
+        blocus_logo_canvas.grid(column=0, row=1, columnspan=5, pady=10) # Le canvas est placé
         self.blocus_logo = PhotoImage(file="res/img/blocus_logo.png") # On récupère l'image du logo
         blocus_logo_canvas.create_image(0, 0, anchor='nw', image=self.blocus_logo) # On place le logo sur le canvas mentionné ci-dessus
 
@@ -360,7 +682,11 @@ class App:
 
         self.about_icon = PhotoImage(file='res/img/about_icon.png') # On récupère l'image de l'icône "about_icon.png"
         about_button = Button(main_menu_frame, image=self.about_icon, command=self.about_blocus_duo, compound='center', width=2) # On crée le bouton qui affichera les auteurs du projet
-        about_button.grid(column=1, row=0) # Le bouton est placé
+        about_button.grid(column=2, row=0) # Le bouton est placé
+
+        self.settings_icon = PhotoImage(file='res/img/settings_icon.png') # On récupère l'image de l'icône "about_icon.png"
+        settings_button = Button(main_menu_frame, image=self.settings_icon, command=self.settings, compound='center', width=2) # On crée le bouton qui affichera les auteurs du projet
+        settings_button.grid(column=1, row=0) # Le bouton est placé
 
         main_menu_frame.bind("<Button-1>", self.blocus_duo)    #
         play.bind("<Button-1>", self.blocus_duo)               # On "bind" plusieurs éléments pour que le jeu soit lancé en cliquant sur ces éléments
@@ -370,7 +696,7 @@ class App:
         messagebox.showinfo("Blocus", "Projet supervisé de NSI\nZiad (ziadOUA) & Djibril")
 
     def blocus_duo(self, event):
-        global board_canvas, board_cells, board, player_turn_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
+        global board_canvas, board_cells, board, win_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates
         global board_cells, player_1_pieces_cells, player_2_pieces_cells
         global board_cell_size, board_size
@@ -414,9 +740,9 @@ class App:
         back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2) # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
         
-        player_turn_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_background_color) #On crée un texte qui affiche le tour du joueur
-        player_turn_label.grid(column=1, row=0, sticky='ew') # On place le texte 
-        player_turn_label['text'] = f'Joueur {current_player + 1}' # On met à jour le contenu du texte
+        win_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_background_color) #On crée un texte qui affiche le tour du joueur
+        win_label.grid(column=1, row=0, sticky='ew') # On place le texte 
+        # win_label['text'] = f'Joueur {current_player + 1}' # On met à jour le contenu du texte
 
         Label(board_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
         
@@ -511,7 +837,7 @@ class App:
         global player_1_pieces_top_part, player_2_pieces_top_part
         global player_1_hint_button, player_2_hint_button
         global player_1_pieces_container, player_2_pieces_container
-        global player_turn_label
+        global win_label
         
         column_event = event.x // board_cell_size
         line_event = event.y // board_cell_size
@@ -528,6 +854,14 @@ class App:
                         red_cases_coordinates.append([column, line])
                         for k in adjacent_coords:
                             player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color)
+                        
+                        if color_blind_mode:
+                            x1 = column * board_cell_size + 1
+                            y1 = line * board_cell_size + 1
+                            x2 = x1 + board_cell_size - 1
+                            y2 = y1 + board_cell_size - 1 
+                            board_canvas.create_rectangle(x1 + 10, y1 + 10, x2 - 10, y2 - 10, fill=background_color, width=0)
+
                         player_1_has_selected_piece = False
                     elif board[line][column] == 'BH':
                         board[line][column] = 'B'
@@ -546,7 +880,6 @@ class App:
             if current_player == 0:
                 if self.can_still_play(player=1): # On vérifie si le joueur 2 peut bien jouer
                     current_player = 1 # On change de joueur
-                    self.update_turn_label() # On met à jour le texte du joueur que concerne le tour
                     player_1_hint_button.grid_forget() # On retire le bouton indice du joueur 1...
                     Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacé par un objet vide, pour centrer le texte du score
                     player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 2 est redéfini
@@ -558,7 +891,6 @@ class App:
             else:
                 if self.can_still_play(player=0): # On vérifie si le joueur 1 peut bien jouer
                     current_player = 0 # On change de joueur
-                    self.update_turn_label() # On met à jour le texte du joueur que concerne le tour
                     player_2_hint_button.grid_forget() # On retire le bouton indice du joueur 2...
                     Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) #... remplacé par un objet vide, pour centrer le texte du score
                     player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 1 est redéfini
@@ -571,15 +903,15 @@ class App:
             if not self.can_still_play(player=0) and not self.can_still_play(player=1): # Si aucun des deux joueurs ne peut jouer
                 current_player = 999 # Le jeu est bloqué
                 if player_1_score > player_2_score:
-                    player_turn_label['text'] = 'Victoire du Joueur 1' # Si le score du joueur 1 est supérieur à celui du joueur 2, alors victoire du joueur 1
+                    win_label['text'] = 'Victoire du Joueur 1' # Si le score du joueur 1 est supérieur à celui du joueur 2, alors victoire du joueur 1
                     has_a_player_won = True
                 elif player_1_score < player_2_score:
-                    player_turn_label['text'] = 'Victoire du Joueur 2' # Si le score du joueur 1 est inférieur à celui du joueur 2, alors victoire du joueur 2
+                    win_label['text'] = 'Victoire du Joueur 2' # Si le score du joueur 1 est inférieur à celui du joueur 2, alors victoire du joueur 2
                     has_a_player_won = True
                 elif player_1_score == player_2_score:
-                    player_turn_label['text'] = 'Égalité' # Si les deux scores sont égaux, alors égalité
+                    win_label['text'] = 'Égalité' # Si les deux scores sont égaux, alors égalité
                     has_a_player_won = False
-                player_turn_label.update() # On met à jour le texte pour qu'il affiche l'état du jeu
+                win_label.update() # On met à jour le texte pour qu'il affiche l'état du jeu
                 player_1_hint_button.grid_forget() # On retire les boutons indice des deux joueurs...
                 player_2_hint_button.grid_forget()
                 Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacés par des objets vides pour centrer les scores
@@ -985,7 +1317,7 @@ class App:
     def update_board_canvas(self):
         global board, board_canvas, board_cells
         global red_starting_corner, blue_starting_corner
-        global player_turn_label, player_1_score_label, player_2_score_label
+        global win_label, player_1_score_label, player_2_score_label
         global player_1_score, player_2_score
         global board_size
         
@@ -1007,11 +1339,6 @@ class App:
         player_2_score_label['text'] = f"Score : {player_2_score}"
         player_2_score_label.update()
     
-    def update_turn_label(self):
-        global player_turn_label
-        player_turn_label['text'] = f"Joueur {current_player + 1}" # On met à jour le texte qui affiche le tour du joueur actif
-        player_turn_label.update()
-
     def on_player_pieces_click(self, event):
         global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
         global current_player, adjacent_coords, player_1_has_selected_piece, relative_positions, orientation_id, player_2_has_selected_piece
@@ -1187,10 +1514,102 @@ class App:
         # This is the final output of the function
         return cases_adjacentes
 
+    def settings(self):
+        global color_blind_mode, settings_data, settings_file, color_blind_mode_state, alternative_color_scheme_state
+        for i in self.master.winfo_children():
+            i.destroy() # On supprime tout le contenu de la fenêtre
+        
+        main_menu_frame = Frame(self.master, background=background_color) # On crée le cadre principal
+        main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
+
+        top_part = Frame(main_menu_frame, background=background_color)
+        top_part.grid(column=0, row=0, sticky='ew')
+        top_part.columnconfigure(1, weight=1)
+
+        settings_label = Label(top_part, text='Paramètres', font=('Arial', 20), background=background_color, foreground=on_background_color)
+        settings_label.grid(column=1, row=0, sticky='ew')
+        
+        self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
+        back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2) # On crée un bouton retour
+        back_button.grid(column=0, row=0, sticky='w', pady=20)
+
+        Label(top_part, text='                ', background=background_color).grid(column=2, row=0)
+
+        color_settings_section_label = Label(main_menu_frame, text='COULEURS', font=('Consolas', 10), foreground=surface_color, background=background_color)
+        color_settings_section_label.grid(column=0, row=1, sticky='w')
+
+        with open("settings.json", "r") as settings_file:
+            settings_data = json.load(settings_file)
+
+        color_blind_mode_state = BooleanVar()
+        color_blind_mode_state.set(settings_data['color_blind_mode'])
+        color_blind_mode_checkbox = Checkbutton(
+                                        main_menu_frame, 
+                                        text='Mode daltonien', 
+                                        onvalue=True, 
+                                        offvalue=False, 
+                                        variable=color_blind_mode_state, 
+                                        command=self.update_settings, 
+                                        font=('Arial', 15), 
+                                        bd=0,
+                                        highlightthickness=0,
+                                        background=background_color, 
+                                        activebackground=background_color,
+                                        foreground=on_background_color,
+                                        activeforeground=on_background_color,
+                                        relief='flat',
+                                        selectcolor=background_color)
+        color_blind_mode_checkbox.grid(column=0, row=2, sticky='w')
+
+        alternative_color_scheme_state = BooleanVar()
+        alternative_color_scheme_state.set(settings_data['use_purple_and_yellow'])
+        alternative_color_scheme_checkbox = Checkbutton(
+                                        main_menu_frame, 
+                                        text='Utiliser du Violet et du Jaune', 
+                                        onvalue=True, 
+                                        offvalue=False, 
+                                        variable=alternative_color_scheme_state, 
+                                        command=self.update_settings, 
+                                        font=('Arial', 15), 
+                                        bd=0,
+                                        highlightthickness=0,
+                                        background=background_color, 
+                                        activebackground=background_color,
+                                        foreground=on_background_color,
+                                        activeforeground=on_background_color,
+                                        relief='flat',
+                                        selectcolor=background_color)
+        alternative_color_scheme_checkbox.grid(column=0, row=3, sticky='w')
+
+        settings_file.close()
+    
+    def update_settings(self):
+        with open("settings.json", "r") as settings_file:
+            settings_data = json.load(settings_file)
+
+        if color_blind_mode_state.get():
+            settings_data['color_blind_mode'] = True
+        else:
+            settings_data['color_blind_mode'] = False
+        
+        if alternative_color_scheme_state.get():
+            settings_data['use_red_and_blue'] = False
+            settings_data['use_purple_and_yellow'] = True
+        else:
+            settings_data['use_red_and_blue'] = True
+            settings_data['use_purple_and_yellow'] = False
+
+        with open("settings.json", "w") as settings_file:
+            json.dump(settings_data, settings_file, indent=4)
+        
+        settings_file.close()
+
 
 if __name__ == "__main__":
     root = Tk()
     root.configure(bg=background_color)
+    root.option_add("*TCombobox*Listbox*Background", surface_color) # changes background of drop down menu of combobox
+    root.option_add('*TCombobox*Listbox*Foreground', on_background_color) # changes colour of text of options in combobox
     icon = PhotoImage(file='res/img/blocus_icon.png')
     root.iconphoto(True, icon)
     App(root)
