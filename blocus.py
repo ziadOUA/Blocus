@@ -1621,22 +1621,10 @@ class App:
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
 
-        if color_blind_mode_state.get():
-            settings_data['color_blind_mode'] = True
-        else:
-            settings_data['color_blind_mode'] = False
-        
-        if alternative_color_scheme_state.get():
-            settings_data['use_red_and_blue'] = False
-            settings_data['use_purple_and_yellow'] = True
-        else:
-            settings_data['use_red_and_blue'] = True
-            settings_data['use_purple_and_yellow'] = False
-        
-        if play_victory_sound_state.get():
-            settings_data['play_victory_sound'] = True
-        else:
-            settings_data['play_victory_sound'] = False
+        settings_data['color_blind_mode'] = color_blind_mode_state.get()
+        settings_data['use_red_and_blue'] = not alternative_color_scheme_state.get()
+        settings_data['use_purple_and_yellow'] = alternative_color_scheme_state.get()
+        settings_data['play_victory_sound'] = play_victory_sound_state.get()
 
         with open("settings.json", "w") as settings_file:
             json.dump(settings_data, settings_file, indent=4)
