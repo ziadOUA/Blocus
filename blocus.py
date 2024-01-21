@@ -68,6 +68,7 @@ player_1_has_selected_piece = False
 player_2_has_selected_piece = False
 has_a_player_won = False
 color_blind_mode = settings_data['color_blind_mode']
+play_victory_sound = settings_data['play_victory_sound']
 
 orientation_id = 0
 mirror_id = 0
@@ -296,6 +297,7 @@ class App:
         global placed_piece_red, valid_placement_red, piece_hover_red, piece_hover_red_overlay
         global placed_piece_blue, valid_placement_blue, piece_hover_blue, piece_hover_blue_overlay
         global cannot_play_border_color, invalid_placement, board_cell_outline_color
+        global play_victory_sound
 
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
@@ -436,6 +438,7 @@ class App:
 
             piece_hover_red_overlay = '#b2a240' # Couleur de bordure quand le joueur actif est le joueur 1
             piece_hover_blue_overlay = '#8f7cbf' # Couleur de bordure quand le joueur actif est le joueur 
+            cannot_play_border_color = '#ff8a78' # Couleur de bordure quand un des joueurs ne peut plus jouer
         
         else:
             # PRIMARY
@@ -573,6 +576,7 @@ class App:
         
             piece_hover_red_overlay = '#bf857c' # Couleur de bordure quand le joueur actif est le joueur 1
             piece_hover_blue_overlay = '#8e91bf' # Couleur de bordure quand le joueur actif est le joueur 2
+            cannot_play_border_color = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
         
         background_color = md_sys_color_background_dark # Couleur de fond du programme
         on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
@@ -588,8 +592,6 @@ class App:
         placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
         valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
         piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
-
-        cannot_play_border_color = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
 
         invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
 
@@ -630,6 +632,7 @@ class App:
         player_2_has_selected_piece = False
         has_a_player_won = False
         color_blind_mode = settings_data['color_blind_mode']
+        play_victory_sound = settings_data['play_victory_sound']
 
         orientation_id = 0
 
@@ -673,19 +676,25 @@ class App:
 
         blocus_logo_canvas = Canvas(main_menu_frame, width=840, height=224, bd=0, highlightthickness=0, relief='flat', background=background_color) # On crée le canvas sur lequel sera placé le logo du programme
         blocus_logo_canvas.grid(column=0, row=1, columnspan=5, pady=10) # Le canvas est placé
-        self.blocus_logo = PhotoImage(file="res/img/blocus_logo.png") # On récupère l'image du logo
+        
+        with open("settings.json", "r") as settings_file:
+            settings_data = json.load(settings_file)
+
+        self.blocus_logo = PhotoImage(file="res/img/blocus_logo.png") if not settings_data['use_purple_and_yellow'] else PhotoImage(file="res/img/blocus_logo_alt.png") # On récupère l'image du logo
         blocus_logo_canvas.create_image(0, 0, anchor='nw', image=self.blocus_logo) # On place le logo sur le canvas mentionné ci-dessus
 
+        settings_file.close()
+
         self.github_logo = PhotoImage(file='res/img/github_logo.png') # On récupère l'image du logo GitHub
-        github_button = Button(main_menu_frame, image=self.github_logo, command=lambda: webbrowser.open_new('https://github.com/ziadOUA/Blocus'), compound='center', width=2) # On crée le bouton qui ouvrira le lien GitHub du projet dans le navigateur
+        github_button = Button(main_menu_frame, image=self.github_logo, command=lambda: webbrowser.open_new('https://github.com/ziadOUA/Blocus'), compound='center', width=2, cursor="hand2") # On crée le bouton qui ouvrira le lien GitHub du projet dans le navigateur
         github_button.grid(column=0, row=0) # Le bouton est placé
 
         self.about_icon = PhotoImage(file='res/img/about_icon.png') # On récupère l'image de l'icône "about_icon.png"
-        about_button = Button(main_menu_frame, image=self.about_icon, command=self.about_blocus_duo, compound='center', width=2) # On crée le bouton qui affichera les auteurs du projet
+        about_button = Button(main_menu_frame, image=self.about_icon, command=self.about_blocus_duo, compound='center', width=2, cursor="hand2") # On crée le bouton qui affichera les auteurs du projet
         about_button.grid(column=2, row=0) # Le bouton est placé
 
         self.settings_icon = PhotoImage(file='res/img/settings_icon.png') # On récupère l'image de l'icône "about_icon.png"
-        settings_button = Button(main_menu_frame, image=self.settings_icon, command=self.settings, compound='center', width=2) # On crée le bouton qui affichera les auteurs du projet
+        settings_button = Button(main_menu_frame, image=self.settings_icon, command=self.settings, compound='center', width=2, cursor="hand2") # On crée le bouton qui affichera les auteurs du projet
         settings_button.grid(column=1, row=0) # Le bouton est placé
 
         main_menu_frame.bind("<Button-1>", self.blocus_duo)    #
@@ -737,7 +746,7 @@ class App:
         board_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
         self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
-        back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2) # On crée un bouton retour
+        back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
         
         win_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_background_color) #On crée un texte qui affiche le tour du joueur
@@ -751,7 +760,7 @@ class App:
         player_1_pieces_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
         self.hint_icon = PhotoImage(file='res/img/hint_icon.png') # On récupère l'image de l'icône "hint_icon.png"
-        player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton indice pour le joueur 1
+        player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # On crée un bouton indice pour le joueur 1
         player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
 
         player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 1
@@ -766,7 +775,7 @@ class App:
 
         Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) # Création d'un objet servant à centrer le texte qui affiche le score du joueur 2
 
-        player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # On crée un bouton indice pour le joueur 2
+        player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # On crée un bouton indice pour le joueur 2
         Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # On crée un objet qui prend la place du bouton indice du joueur 2, caché par défaut
 
         player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 2
@@ -882,7 +891,7 @@ class App:
                     current_player = 1 # On change de joueur
                     player_1_hint_button.grid_forget() # On retire le bouton indice du joueur 1...
                     Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacé par un objet vide, pour centrer le texte du score
-                    player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 2 est redéfini
+                    player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # Le bouton indice du joueur 2 est redéfini
                     player_2_hint_button.grid(column=2, row=0) # Le bouton est placé
                     player_1_pieces_container.configure(highlightbackground=background_color)
                     player_2_pieces_container.configure(highlightbackground=placed_piece_blue)
@@ -893,7 +902,7 @@ class App:
                     current_player = 0 # On change de joueur
                     player_2_hint_button.grid_forget() # On retire le bouton indice du joueur 2...
                     Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) #... remplacé par un objet vide, pour centrer le texte du score
-                    player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2) # Le bouton indice du joueur 1 est redéfini
+                    player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # Le bouton indice du joueur 1 est redéfini
                     player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
                     player_1_pieces_container.configure(highlightbackground=placed_piece_red)
                     player_2_pieces_container.configure(highlightbackground=background_color)
@@ -927,7 +936,7 @@ class App:
 
             print(f'Piece placed in {round((end - start) * 1000)} ms')
 
-            if has_a_player_won:
+            if has_a_player_won and play_victory_sound:
                 playsound.playsound('./res/audio/victory_sound.wav') # Son joué lorsque l'un des deux joueurs a gagné
 
             # playsound.playsound('./res/audio/piece_place.wav')
@@ -1396,7 +1405,7 @@ class App:
         adjacent_coords_hover = []
 
         last_coords = [column_event, line_event]
-        if last_event_coordinates_copy != last_coords: # Le code ci-dessous n'est exécuté qu'à chaque fois que la souris change de case du plateau, au lieu de l'exécuter au moindre mouvement
+        if last_event_coordinates_copy != last_coords: # Le code ci-dessous n'est exécuté qu'à chaque fois que la souris change de case, au lieu de l'exécuter au moindre mouvement
             last_event_coordinates_copy = [i for i in last_coords]
 
             if event.widget == player_1_pieces:
@@ -1515,7 +1524,7 @@ class App:
         return cases_adjacentes
 
     def settings(self):
-        global color_blind_mode, settings_data, settings_file, color_blind_mode_state, alternative_color_scheme_state
+        global color_blind_mode, settings_data, settings_file, color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
         
@@ -1530,7 +1539,7 @@ class App:
         settings_label.grid(column=1, row=0, sticky='ew')
         
         self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
-        back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2) # On crée un bouton retour
+        back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0, sticky='w', pady=20)
 
         Label(top_part, text='                ', background=background_color).grid(column=2, row=0)
@@ -1564,11 +1573,36 @@ class App:
         alternative_color_scheme_state = BooleanVar()
         alternative_color_scheme_state.set(settings_data['use_purple_and_yellow'])
         alternative_color_scheme_checkbox = Checkbutton(
+                                                main_menu_frame, 
+                                                text='Utiliser du Violet et du Jaune', 
+                                                onvalue=True, 
+                                                offvalue=False, 
+                                                variable=alternative_color_scheme_state, 
+                                                command=self.update_settings, 
+                                                font=('Arial', 15), 
+                                                bd=0,
+                                                highlightthickness=0,
+                                                background=background_color, 
+                                                activebackground=background_color,
+                                                foreground=on_background_color,
+                                                activeforeground=on_background_color,
+                                                relief='flat',
+                                                selectcolor=background_color)
+        alternative_color_scheme_checkbox.grid(column=0, row=3, sticky='w')
+
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=4)
+
+        sound_settings_section_label = Label(main_menu_frame, text='AUDIO', font=('Consolas', 10), foreground=surface_color, background=background_color)
+        sound_settings_section_label.grid(column=0, row=5, sticky='w')
+
+        play_victory_sound_state = BooleanVar()
+        play_victory_sound_state.set(settings_data['play_victory_sound'])
+        play_victory_sound_checkbox = Checkbutton(
                                         main_menu_frame, 
-                                        text='Utiliser du Violet et du Jaune', 
+                                        text='Jouer un son de victoire', 
                                         onvalue=True, 
                                         offvalue=False, 
-                                        variable=alternative_color_scheme_state, 
+                                        variable=play_victory_sound_state, 
                                         command=self.update_settings, 
                                         font=('Arial', 15), 
                                         bd=0,
@@ -1579,7 +1613,7 @@ class App:
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color)
-        alternative_color_scheme_checkbox.grid(column=0, row=3, sticky='w')
+        play_victory_sound_checkbox.grid(column=0, row=6, sticky='w')
 
         settings_file.close()
     
@@ -1598,6 +1632,11 @@ class App:
         else:
             settings_data['use_red_and_blue'] = True
             settings_data['use_purple_and_yellow'] = False
+        
+        if play_victory_sound_state.get():
+            settings_data['play_victory_sound'] = True
+        else:
+            settings_data['play_victory_sound'] = False
 
         with open("settings.json", "w") as settings_file:
             json.dump(settings_data, settings_file, indent=4)
@@ -1608,8 +1647,6 @@ class App:
 if __name__ == "__main__":
     root = Tk()
     root.configure(bg=background_color)
-    root.option_add("*TCombobox*Listbox*Background", surface_color) # changes background of drop down menu of combobox
-    root.option_add('*TCombobox*Listbox*Foreground', on_background_color) # changes colour of text of options in combobox
     icon = PhotoImage(file='res/img/blocus_icon.png')
     root.iconphoto(True, icon)
     App(root)
