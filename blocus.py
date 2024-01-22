@@ -69,6 +69,7 @@ player_2_has_selected_piece = False
 has_a_player_won = False
 color_blind_mode = settings_data['color_blind_mode']
 play_victory_sound = settings_data['play_victory_sound']
+use_space_to_mirror = settings_data['use_space_to_mirror']
 
 orientation_id = 0
 mirror_id = 0
@@ -286,7 +287,7 @@ class App:
         self.main_menu() # Affiche le menu principal dès le démarrage du programme
     
     def reset_variables(self): # Toutes les variables sont réinitialisées
-        global player_1_pieces_list, player_2_pieces_list, color_blind_mode
+        global player_1_pieces_list, player_2_pieces_list
         global player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
         global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions
         global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
@@ -297,7 +298,7 @@ class App:
         global placed_piece_red, valid_placement_red, piece_hover_red, piece_hover_red_overlay
         global placed_piece_blue, valid_placement_blue, piece_hover_blue, piece_hover_blue_overlay
         global cannot_play_border_color, invalid_placement, board_cell_outline_color
-        global play_victory_sound
+        global play_victory_sound, use_space_to_mirror, color_blind_mode
 
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
@@ -633,6 +634,7 @@ class App:
         has_a_player_won = False
         color_blind_mode = settings_data['color_blind_mode']
         play_victory_sound = settings_data['play_victory_sound']
+        use_space_to_mirror = settings_data['use_space_to_mirror']
 
         orientation_id = 0
 
@@ -826,7 +828,11 @@ class App:
 
         # On "bind" le board à des événements
         board_canvas.bind("<Button-1>", self.on_board_click) # Clic : la pièce sélectionnée est placée
-        board_canvas.bind('<Button-2>', self.mirror_piece)
+        if use_space_to_mirror:
+            board_canvas.bind_all('<space>', self.mirror_piece)
+        else:
+            board_canvas.bind('<Button-2>', self.mirror_piece)
+            board_canvas.unbind_all('<space>')
         board_canvas.bind("<Button-3>", self.rotate_piece) # Clic droit : rotation de la pièce sélectionnée
         board_canvas.bind("<Motion>", self.on_board_hover) # La souris bouge sur le plateau
         board_canvas.bind("<Leave>", self.on_board_leave) # La souris quitte le canvas
@@ -911,6 +917,21 @@ class App:
             
             if not self.can_still_play(player=0) and not self.can_still_play(player=1): # Si aucun des deux joueurs ne peut jouer
                 current_player = 999 # Le jeu est bloqué
+                # player_1_score += 15 if 'O' not in player_1_pieces_list else player_1_score # Ajoute 15 au score si toutes les pièces ont été posées
+                # player_2_score += 15 if 'O' not in player_2_pieces_list else player_2_score
+                
+                for line in range(28):
+                    for column in range(12):
+                        if player_1_pieces_list[line][column] == 'O':
+                            player_1_score -= 1
+                        if player_2_pieces_list[line][column] == 'O':
+                            player_2_score -= 1
+                
+                player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le score du joueur actif
+                player_1_score_label.update()
+                player_2_score_label['text'] = f"Score : {player_2_score}"
+                player_2_score_label.update()
+                
                 if player_1_score > player_2_score:
                     win_label['text'] = 'Victoire du Joueur 1' # Si le score du joueur 1 est supérieur à celui du joueur 2, alors victoire du joueur 1
                     has_a_player_won = True
@@ -1524,7 +1545,7 @@ class App:
         return cases_adjacentes
 
     def settings(self):
-        global color_blind_mode, settings_data, settings_file, color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state
+        global color_blind_mode, settings_data, settings_file, color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state, use_space_to_mirror_state
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
         
@@ -1550,26 +1571,6 @@ class App:
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
 
-        color_blind_mode_state = BooleanVar()
-        color_blind_mode_state.set(settings_data['color_blind_mode'])
-        color_blind_mode_checkbox = Checkbutton(
-                                        main_menu_frame, 
-                                        text='Mode daltonien', 
-                                        onvalue=True, 
-                                        offvalue=False, 
-                                        variable=color_blind_mode_state, 
-                                        command=self.update_settings, 
-                                        font=('Arial', 15), 
-                                        bd=0,
-                                        highlightthickness=0,
-                                        background=background_color, 
-                                        activebackground=background_color,
-                                        foreground=on_background_color,
-                                        activeforeground=on_background_color,
-                                        relief='flat',
-                                        selectcolor=background_color)
-        color_blind_mode_checkbox.grid(column=0, row=2, sticky='w')
-
         alternative_color_scheme_state = BooleanVar()
         alternative_color_scheme_state.set(settings_data['use_purple_and_yellow'])
         alternative_color_scheme_checkbox = Checkbutton(
@@ -1588,12 +1589,12 @@ class App:
                                                 activeforeground=on_background_color,
                                                 relief='flat',
                                                 selectcolor=background_color)
-        alternative_color_scheme_checkbox.grid(column=0, row=3, sticky='w')
+        alternative_color_scheme_checkbox.grid(column=0, row=2, sticky='w')
 
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=4)
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=3)
 
         sound_settings_section_label = Label(main_menu_frame, text='AUDIO', font=('Consolas', 10), foreground=surface_color, background=background_color)
-        sound_settings_section_label.grid(column=0, row=5, sticky='w')
+        sound_settings_section_label.grid(column=0, row=4, sticky='w')
 
         play_victory_sound_state = BooleanVar()
         play_victory_sound_state.set(settings_data['play_victory_sound'])
@@ -1613,7 +1614,52 @@ class App:
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color)
-        play_victory_sound_checkbox.grid(column=0, row=6, sticky='w')
+        play_victory_sound_checkbox.grid(column=0, row=5, sticky='w')
+
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=6)
+
+        accessibility_settings_section_label = Label(main_menu_frame, text='ACCESSIBILITÉ', font=('Consolas', 10), foreground=surface_color, background=background_color)
+        accessibility_settings_section_label.grid(column=0, row=7, sticky='w')
+
+        color_blind_mode_state = BooleanVar()
+        color_blind_mode_state.set(settings_data['color_blind_mode'])
+        color_blind_mode_checkbox = Checkbutton(
+                                        main_menu_frame, 
+                                        text='Mode daltonien', 
+                                        onvalue=True, 
+                                        offvalue=False, 
+                                        variable=color_blind_mode_state, 
+                                        command=self.update_settings, 
+                                        font=('Arial', 15), 
+                                        bd=0,
+                                        highlightthickness=0,
+                                        background=background_color, 
+                                        activebackground=background_color,
+                                        foreground=on_background_color,
+                                        activeforeground=on_background_color,
+                                        relief='flat',
+                                        selectcolor=background_color)
+        color_blind_mode_checkbox.grid(column=0, row=8, sticky='w')
+
+        use_space_to_mirror_state = BooleanVar()
+        use_space_to_mirror_state.set(settings_data['use_space_to_mirror'])
+        use_space_to_mirror_checkbox = Checkbutton(
+                                        main_menu_frame, 
+                                        text='Utiliser la touche espace pour miroiter', 
+                                        onvalue=True, 
+                                        offvalue=False, 
+                                        variable=use_space_to_mirror_state, 
+                                        command=self.update_settings, 
+                                        font=('Arial', 15), 
+                                        bd=0,
+                                        highlightthickness=0,
+                                        background=background_color, 
+                                        activebackground=background_color,
+                                        foreground=on_background_color,
+                                        activeforeground=on_background_color,
+                                        relief='flat',
+                                        selectcolor=background_color)
+        use_space_to_mirror_checkbox.grid(column=0, row=9, sticky='w')
 
         settings_file.close()
     
@@ -1625,6 +1671,7 @@ class App:
         settings_data['use_red_and_blue'] = not alternative_color_scheme_state.get()
         settings_data['use_purple_and_yellow'] = alternative_color_scheme_state.get()
         settings_data['play_victory_sound'] = play_victory_sound_state.get()
+        settings_data['use_space_to_mirror'] = use_space_to_mirror_state.get()
 
         with open("settings.json", "w") as settings_file:
             json.dump(settings_data, settings_file, indent=4)
