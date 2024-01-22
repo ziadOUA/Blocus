@@ -72,3 +72,17 @@ Le score est ensuite calculé :
   <img src="https://i.postimg.cc/tg6FD90H/finished-game.png" height="250">
   <p><i>Partie terminée</i></p>
 </div>
+
+<br>
+
+<p align="center">  
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://i.postimg.cc/KzPKjBNn/footer-Dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://i.postimg.cc/C5wRq5P9/footer-Light.png">
+    <img alt="Footer" src="https://i.postimg.cc/KzPKjBNn/footer-Dark.png">
+  </picture>
+</p>
+
+<p align="center">
+  <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/LicenceMIT/licencemit2.svg">
+</p>
