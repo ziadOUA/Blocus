@@ -77,6 +77,7 @@ mirror_id = 0
 last_event_coordinates_copy = []
 directions_from_center_copy = []
 relative_positions = [[0, 0]]
+relative_positions_reference = [[0, 0]]
 
 board = []
 board_cells = []
@@ -289,7 +290,7 @@ class App:
     def reset_variables(self): # Toutes les variables sont réinitialisées
         global player_1_pieces_list, player_2_pieces_list
         global player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
-        global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions
+        global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions, relative_positions_reference
         global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
         global current_player, player_1_score, player_2_score
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates, red_cases_coordinates, blue_cases_coordinates
@@ -641,6 +642,7 @@ class App:
         last_event_coordinates_copy = []
         directions_from_center_copy = []
         relative_positions = [[0, 0]]
+        relative_positions_reference = [[0, 0]]
 
         board = []
         board_cells = []
@@ -661,6 +663,7 @@ class App:
         settings_file.close()
 
     def main_menu(self):
+        global how_to_play_label, main_menu_frame
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
         
@@ -668,16 +671,16 @@ class App:
 
         main_menu_frame = Frame(self.master, background=background_color) # On crée le cadre principal
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
-        main_menu_frame.columnconfigure(3, weight=1)
+        main_menu_frame.columnconfigure(4, weight=1)
 
         play = Label(self.master, text="Appuyez pour Jouer", background=background_color, foreground=on_background_color, font=('Arial', 15)) # On crée le texte "Appuyez pour Jouer"
         play.pack(pady=50) # On affiche le texte dans le cadre
 
         version_label = Label(main_menu_frame, text=version_number, background=background_color, foreground=invalid_placement, font=('Consolas', 15)) # On crée le texte qui affiche la version du programme
-        version_label.grid(row=0, column=4) # Le texte est affiché
+        version_label.grid(row=0, column=5) # Le texte est affiché
 
         blocus_logo_canvas = Canvas(main_menu_frame, width=840, height=224, bd=0, highlightthickness=0, relief='flat', background=background_color) # On crée le canvas sur lequel sera placé le logo du programme
-        blocus_logo_canvas.grid(column=0, row=1, columnspan=5, pady=10) # Le canvas est placé
+        blocus_logo_canvas.grid(column=0, row=1, columnspan=6, pady=10) # Le canvas est placé
         
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
@@ -699,12 +702,78 @@ class App:
         settings_button = Button(main_menu_frame, image=self.settings_icon, command=self.settings, compound='center', width=2, cursor="hand2") # On crée le bouton qui affichera les auteurs du projet
         settings_button.grid(column=1, row=0) # Le bouton est placé
 
+        how_to_play_label = Label(main_menu_frame, text='Comment jouer ?', font=('Consolas', 10), background=background_color, foreground=surface_color, cursor="hand2")
+        how_to_play_label.grid(column=3, row=0, padx=5)
+        how_to_play_label.bind("<Motion>", self.add_underline_how_to_play_label) # Survol
+        how_to_play_label.bind("<Leave>", self.remove_underline_how_to_play_label)
+        how_to_play_label.bind("<Button-1>", self.how_to_play)
+
         main_menu_frame.bind("<Button-1>", self.blocus_duo)    #
         play.bind("<Button-1>", self.blocus_duo)               # On "bind" plusieurs éléments pour que le jeu soit lancé en cliquant sur ces éléments
         blocus_logo_canvas.bind("<Button-1>", self.blocus_duo) #
     
     def about_blocus_duo(self):
         messagebox.showinfo("Blocus", "Projet supervisé de NSI\nZiad (ziadOUA) & Djibril")
+    
+    def add_underline_how_to_play_label(self, event):
+        global how_to_play_label
+        how_to_play_label["font"] = ('Consolas', 10, 'underline')
+
+    def remove_underline_how_to_play_label(self, event):
+        global how_to_play_label
+        how_to_play_label["font"] = ('Consolas', 10)
+    
+    def how_to_play(self, event):
+        for i in self.master.winfo_children():
+            i.destroy() # On supprime tout le contenu de la fenêtre
+        
+        main_menu_frame = Frame(self.master, background=background_color) # On crée un cadre principal, pour pouvoir facilement centrer les différents éléments
+        main_menu_frame.pack(expand=True)
+
+        # top_part = Frame(main_menu_frame, background=background_color) # On crée un cadre principal, pour pouvoir facilement centrer les différents éléments
+        # top_part.grid(row=0, column=0)
+
+        self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
+        back_button = Button(main_menu_frame, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
+        back_button.grid(column=0, row=0) # Le bouton est placé
+
+        how_to_play_label = Label(main_menu_frame, text='Comment jouer', font=('Arial', 20), background=background_color, foreground=on_background_color)
+        how_to_play_label.grid(column=1, row=0, sticky='ew')
+
+        left_click_icon_canvas = Canvas(main_menu_frame, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        left_click_icon_canvas.grid(column=0, row=1)
+
+        self.left_click_icon = PhotoImage(file="res/img/mouse_left_click_icon.png")
+        left_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.left_click_icon)
+
+        label1 = Label(main_menu_frame, text='Sélectionnez une pièce en faisant un click gauche', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        label1.grid(column=1, row=1, sticky='w')
+        
+        right_click_icon_canvas = Canvas(main_menu_frame, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        right_click_icon_canvas.grid(column=0, row=2)
+
+        self.right_click_icon = PhotoImage(file="res/img/mouse_right_click_icon.png")
+        right_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.right_click_icon)
+
+        label2 = Label(main_menu_frame, text='Tournez une pièce en faisant un click droit', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        label2.grid(column=1, row=2, sticky='w')
+
+        middle_click_icon_canvas = Canvas(main_menu_frame, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        middle_click_icon_canvas.grid(column=0, row=3)
+
+        self.middle_click_icon = PhotoImage(file="res/img/mouse_middle_click_icon.png")
+        middle_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.middle_click_icon)
+
+        label3 = Label(main_menu_frame, text='Miroitez une pièce en faisant un click du milieu', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        label3.grid(column=1, row=3, sticky='w')
+
+        label4 = Label(main_menu_frame, text='Avec la touche [ESPACE] si activé dans les paramètres', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        label4.grid(column=1, row=4, sticky='w')
+
+        game_rules_label = Label(main_menu_frame, text='- Les premières pièces doivent être placées dans les cases colorées', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        game_rules_label.grid(column=0, row=5, columnspan=2, sticky='w')
+
+        # - Les pièces de même couleur ne peuvent se toucher que par les coins
 
     def blocus_duo(self, event):
         global board_canvas, board_cells, board, win_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells

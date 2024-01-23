@@ -2,5 +2,9 @@
     "python.analysis.typeCheckingMode": "basic",
     "cSpell.enableFiletypes": [
         "!python"
+    ],
+    "cSpell.words": [
+        "Blokus",
+        "Tkinter"
     ]
 }

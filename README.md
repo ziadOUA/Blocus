@@ -3,7 +3,7 @@
 <h1 align="center">Blocus</h1>
 
 <div align="center">
-  <p>Projet d'NSI Supervisé : Jeu de plateau à deux joueurs</p>
+  <p>Projet de NSI Supervisé : Jeu de plateau à deux joueurs</p>
   <img src="https://m3-markdown-badges.vercel.app/stars/9/2/ziadoua/blocus">
   <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Python/python2.svg">
   <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/JSON/json2.svg">
@@ -73,16 +73,119 @@ Le score est ensuite calculé :
   <p><i>Partie terminée</i></p>
 </div>
 
-<br>
+## 2. Structures de données
 
-<p align="center">  
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://i.postimg.cc/KzPKjBNn/footer-Dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://i.postimg.cc/C5wRq5P9/footer-Light.png">
-    <img alt="Footer" src="https://i.postimg.cc/KzPKjBNn/footer-Dark.png">
-  </picture>
-</p>
+### 2.1. Plateau
 
-<p align="center">
-  <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/LicenceMIT/licencemit2.svg">
-</p>
+Pour caractériser le plateau, on utilisera une liste de listes :
+```
+  [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
+```
+Cette liste servira de base au programme, qui sera la base de l'interface graphique.<br>
+→ **Il faudra placer les pièces, en faisant attention au fait que plus on descend dans le plateau plus la valeur de y augmente**, ce qui veut dire que l'index de la case du coin supérieur gauche est de [0, 0].
+
+### 2.2. Range-pièces
+
+Pour caractériser les range-pièces, on utilisera une liste de listes :
+```
+  [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
+   [' ', 'O', 'O', ' ', 'O', 'O', 'O', ' ', 'O', 'O', 'O', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
+   [' ', ' ', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', 'O', 'O', ' ', 'O', 'O', 'O', ' ', ' ', 'O', 'O', ' '],
+   [' ', ' ', 'O', ' ', ' ', ' ', ' ', ' ', 'O', 'O', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
+   [' ', 'O', 'O', ' ', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' '],
+   [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', 'O', 'O', ' '],
+   [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', 'O', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', 'O', ' ', ' '],
+   [' ', ' ', 'O', ' ', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' ', ' ', 'O', ' '],
+   [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' ', 'O', 'O', ' '],
+   [' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', 'O', 'O', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', 'O', 'O', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', ' '],
+   [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+   [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', 'O', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+   [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', 'O', 'O', 'O', ' '],
+   [' ', ' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', ' ', ' ', ' '],
+   [' ', 'O', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
+   [' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', 'O', ' '],
+   [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
+```
+→ Les pièces sont caractérisées par un ensemble de "O". **On utilisera une fonction qui permettra de "récupérer" ls coordonnées de tous les "O"**.
+
+### 2.3. Scores
+
+Nous utiliserons des variables pour tracker le score des deux joueurs.<br>
+```python
+  player_1_score = 0
+  player_2_score = 0
+```
+
+### 2.4. Pièces
+
+Les pièces seront placées dans la liste en fonction de leur état :
+- Si le placement est invalide, la pièce sera affichée en utilisant des "H"
+  - Exemple :
+  ```
+      ' ', 'H', 'H'
+      ' ', 'H', ' '
+      'H', 'H', ' '
+  ```
+- Si le placement est valide, la pièce sera affichée en utilisant, soit "RH" pour le joueur 1, soit "BH" pour le joueur 2
+  - Exemple :
+  ```
+      ' ', 'RH', 'RH'   ' ', 'BH', 'BH'
+      ' ', 'RH', ' '    ' ', 'BH', ' '
+      'RH','RH', ' '    'BH','BH', ' '
+  ```
+- Si la pièce est placée, elle sera affichée en utilisant, soit "R" pour le joueur 1, soit "B" pour le joueur 2
+  - Exemple :
+  ```
+      ' ', 'R', 'R'   ' ', 'B', 'B'
+      ' ', 'R', ' '   ' ', 'B', ' '
+      'R', 'R', ' '   'B' ,'B', ' '
+  ```
+
+## 3. Interface graphique
+
+### 3.1. Menu principal
+
+<!-- <img src="https://i.postimg.cc/L50T2qXk/main-menu.png"> -->
+
+Boutons de gauche à droite :
+- Bouton GitHub (la page GitHub du projet dans le navigateur par défaut)
+- Bouton paramètres
+- Bouton "À Propos" du projet
+
+### 3.2. Interface de jeu
+
+<img src="https://i.postimg.cc/Qt5kDbM0/game-interface.png">
+
+Divers boutons :
+- Bouton indice
+- Bouton retour
+
+→ Le range-pièces du joueur actif a une bordure colorée.
+
+### 3.3. Paramètres
