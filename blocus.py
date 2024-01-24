@@ -730,50 +730,64 @@ class App:
         main_menu_frame = Frame(self.master, background=background_color) # On crée un cadre principal, pour pouvoir facilement centrer les différents éléments
         main_menu_frame.pack(expand=True)
 
-        # top_part = Frame(main_menu_frame, background=background_color) # On crée un cadre principal, pour pouvoir facilement centrer les différents éléments
-        # top_part.grid(row=0, column=0)
+        top_part = Frame(main_menu_frame, background=background_color)
+        top_part.grid(row=0, column=0, sticky='ew')
+        top_part.columnconfigure(1, weight=1)
 
         self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
-        back_button = Button(main_menu_frame, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
+        back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
 
-        how_to_play_label = Label(main_menu_frame, text='Comment jouer', font=('Arial', 20), background=background_color, foreground=on_background_color)
+        how_to_play_label = Label(top_part, text='Comment jouer', font=('Arial', 20), background=background_color, foreground=on_background_color)
         how_to_play_label.grid(column=1, row=0, sticky='ew')
 
-        left_click_icon_canvas = Canvas(main_menu_frame, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
-        left_click_icon_canvas.grid(column=0, row=1)
+        Label(top_part, text='                ', background=background_color).grid(column=2, row=0)
+
+        controls_container = Frame(main_menu_frame, background=background_color)
+        controls_container.grid(row=1, column=0, sticky='w', pady=10)
+
+        left_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        left_click_icon_canvas.grid(column=0, row=0)
 
         self.left_click_icon = PhotoImage(file="res/img/mouse_left_click_icon.png")
         left_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.left_click_icon)
 
-        label1 = Label(main_menu_frame, text='Sélectionnez une pièce en faisant un click gauche', font=('Arial', 12), background=background_color, foreground=on_background_color)
-        label1.grid(column=1, row=1, sticky='w')
+        left_click_label = Label(controls_container, text='Sélectionnez une pièce en faisant un click gauche', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        left_click_label.grid(column=1, row=0, sticky='w', padx=10)
+        Label(controls_container, text='→ Vous pouvez la remettre en appuyant n\'importe où sur le range-pièces', font=('Arial', 12), background=background_color, foreground=on_background_color).grid(column=1, row=1, sticky='w', padx=10)
+        Label(controls_container, text='→ Placez-la sur le plateau lorsque la pièce se colore de la couleur du joueur actif', font=('Arial', 12), background=background_color, foreground=on_background_color).grid(column=1, row=2, sticky='w', padx=10)
         
-        right_click_icon_canvas = Canvas(main_menu_frame, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
-        right_click_icon_canvas.grid(column=0, row=2)
+        right_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        right_click_icon_canvas.grid(column=0, row=3)
 
         self.right_click_icon = PhotoImage(file="res/img/mouse_right_click_icon.png")
         right_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.right_click_icon)
 
-        label2 = Label(main_menu_frame, text='Tournez une pièce en faisant un click droit', font=('Arial', 12), background=background_color, foreground=on_background_color)
-        label2.grid(column=1, row=2, sticky='w')
+        right_click_label = Label(controls_container, text='Tournez la pièce en faisant un click droit', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        right_click_label.grid(column=1, row=3, sticky='w', padx=10)
 
-        middle_click_icon_canvas = Canvas(main_menu_frame, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
-        middle_click_icon_canvas.grid(column=0, row=3)
+        middle_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        middle_click_icon_canvas.grid(column=0, row=4)
 
         self.middle_click_icon = PhotoImage(file="res/img/mouse_middle_click_icon.png")
         middle_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.middle_click_icon)
 
-        label3 = Label(main_menu_frame, text='Miroitez une pièce en faisant un click du milieu', font=('Arial', 12), background=background_color, foreground=on_background_color)
-        label3.grid(column=1, row=3, sticky='w')
+        middle_click_label = Label(controls_container, text='Miroitez la pièce en faisant un click du milieu', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        middle_click_label.grid(column=1, row=4, sticky='w', padx=10)
+        Label(controls_container, text='→ Avec la touche [ESPACE] si activé dans les paramètres', font=('Arial', 12), background=background_color, foreground=on_background_color).grid(column=1, row=5, sticky='w', padx=10)
 
-        label4 = Label(main_menu_frame, text='Avec la touche [ESPACE] si activé dans les paramètres', font=('Arial', 12), background=background_color, foreground=on_background_color)
-        label4.grid(column=1, row=4, sticky='w')
+        game_rules_container = Frame(main_menu_frame, background=background_color)
+        game_rules_container.grid(column=0, row=6, sticky='ew', pady=20)
 
-        game_rules_label = Label(main_menu_frame, text='- Les premières pièces doivent être placées dans les cases colorées', font=('Arial', 12), background=background_color, foreground=on_background_color)
-        game_rules_label.grid(column=0, row=5, columnspan=2, sticky='w')
+        game_rules_title = Label(game_rules_container, text='Règles', font=('Arial', 20), background=background_color, foreground=on_background_color)
+        game_rules_title.grid(row=0, column=0, pady=10, sticky='w')
 
-        # - Les pièces de même couleur ne peuvent se toucher que par les coins
+        rules = ['• Les premières pièces doivent être placées dans les cases colorées', 
+                 '• Des pièces de même couleur ne peuvent se toucher que par les coins', 
+                 '• Dès qu\'un joueur est bloqué, l\'autre joueur joue jusqu\'à ce qu\'il le soit aussi']
+        
+        for rule in rules:
+            Label(game_rules_container, text=rule, font=('Arial', 12), background=background_color, foreground=on_background_color).grid(row=rules.index(rule) + 1, column=0, sticky='w')
 
     def blocus_duo(self, event):
         global board_canvas, board_cells, board, win_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
