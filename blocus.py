@@ -266,7 +266,7 @@ board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordur
 # ══════════ Classe principale
 
 
-class App:
+class Blocus:
     def __init__(self, master):
         self.master = master
         self.master.geometry('1280x720') # On définit la taille initiale de la fenêtre
@@ -836,7 +836,6 @@ class App:
         
         win_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_background_color) #On crée un texte qui affiche le tour du joueur
         win_label.grid(column=1, row=0, sticky='ew') # On place le texte 
-        # win_label['text'] = f'Joueur {current_player + 1}' # On met à jour le contenu du texte
 
         Label(board_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
         
@@ -1037,7 +1036,6 @@ class App:
             self.update_board_canvas() # On met à jour le canvas du plateau
 
             end = timer()
-
             print(f'Piece placed in {round((end - start) * 1000)} ms')
 
             if has_a_player_won and play_victory_sound:
@@ -1461,7 +1459,7 @@ class App:
         if column_event > 11: column_event = 11;
         if line_event > 28: line_event = 28;
 
-        if event.widget == player_1_pieces:
+        if event.widget == player_1_pieces: # Définition de variables en fonction du range-pièces cliqué
             player_pieces = player_1_pieces
             player_pieces_list = player_1_pieces_list
             player_pieces_cells = player_1_pieces_cells
@@ -1480,16 +1478,14 @@ class App:
 
         if player_id == current_player and not player_has_selected_piece and player_pieces_list[line_event][column_event] == 'O': # On vérifie que la case choisie n'est pas vide
             adjacent_coords = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, True) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées cliquées
-            for k in adjacent_coords:
-                player_pieces_list[k[1]][k[0]] = ' '
+            for k in adjacent_coords: # On retire la pièce du range-pièces
+                player_pieces_list[k[1]][k[0]] = ' ' 
                 player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=valid_placement_color)
-            player_1_has_selected_piece = True if player_id == 0 else False
+            player_1_has_selected_piece = True if player_id == 0 else False # On lève le drapeau pour le joueur concerné
             player_2_has_selected_piece = True if player_id == 1 else False
             orientation_id = 0 # On réinitialise l'orientation
-            # playsound.playsound('./res/audio/piece_taken.wav', block=False)
         elif player_id == current_player and player_has_selected_piece:
-            # playsound.playsound('./res/audio/piece_back.wav', block=False)
-            for k in adjacent_coords: # La pièce est replacée
+            for k in adjacent_coords: # La pièce est replacée dans le range-pièces
                 player_pieces_list[k[1]][k[0]] = 'O'
                 player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=placed_piece_color)
             player_1_has_selected_piece = False if player_id == 0 else player_1_has_selected_piece
@@ -1533,16 +1529,18 @@ class App:
                 if player_pieces_list[line_event][column_event] == 'O': # On vérifie que la case choisie n'est pas vide
                     adjacent_coords_hover = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, False)
                     for k in adjacent_coords_hover:
-                        player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=hover_piece_color)
+                        player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=hover_piece_color) # On colore la pièce survolée
                 else:
                     relative_positions = [[0, 0]]
                     for line in range(28):
                         for column in range(11):
                             if player_pieces_list[line][column] == 'O':
-                                player_pieces.itemconfig(player_pieces_cells[line][column], fill=placed_piece_color)
+                                player_pieces.itemconfig(player_pieces_cells[line][column], fill=placed_piece_color) # On recolore toutes les pièces du range-pièces concerné dans la couleur du joueur actif
 
     def on_pieces_leave(self, event):
         global adjacent_coords_hover
+
+        # On recolore toutes les pièces du range-pièces concerné dans la couleur du joueur actif
         if event.widget == player_1_pieces and not player_1_has_selected_piece and current_player == 0:
             for k in adjacent_coords_hover:
                 player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=placed_piece_red)
@@ -1553,8 +1551,7 @@ class App:
     def rotate_piece(self, event):
         global orientation_id, relative_positions, relative_positions_reference, directions_from_center_rotated
 
-        # playsound.playsound('./res/audio/piece_rotate.wav', block=False)
-        orientation_id = (orientation_id + 1) % 4
+        orientation_id = (orientation_id + 1) % 4 # On augmente la valeur
         directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
 
         if orientation_id == 0:
@@ -1567,98 +1564,81 @@ class App:
             directions_from_center_rotated = [[direction[1], -direction[0]] for direction in relative_positions_reference] # 270°
 
         relative_positions = directions_from_center_rotated
-        self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
+        self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1]) # On met à jour la pièce affichée avec les nouvelles valeurs
     
     def mirror_piece(self, event):
         global mirror_id, relative_positions, relative_positions_reference, directions_from_center_rotated
 
-        mirror_id = (mirror_id + 1) % 4
-        directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
+        mirror_id = (mirror_id + 1) % 4 # On augmente la valeur
+        directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated] # On crée une copie de la liste "directions_from_center_rotated" sur laquelle on se basera
         
         for i, direction in enumerate(directions_from_center_rotated):
-            directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
-            directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
+            directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0] # On inverse les valeurs horizontales si "mirror_id" est égal à 0, 2 ou 3
+            directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1] # On inverse les valeurs verticales si "mirror_id" est égal à 0, 1 ou 2
 
         relative_positions = directions_from_center_mirrored
-        self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1])
+        self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1]) # On met à jour la pièce affichée avec les nouvelles valeurs
 
     def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y, generate_relative_positions):
         global relative_positions, relative_positions_reference, directions_from_center_rotated
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        cases_adjacentes = []
+        adjacent_cells = []
         relative_positions = []
         memoire = [[selected_case_x, selected_case_y]]
 
-        # While the stack is not empty, meaning there are still cases to check
-        while memoire:
-            # Pop a case from the stack
-            # This is the current case we are checking
-            case_x, case_y = memoire.pop()
+        while memoire: # On recommence tant que "memoire" n'est pas vide
+            case_x, case_y = memoire.pop() # On enlève des coordonnées, affectées aux variables case_x et case_y
 
-            # If the case contains 'O' and has not been visited yet
-            # We check if it's not in the connected_Os list to avoid duplicates
-            if liste_pièces[case_y][case_x] == 'O' and [case_x, case_y] not in cases_adjacentes:
-                # Add the case to the list of connected 'O's
-                # This means we have found a new 'O' that is connected to the selected case
-                cases_adjacentes.append([case_x, case_y])
+            if liste_pièces[case_y][case_x] == 'O' and [case_x, case_y] not in adjacent_cells: # Condition, vraie si la case vérifiée est un "O" et n'est pas déjà dans la liste "adjacent_cells"
+                adjacent_cells.append([case_x, case_y]) # On ajoute les coordonnées à la liste "adjacent_cells"
+                for direction_x, direction_y in directions: # On vérifie dans les 4 directions différentes
+                    adj_x = case_x + direction_x
+                    adj_y = case_y + direction_y
 
-                # Loop over each direction
-                for dx, dy in directions:
-                    # Calculate the coordinates of the adjacent case
-                    # This is done by adding the direction to the current case's coordinates
-                    adj_x = case_x + dx
-                    adj_y = case_y + dy
-
-                    # Check if the coordinates are within the grid boundaries
-                    # This is to avoid index errors
-                    if 0 <= adj_y < len(liste_pièces) and 0 <= adj_x < len(liste_pièces[0]):
-                        # If the adjacent case contains 'O', add it to the stack
-                        # This means we have found a new 'O' to check in the next iterations
-                        if liste_pièces[adj_y][adj_x] == 'O':
-                            memoire.append([adj_x, adj_y])
+                    if 0 <= adj_y < len(liste_pièces) and 0 <= adj_x < len(liste_pièces[0]): # On verifie si la case que l'on essaie de vérifier se trouve bien au sein du range-pièces
+                        if liste_pièces[adj_y][adj_x] == 'O': # Si la case testée contient un "O"...
+                            memoire.append([adj_x, adj_y]) # ...On l'ajoute à la mémoire pour qu'elle soit testée à son tour
 
         if generate_relative_positions:
-            for adjacent_coords in cases_adjacentes:
-                relative_positions.append([adjacent_coords[0] - selected_case_x, adjacent_coords[1] - selected_case_y])
+            for adjacent_coords in adjacent_cells:
+                relative_positions.append([adjacent_coords[0] - selected_case_x, adjacent_coords[1] - selected_case_y]) # On génère un ensemble de directions relatives par rapport à la souris
             relative_positions_reference = [list(direction) for direction in relative_positions]
             directions_from_center_rotated = [list(direction) for direction in relative_positions]
 
-        # Return the list of coordinates of connected 'O's
-        # This is the final output of the function
-        return cases_adjacentes
+        return adjacent_cells
 
     def settings(self):
-        global color_blind_mode, settings_data, settings_file, color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state, use_space_to_mirror_state
+        global color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state, use_space_to_mirror_state
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
         
         main_menu_frame = Frame(self.master, background=background_color) # On crée le cadre principal
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
 
-        top_part = Frame(main_menu_frame, background=background_color)
+        top_part = Frame(main_menu_frame, background=background_color) # On crée un cadre supérieur contenant le titre de la page et un bouton retour
         top_part.grid(column=0, row=0, sticky='ew')
         top_part.columnconfigure(1, weight=1)
 
-        settings_label = Label(top_part, text='Paramètres', font=('Arial', 20), background=background_color, foreground=on_background_color)
+        settings_label = Label(top_part, text='Paramètres', font=('Arial', 20), background=background_color, foreground=on_background_color) # Titre de la page (Paramètres)
         settings_label.grid(column=1, row=0, sticky='ew')
         
         self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
         back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0, sticky='w', pady=20)
 
-        Label(top_part, text='                ', background=background_color).grid(column=2, row=0)
+        Label(top_part, text='                ', background=background_color).grid(column=2, row=0) # Espace servant à centrer le titre
 
-        color_settings_section_label = Label(main_menu_frame, text='COULEURS', font=('Consolas', 10), foreground=surface_color, background=background_color)
+        color_settings_section_label = Label(main_menu_frame, text='COULEURS', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres de couleurs
         color_settings_section_label.grid(column=0, row=1, sticky='w')
 
-        with open("settings.json", "r") as settings_file:
-            settings_data = json.load(settings_file)
+        with open("settings.json", "r") as settings_file: # On ouvre le fichier paramètres
+            settings_data = json.load(settings_file) # On récupère les données du fichier
 
-        alternative_color_scheme_state = BooleanVar()
+        alternative_color_scheme_state = BooleanVar() # Création de l'option "Utiliser du violet et du jaune"
         alternative_color_scheme_state.set(settings_data['use_purple_and_yellow'])
         alternative_color_scheme_checkbox = Checkbutton(
                                                 main_menu_frame, 
-                                                text='Utiliser du Violet et du Jaune', 
+                                                text='Utiliser du violet et du jaune', 
                                                 onvalue=True, 
                                                 offvalue=False, 
                                                 variable=alternative_color_scheme_state, 
@@ -1671,15 +1651,15 @@ class App:
                                                 foreground=on_background_color,
                                                 activeforeground=on_background_color,
                                                 relief='flat',
-                                                selectcolor=background_color)
+                                                selectcolor=background_color) # On crée une case à cocher
         alternative_color_scheme_checkbox.grid(column=0, row=2, sticky='w')
 
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=3)
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=3) # On crée un espace entre les différentes sections
 
-        sound_settings_section_label = Label(main_menu_frame, text='AUDIO', font=('Consolas', 10), foreground=surface_color, background=background_color)
+        sound_settings_section_label = Label(main_menu_frame, text='AUDIO', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres audio
         sound_settings_section_label.grid(column=0, row=4, sticky='w')
 
-        play_victory_sound_state = BooleanVar()
+        play_victory_sound_state = BooleanVar() # Création de l'option "Jouer un son de victoire"
         play_victory_sound_state.set(settings_data['play_victory_sound'])
         play_victory_sound_checkbox = Checkbutton(
                                         main_menu_frame, 
@@ -1696,15 +1676,15 @@ class App:
                                         foreground=on_background_color,
                                         activeforeground=on_background_color,
                                         relief='flat',
-                                        selectcolor=background_color)
+                                        selectcolor=background_color) # On crée une case à cocher
         play_victory_sound_checkbox.grid(column=0, row=5, sticky='w')
 
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=6)
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=6) # On crée un espace entre les différentes sections
 
-        accessibility_settings_section_label = Label(main_menu_frame, text='ACCESSIBILITÉ', font=('Consolas', 10), foreground=surface_color, background=background_color)
+        accessibility_settings_section_label = Label(main_menu_frame, text='ACCESSIBILITÉ', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres d'accessibilité
         accessibility_settings_section_label.grid(column=0, row=7, sticky='w')
 
-        color_blind_mode_state = BooleanVar()
+        color_blind_mode_state = BooleanVar() # Création de l'option "Mode daltonien"
         color_blind_mode_state.set(settings_data['color_blind_mode'])
         color_blind_mode_checkbox = Checkbutton(
                                         main_menu_frame, 
@@ -1721,10 +1701,10 @@ class App:
                                         foreground=on_background_color,
                                         activeforeground=on_background_color,
                                         relief='flat',
-                                        selectcolor=background_color)
+                                        selectcolor=background_color) # On crée une case à cocher
         color_blind_mode_checkbox.grid(column=0, row=8, sticky='w')
 
-        use_space_to_mirror_state = BooleanVar()
+        use_space_to_mirror_state = BooleanVar() # Création de l'option "Utiliser la touche espace pour miroiter"
         use_space_to_mirror_state.set(settings_data['use_space_to_mirror'])
         use_space_to_mirror_checkbox = Checkbutton(
                                         main_menu_frame, 
@@ -1741,31 +1721,31 @@ class App:
                                         foreground=on_background_color,
                                         activeforeground=on_background_color,
                                         relief='flat',
-                                        selectcolor=background_color)
+                                        selectcolor=background_color) # On crée une case à cocher
         use_space_to_mirror_checkbox.grid(column=0, row=9, sticky='w')
 
-        settings_file.close()
+        settings_file.close() # On ferme le fichier de paramètres pour éviter les problèmes
     
     def update_settings(self):
-        with open("settings.json", "r") as settings_file:
-            settings_data = json.load(settings_file)
+        with open("settings.json", "r") as settings_file: # On ouvre le fichier paramètres
+            settings_data = json.load(settings_file) # On récupère les données du fichier
 
-        settings_data['color_blind_mode'] = color_blind_mode_state.get()
+        settings_data['color_blind_mode'] = color_blind_mode_state.get() # Le fichier paramètres est mis à jour en fonction des choix de l'utilisateur
         settings_data['use_red_and_blue'] = not alternative_color_scheme_state.get()
         settings_data['use_purple_and_yellow'] = alternative_color_scheme_state.get()
         settings_data['play_victory_sound'] = play_victory_sound_state.get()
         settings_data['use_space_to_mirror'] = use_space_to_mirror_state.get()
 
         with open("settings.json", "w") as settings_file:
-            json.dump(settings_data, settings_file, indent=4)
+            json.dump(settings_data, settings_file, indent=4) # On écrit les modifications dans le fichier
         
-        settings_file.close()
+        settings_file.close() # On ferme le fichier de paramètres pour éviter les problèmes
 
 
 if __name__ == "__main__":
-    root = Tk()
-    root.configure(bg=background_color)
-    icon = PhotoImage(file='res/img/blocus_icon.png')
-    root.iconphoto(True, icon)
-    App(root)
+    root = Tk() # On crée la fenêtre principale du jeu
+    root.configure(bg=background_color) # On change la couleur de fond de la fenêtre
+    icon = PhotoImage(file='res/img/blocus_icon.png') # On récupère l'image "blocus_icon.png"
+    root.iconphoto(True, icon) # On ajoute une icône à la fenêtre
+    Blocus(root) # On appelle la classe Blocus
     root.mainloop()
