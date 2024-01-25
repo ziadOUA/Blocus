@@ -67,6 +67,7 @@ player_2_pieces_list = [i[:] for i in player_1_pieces_list] # Ensemble de pièce
 player_1_has_selected_piece = False
 player_2_has_selected_piece = False
 has_a_player_won = False
+use_light_theme = settings_data['use_light_theme']
 color_blind_mode = settings_data['color_blind_mode']
 play_victory_sound = settings_data['play_victory_sound']
 use_space_to_mirror = settings_data['use_space_to_mirror']
@@ -103,171 +104,349 @@ settings_file.close()
 
 # Palette source
 
-# PRIMARY
-md_ref_palette_primary0 = "#000000"
-md_ref_palette_primary10 = "#00006e"
-md_ref_palette_primary20 = "#0001ac"
-md_ref_palette_primary25 = "#0001cd"
-md_ref_palette_primary30 = "#0000ef"
-md_ref_palette_primary35 = "#1a21ff"
-md_ref_palette_primary40 = "#343dff"
-md_ref_palette_primary50 = "#5a64ff"
-md_ref_palette_primary60 = "#7c84ff"
-md_ref_palette_primary70 = "#9da3ff"
-md_ref_palette_primary80 = "#bec2ff"
-md_ref_palette_primary90 = "#e0e0ff"
-md_ref_palette_primary95 = "#f1efff"
-md_ref_palette_primary98 = "#fbf8ff"
-md_ref_palette_primary99 = "#fffbff"
-md_ref_palette_primary100 = "#ffffff"
-# TERTIARY
-md_ref_palette_tertiary0 = "#000000"
-md_ref_palette_tertiary10 = "#410000"
-md_ref_palette_tertiary20 = "#690100"
-md_ref_palette_tertiary25 = "#7e0100"
-md_ref_palette_tertiary30 = "#930100"
-md_ref_palette_tertiary35 = "#a90100"
-md_ref_palette_tertiary40 = "#c00100"
-md_ref_palette_tertiary50 = "#ef0000"
-md_ref_palette_tertiary60 = "#ff5540"
-md_ref_palette_tertiary70 = "#ff8a78"
-md_ref_palette_tertiary80 = "#ffb4a8"
-md_ref_palette_tertiary90 = "#ffdad4"
-md_ref_palette_tertiary95 = "#ffedea"
-md_ref_palette_tertiary98 = "#fff8f6"
-md_ref_palette_tertiary99 = "#fffbff"
-md_ref_palette_tertiary100 = "#ffffff"
-# NEUTRAL
-md_ref_palette_neutral0 = "#000000"
-md_ref_palette_neutral10 = "#1b1b1f"
-md_ref_palette_neutral20 = "#303034"
-md_ref_palette_neutral25 = "#3c3b3f"
-md_ref_palette_neutral30 = "#47464a"
-md_ref_palette_neutral35 = "#535256"
-md_ref_palette_neutral40 = "#5f5e62"
-md_ref_palette_neutral50 = "#78767a"
-md_ref_palette_neutral60 = "#929094"
-md_ref_palette_neutral70 = "#adaaaf"
-md_ref_palette_neutral80 = "#c8c5ca"
-md_ref_palette_neutral90 = "#e5e1e6"
-md_ref_palette_neutral95 = "#f3eff4"
-md_ref_palette_neutral98 = "#fcf8fd"
-md_ref_palette_neutral99 = "#fffbff"
-md_ref_palette_neutral100 = "#ffffff"
-# NEUTRAL VARIANT
-md_ref_palette_neutral_variant0 = "#000000"
-md_ref_palette_neutral_variant10 = "#1b1b23"
-md_ref_palette_neutral_variant20 = "#303038"
-md_ref_palette_neutral_variant25 = "#3b3b43"
-md_ref_palette_neutral_variant30 = "#46464f"
-md_ref_palette_neutral_variant35 = "#52515b"
-md_ref_palette_neutral_variant40 = "#5e5d67"
-md_ref_palette_neutral_variant50 = "#777680"
-md_ref_palette_neutral_variant60 = "#91909a"
-md_ref_palette_neutral_variant70 = "#acaab4"
-md_ref_palette_neutral_variant80 = "#c7c5d0"
-md_ref_palette_neutral_variant90 = "#e4e1ec"
-md_ref_palette_neutral_variant95 = "#f2effa"
-md_ref_palette_neutral_variant98 = "#fbf8ff"
-md_ref_palette_neutral_variant99 = "#fffbff"
-md_ref_palette_neutral_variant100 = "#ffffff"
-# LIGHT
-md_sys_color_primary_light = "#343dff"
-md_sys_color_on_primary_light = "#ffffff"
-md_sys_color_primary_container_light = "#e0e0ff"
-md_sys_color_on_primary_container_light = "#00006e"
-md_sys_color_secondary_light = "#984061"
-md_sys_color_on_secondary_light = "#ffffff"
-md_sys_color_secondary_container_light = "#ffd9e2"
-md_sys_color_on_secondary_container_light = "#3e001d"
-md_sys_color_tertiary_light = "#c00100"
-md_sys_color_on_tertiary_light = "#ffffff"
-md_sys_color_tertiary_container_light = "#ffdad4"
-md_sys_color_on_tertiary_container_light = "#410000"
-md_sys_color_error_light = "#ba1a1a"
-md_sys_color_error_container_light = "#ffdad6"
-md_sys_color_on_error_light = "#ffffff"
-md_sys_color_on_error_container_light = "#410002"
-md_sys_color_background_light = "#fffbff"
-md_sys_color_on_background_light = "#1b1b1f"
-md_sys_color_surface_light = "#fffbff"
-md_sys_color_on_surface_light = "#1b1b1f"
-md_sys_color_surface_variant_light = "#e4e1ec"
-md_sys_color_on_surface_variant_light = "#46464f"
-md_sys_color_outline_light = "#777680"
-md_sys_color_inverse_on_surface_light = "#f3eff4"
-md_sys_color_inverse_surface_light = "#303034"
-md_sys_color_inverse_primary_light = "#bec2ff"
-md_sys_color_shadow_light = "#000000"
-md_sys_color_surface_tint_light = "#343dff"
-md_sys_color_outline_variant_light = "#c7c5d0"
-md_sys_color_scrim_light = "#000000"
-# DARK
-# md_sys_color_primary_dark = "#bec2ff"
-md_sys_color_primary_dark = "#7c84ff"
-md_sys_color_on_primary_dark = "#0001ac"
-md_sys_color_primary_container_dark = "#0000ef"
-md_sys_color_on_primary_container_dark = "#e0e0ff"
-md_sys_color_secondary_dark = "#ffb1c8"
-md_sys_color_on_secondary_dark = "#5e1133"
-md_sys_color_secondary_container_dark = "#7b2949"
-md_sys_color_on_secondary_container_dark = "#ffd9e2"
-# md_sys_color_tertiary_dark = "#ffb4a8"
-md_sys_color_tertiary_dark = "#ff5540"
-md_sys_color_on_tertiary_dark = "#690100"
-md_sys_color_tertiary_container_dark = "#930100"
-md_sys_color_on_tertiary_container_dark = "#ffdad4"
-md_sys_color_error_dark = "#ffb4ab"
-md_sys_color_error_container_dark = "#93000a"
-md_sys_color_on_error_dark = "#690005"
-md_sys_color_on_error_container_dark = "#ffdad6"
-md_sys_color_background_dark = "#1b1b1f"
-md_sys_color_on_background_dark = "#e5e1e6"
-md_sys_color_surface_dark = "#1b1b1f"
-md_sys_color_on_surface_dark = "#e5e1e6"
-md_sys_color_surface_variant_dark = "#46464f"
-md_sys_color_on_surface_variant_dark = "#c7c5d0"
-md_sys_color_outline_dark = "#91909a"
-md_sys_color_inverse_on_surface_dark = "#1b1b1f"
-md_sys_color_inverse_surface_dark = "#e5e1e6"
-md_sys_color_inverse_primary_dark = "#343dff"
-md_sys_color_shadow_dark = "#000000"
-md_sys_color_surface_tint_dark = "#bec2ff"
-md_sys_color_outline_variant_dark = "#46464f"
-md_sys_color_scrim_dark = "#000000"
+if settings_data['use_purple_and_yellow']:
+    # Primary
+    md_ref_palette_primary0 = "#000000"
+    md_ref_palette_primary10 = "#22005d"
+    md_ref_palette_primary20 = "#3a0092"
+    md_ref_palette_primary25 = "#4700af"
+    md_ref_palette_primary30 = "#5400cc"
+    md_ref_palette_primary35 = "#6109e7"
+    md_ref_palette_primary40 = "#6e28f3"
+    md_ref_palette_primary50 = "#8653ff"
+    md_ref_palette_primary60 = "#9e79ff"
+    md_ref_palette_primary70 = "#b69bff"
+    md_ref_palette_primary80 = "#cfbcff"
+    md_ref_palette_primary90 = "#e9ddff"
+    md_ref_palette_primary95 = "#f6eeff"
+    md_ref_palette_primary98 = "#fdf7ff"
+    md_ref_palette_primary99 = "#fffbff"
+    md_ref_palette_primary100 = "#ffffff"
+    # Tertiary
+    md_ref_palette_tertiary0 = "#000000"
+    md_ref_palette_tertiary10 = "#211b00"
+    md_ref_palette_tertiary20 = "#393000"
+    md_ref_palette_tertiary25 = "#463b00"
+    md_ref_palette_tertiary30 = "#534600"
+    md_ref_palette_tertiary35 = "#605200"
+    md_ref_palette_tertiary40 = "#6e5e00"
+    md_ref_palette_tertiary50 = "#8a7600"
+    md_ref_palette_tertiary60 = "#a89000"
+    md_ref_palette_tertiary70 = "#c6aa00"
+    md_ref_palette_tertiary80 = "#e5c500"
+    md_ref_palette_tertiary90 = "#ffe259"
+    md_ref_palette_tertiary95 = "#fff1bc"
+    md_ref_palette_tertiary98 = "#fff9ed"
+    md_ref_palette_tertiary99 = "#fffbff"
+    md_ref_palette_tertiary100 = "#ffffff"
+    # Neutral
+    md_ref_palette_neutral0 = "#000000"
+    md_ref_palette_neutral10 = "#1c1b1e"
+    md_ref_palette_neutral20 = "#313033"
+    md_ref_palette_neutral25 = "#3d3b3e"
+    md_ref_palette_neutral30 = "#48464a"
+    md_ref_palette_neutral35 = "#545156"
+    md_ref_palette_neutral40 = "#605d62"
+    md_ref_palette_neutral50 = "#79767a"
+    md_ref_palette_neutral60 = "#938f94"
+    md_ref_palette_neutral70 = "#aeaaae"
+    md_ref_palette_neutral80 = "#cac5ca"
+    md_ref_palette_neutral90 = "#e6e1e6"
+    md_ref_palette_neutral95 = "#f4eff4"
+    md_ref_palette_neutral98 = "#fdf8fd"
+    md_ref_palette_neutral99 = "#fffbff"
+    md_ref_palette_neutral100 = "#ffffff"
+    # Neutral Variant
+    md_ref_palette_neutral_variant0 = "#000000"
+    md_ref_palette_neutral_variant10 = "#1d1a22"
+    md_ref_palette_neutral_variant20 = "#322f38"
+    md_ref_palette_neutral_variant25 = "#3d3a43"
+    md_ref_palette_neutral_variant30 = "#49454e"
+    md_ref_palette_neutral_variant35 = "#54515a"
+    md_ref_palette_neutral_variant40 = "#615d66"
+    md_ref_palette_neutral_variant50 = "#7a757f"
+    md_ref_palette_neutral_variant60 = "#948f99"
+    md_ref_palette_neutral_variant70 = "#afa9b4"
+    md_ref_palette_neutral_variant80 = "#cac4cf"
+    md_ref_palette_neutral_variant90 = "#e7e0eb"
+    md_ref_palette_neutral_variant95 = "#f5eefa"
+    md_ref_palette_neutral_variant98 = "#fdf7ff"
+    md_ref_palette_neutral_variant99 = "#fffbff"
+    md_ref_palette_neutral_variant100 = "#ffffff"
+    # Light
+    md_sys_color_primary_light = "#6e28f3"
+    md_sys_color_on_primary_light = "#ffffff"
+    md_sys_color_primary_container_light = "#e9ddff"
+    md_sys_color_on_primary_container_light = "#22005d"
+    md_sys_color_secondary_light = "#6e5e00"
+    md_sys_color_on_secondary_light = "#ffffff"
+    md_sys_color_secondary_container_light = "#ffe259"
+    md_sys_color_on_secondary_container_light = "#211b00"
+    md_sys_color_tertiary_light = "#a89000"
+    md_sys_color_on_tertiary_light = "#ffffff"
+    md_sys_color_tertiary_container_light = "#ffe259"
+    md_sys_color_on_tertiary_container_light = "#211b00"
+    md_sys_color_error_light = "#ba1a1a"
+    md_sys_color_error_container_light = "#ffdad6"
+    md_sys_color_on_error_light = "#ffffff"
+    md_sys_color_on_error_container_light = "#410002"
+    md_sys_color_background_light = "#fffbff"
+    md_sys_color_on_background_light = "#1c1b1e"
+    md_sys_color_surface_light = "#fffbff"
+    md_sys_color_on_surface_light = "#1c1b1e"
+    md_sys_color_surface_variant_light = "#e7e0eb"
+    md_sys_color_on_surface_variant_light = "#49454e"
+    md_sys_color_outline_light = "#7a757f"
+    md_sys_color_inverse_on_surface_light = "#f4eff4"
+    md_sys_color_inverse_surface_light = "#313033"
+    md_sys_color_inverse_primary_light = "#cfbcff"
+    md_sys_color_shadow_light = "#000000"
+    md_sys_color_surface_tint_light = "#6e28f3"
+    md_sys_color_outline_variant_light = "#cac4cf"
+    md_sys_color_scrim_light = "#000000"
+    # Dark
+    # md_sys_color_primary_dark = "#cfbcff"
+    md_sys_color_primary_dark = "#9e79ff"
+    md_sys_color_on_primary_dark = "#3a0092"
+    md_sys_color_primary_container_dark = "#5400cc"
+    md_sys_color_on_primary_container_dark = "#e9ddff"
+    md_sys_color_secondary_dark = "#e5c500"
+    md_sys_color_on_secondary_dark = "#393000"
+    md_sys_color_secondary_container_dark = "#534600"
+    md_sys_color_on_secondary_container_dark = "#ffe259"
+    md_sys_color_tertiary_dark = "#e5c500"
+    md_sys_color_on_tertiary_dark = "#393000"
+    # md_sys_color_tertiary_container_dark = "#534600"
+    md_sys_color_tertiary_container_dark = "#6e5e00"
+    md_sys_color_on_tertiary_container_dark = "#ffe259"
+    md_sys_color_error_dark = "#ffb4ab"
+    md_sys_color_error_container_dark = "#93000a"
+    md_sys_color_on_error_dark = "#690005"
+    md_sys_color_on_error_container_dark = "#ffdad6"
+    md_sys_color_background_dark = "#1c1b1e"
+    md_sys_color_on_background_dark = "#e6e1e6"
+    md_sys_color_surface_dark = "#1c1b1e"
+    md_sys_color_on_surface_dark = "#e6e1e6"
+    md_sys_color_surface_variant_dark = "#49454e"
+    md_sys_color_on_surface_variant_dark = "#cac4cf"
+    md_sys_color_outline_dark = "#948f99"
+    md_sys_color_inverse_on_surface_dark = "#1c1b1e"
+    md_sys_color_inverse_surface_dark = "#e6e1e6"
+    md_sys_color_inverse_primary_dark = "#6e28f3"
+    md_sys_color_shadow_dark = "#000000"
+    md_sys_color_surface_tint_dark = "#cfbcff"
+    md_sys_color_outline_variant_dark = "#49454e"
+    md_sys_color_scrim_dark = "#000000"
+
+    piece_hover_red_overlay_dark = '#b2a240' # Couleur de bordure quand le joueur actif est le joueur 1
+    piece_hover_red_overlay_light = '#776f40'
+    piece_hover_blue_overlay_dark = '#8f7cbf' # Couleur de bordure quand le joueur actif est le joueur 2
+    piece_hover_blue_overlay_light = '#7754b9'
+    cannot_play_border_color_dark = '#ff8a78' # Couleur de bordure quand un des joueurs ne peut plus jouer
+    cannot_play_border_color_light = '#c00100'
+
+else:
+    # PRIMARY
+    md_ref_palette_primary0 = "#000000"
+    md_ref_palette_primary10 = "#00006e"
+    md_ref_palette_primary20 = "#0001ac"
+    md_ref_palette_primary25 = "#0001cd"
+    md_ref_palette_primary30 = "#0000ef"
+    md_ref_palette_primary35 = "#1a21ff"
+    md_ref_palette_primary40 = "#343dff"
+    md_ref_palette_primary50 = "#5a64ff"
+    md_ref_palette_primary60 = "#7c84ff"
+    md_ref_palette_primary70 = "#9da3ff"
+    md_ref_palette_primary80 = "#bec2ff"
+    md_ref_palette_primary90 = "#e0e0ff"
+    md_ref_palette_primary95 = "#f1efff"
+    md_ref_palette_primary98 = "#fbf8ff"
+    md_ref_palette_primary99 = "#fffbff"
+    md_ref_palette_primary100 = "#ffffff"
+    # TERTIARY
+    md_ref_palette_tertiary0 = "#000000"
+    md_ref_palette_tertiary10 = "#410000"
+    md_ref_palette_tertiary20 = "#690100"
+    md_ref_palette_tertiary25 = "#7e0100"
+    md_ref_palette_tertiary30 = "#930100"
+    md_ref_palette_tertiary35 = "#a90100"
+    md_ref_palette_tertiary40 = "#c00100"
+    md_ref_palette_tertiary50 = "#ef0000"
+    md_ref_palette_tertiary60 = "#ff5540"
+    md_ref_palette_tertiary70 = "#ff8a78"
+    md_ref_palette_tertiary80 = "#ffb4a8"
+    md_ref_palette_tertiary90 = "#ffdad4"
+    md_ref_palette_tertiary95 = "#ffedea"
+    md_ref_palette_tertiary98 = "#fff8f6"
+    md_ref_palette_tertiary99 = "#fffbff"
+    md_ref_palette_tertiary100 = "#ffffff"
+    # NEUTRAL
+    md_ref_palette_neutral0 = "#000000"
+    md_ref_palette_neutral10 = "#1b1b1f"
+    md_ref_palette_neutral20 = "#303034"
+    md_ref_palette_neutral25 = "#3c3b3f"
+    md_ref_palette_neutral30 = "#47464a"
+    md_ref_palette_neutral35 = "#535256"
+    md_ref_palette_neutral40 = "#5f5e62"
+    md_ref_palette_neutral50 = "#78767a"
+    md_ref_palette_neutral60 = "#929094"
+    md_ref_palette_neutral70 = "#adaaaf"
+    md_ref_palette_neutral80 = "#c8c5ca"
+    md_ref_palette_neutral90 = "#e5e1e6"
+    md_ref_palette_neutral95 = "#f3eff4"
+    md_ref_palette_neutral98 = "#fcf8fd"
+    md_ref_palette_neutral99 = "#fffbff"
+    md_ref_palette_neutral100 = "#ffffff"
+    # NEUTRAL VARIANT
+    md_ref_palette_neutral_variant0 = "#000000"
+    md_ref_palette_neutral_variant10 = "#1b1b23"
+    md_ref_palette_neutral_variant20 = "#303038"
+    md_ref_palette_neutral_variant25 = "#3b3b43"
+    md_ref_palette_neutral_variant30 = "#46464f"
+    md_ref_palette_neutral_variant35 = "#52515b"
+    md_ref_palette_neutral_variant40 = "#5e5d67"
+    md_ref_palette_neutral_variant50 = "#777680"
+    md_ref_palette_neutral_variant60 = "#91909a"
+    md_ref_palette_neutral_variant70 = "#acaab4"
+    md_ref_palette_neutral_variant80 = "#c7c5d0"
+    md_ref_palette_neutral_variant90 = "#e4e1ec"
+    md_ref_palette_neutral_variant95 = "#f2effa"
+    md_ref_palette_neutral_variant98 = "#fbf8ff"
+    md_ref_palette_neutral_variant99 = "#fffbff"
+    md_ref_palette_neutral_variant100 = "#ffffff"
+    # LIGHT
+    md_sys_color_primary_light = "#343dff"
+    md_sys_color_on_primary_light = "#ffffff"
+    md_sys_color_primary_container_light = "#e0e0ff"
+    md_sys_color_on_primary_container_light = "#00006e"
+    md_sys_color_secondary_light = "#984061"
+    md_sys_color_on_secondary_light = "#ffffff"
+    md_sys_color_secondary_container_light = "#ffd9e2"
+    md_sys_color_on_secondary_container_light = "#3e001d"
+    md_sys_color_tertiary_light = "#c00100"
+    md_sys_color_on_tertiary_light = "#ffffff"
+    md_sys_color_tertiary_container_light = "#ffdad4"
+    md_sys_color_on_tertiary_container_light = "#410000"
+    md_sys_color_error_light = "#ba1a1a"
+    md_sys_color_error_container_light = "#ffdad6"
+    md_sys_color_on_error_light = "#ffffff"
+    md_sys_color_on_error_container_light = "#410002"
+    md_sys_color_background_light = "#fffbff"
+    md_sys_color_on_background_light = "#1b1b1f"
+    md_sys_color_surface_light = "#fffbff"
+    md_sys_color_on_surface_light = "#1b1b1f"
+    md_sys_color_surface_variant_light = "#e4e1ec"
+    md_sys_color_on_surface_variant_light = "#46464f"
+    md_sys_color_outline_light = "#777680"
+    md_sys_color_inverse_on_surface_light = "#f3eff4"
+    md_sys_color_inverse_surface_light = "#303034"
+    md_sys_color_inverse_primary_light = "#bec2ff"
+    md_sys_color_shadow_light = "#000000"
+    md_sys_color_surface_tint_light = "#343dff"
+    md_sys_color_outline_variant_light = "#c7c5d0"
+    md_sys_color_scrim_light = "#000000"
+    # DARK
+    # md_sys_color_primary_dark = "#bec2ff"
+    md_sys_color_primary_dark = "#7c84ff"
+    md_sys_color_on_primary_dark = "#0001ac"
+    md_sys_color_primary_container_dark = "#0000ef"
+    md_sys_color_on_primary_container_dark = "#e0e0ff"
+    md_sys_color_secondary_dark = "#ffb1c8"
+    md_sys_color_on_secondary_dark = "#5e1133"
+    md_sys_color_secondary_container_dark = "#7b2949"
+    md_sys_color_on_secondary_container_dark = "#ffd9e2"
+    # md_sys_color_tertiary_dark = "#ffb4a8"
+    md_sys_color_tertiary_dark = "#ff5540"
+    md_sys_color_on_tertiary_dark = "#690100"
+    md_sys_color_tertiary_container_dark = "#930100"
+    md_sys_color_on_tertiary_container_dark = "#ffdad4"
+    md_sys_color_error_dark = "#ffb4ab"
+    md_sys_color_error_container_dark = "#93000a"
+    md_sys_color_on_error_dark = "#690005"
+    md_sys_color_on_error_container_dark = "#ffdad6"
+    md_sys_color_background_dark = "#1b1b1f"
+    md_sys_color_on_background_dark = "#e5e1e6"
+    md_sys_color_surface_dark = "#1b1b1f"
+    md_sys_color_on_surface_dark = "#e5e1e6"
+    md_sys_color_surface_variant_dark = "#46464f"
+    md_sys_color_on_surface_variant_dark = "#c7c5d0"
+    md_sys_color_outline_dark = "#91909a"
+    md_sys_color_inverse_on_surface_dark = "#1b1b1f"
+    md_sys_color_inverse_surface_dark = "#e5e1e6"
+    md_sys_color_inverse_primary_dark = "#343dff"
+    md_sys_color_shadow_dark = "#000000"
+    md_sys_color_surface_tint_dark = "#bec2ff"
+    md_sys_color_outline_variant_dark = "#46464f"
+    md_sys_color_scrim_dark = "#000000"
+
+    piece_hover_red_overlay_dark = '#bf857c' # Couleur de bordure quand le joueur actif est le joueur 1
+    piece_hover_red_overlay_light = '#a04040'
+    piece_hover_blue_overlay_dark = '#8e91bf' # Couleur de bordure quand le joueur actif est le joueur 2
+    piece_hover_blue_overlay_light = '#5a5ebf'
+    cannot_play_border_color_dark = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
+    cannot_play_border_color_light = '#6e5e00'
 
 # Palette
 
 transparent = ''
 
-background_color = md_sys_color_background_dark # Couleur de fond du programme
-on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
-button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
-button_outline_color = md_sys_color_on_surface_dark # Couleur de bordure des boutons
-button_text_color = md_sys_color_on_surface_dark # Couleur du texte des boutons
-surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
+if not use_light_theme:
+    background_color = md_sys_color_background_dark # Couleur de fond du programme
+    on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
+    button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
+    button_outline_color = md_sys_color_on_surface_dark # Couleur de bordure des boutons
+    button_text_color = md_sys_color_on_surface_dark # Couleur du texte des boutons
+    surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
 
-placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
-valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
-piece_hover_red = md_ref_palette_tertiary70 # Couleur de survol pour les pièces rouges
-piece_hover_red_overlay = '#bf857c' # Couleur de bordure quand le joueur actif est le joueur 1
+    placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
+    valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
+    piece_hover_red = md_ref_palette_tertiary70 # Couleur de survol pour les pièces rouges
 
-placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
-valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
-piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
-piece_hover_blue_overlay = '#8e91bf' # Couleur de bordure quand le joueur actif est le joueur 2
+    placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
+    valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+    piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
 
-cannot_play_border_color = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
+    invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
 
-invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+    board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordure des cases du plateau
 
-board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordure des cases du plateau
+    piece_hover_blue_overlay = piece_hover_blue_overlay_dark
+    piece_hover_red_overlay = piece_hover_red_overlay_dark
+    cannot_play_border_color = cannot_play_border_color_dark
+
+    selected_theme = 'dark'
+else:
+    background_color = md_sys_color_background_light # Couleur de fond du programme
+    on_background_color = md_sys_color_on_surface_light # Couleur des éléments placés sur le fond
+    button_background_color = md_sys_color_background_light # Couleur de fond des boutons
+    button_outline_color = md_sys_color_on_surface_light # Couleur de bordure des boutons
+    button_text_color = md_sys_color_on_surface_light # Couleur du texte des boutons
+    surface_color = md_sys_color_surface_variant_light # Couleur de surface (là où les pièces sont placées par exemple)
+
+    placed_piece_red = md_sys_color_tertiary_light # Couleur d'une pièce rouge placée
+    valid_placement_red = md_ref_palette_tertiary70 # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
+    piece_hover_red = md_ref_palette_tertiary50 # Couleur de survol pour les pièces rouges
+
+    placed_piece_blue = md_sys_color_primary_light # Couleur d'une pièce bleue placée
+    valid_placement_blue = md_ref_palette_primary70 # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+    piece_hover_blue = md_ref_palette_primary50 # Couleur de survol pour les pièces bleues
+
+    invalid_placement = md_sys_color_outline_variant_light # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+
+    board_cell_outline_color = md_sys_color_outline_variant_light # Couleur de bordure des cases du plateau
+
+    piece_hover_blue_overlay = piece_hover_blue_overlay_light
+    piece_hover_red_overlay = piece_hover_red_overlay_light
+    cannot_play_border_color = cannot_play_border_color_light
+
+    selected_theme = 'light'
 
 # ══════════ Classe principale
 
 
 class Blocus:
     def __init__(self, master):
+        global style
         self.master = master
         self.master.geometry('1280x720') # On définit la taille initiale de la fenêtre
         self.master.title('Blocus') # On définit le titre de la fenêtre
@@ -299,7 +478,7 @@ class Blocus:
         global placed_piece_red, valid_placement_red, piece_hover_red, piece_hover_red_overlay
         global placed_piece_blue, valid_placement_blue, piece_hover_blue, piece_hover_blue_overlay
         global cannot_play_border_color, invalid_placement, board_cell_outline_color
-        global play_victory_sound, use_space_to_mirror, color_blind_mode, use_middle_starting_cases
+        global play_victory_sound, use_space_to_mirror, color_blind_mode, use_middle_starting_cases, use_light_theme, selected_theme
 
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
@@ -382,7 +561,7 @@ class Blocus:
             md_sys_color_on_secondary_light = "#ffffff"
             md_sys_color_secondary_container_light = "#ffe259"
             md_sys_color_on_secondary_container_light = "#211b00"
-            md_sys_color_tertiary_light = "#6e5e00"
+            md_sys_color_tertiary_light = "#a89000"
             md_sys_color_on_tertiary_light = "#ffffff"
             md_sys_color_tertiary_container_light = "#ffe259"
             md_sys_color_on_tertiary_container_light = "#211b00"
@@ -438,9 +617,12 @@ class Blocus:
             md_sys_color_outline_variant_dark = "#49454e"
             md_sys_color_scrim_dark = "#000000"
 
-            piece_hover_red_overlay = '#b2a240' # Couleur de bordure quand le joueur actif est le joueur 1
-            piece_hover_blue_overlay = '#8f7cbf' # Couleur de bordure quand le joueur actif est le joueur 
-            cannot_play_border_color = '#ff8a78' # Couleur de bordure quand un des joueurs ne peut plus jouer
+            piece_hover_red_overlay_dark = '#b2a240' # Couleur de bordure quand le joueur actif est le joueur 1
+            piece_hover_red_overlay_light = '#776f40'
+            piece_hover_blue_overlay_dark = '#8f7cbf' # Couleur de bordure quand le joueur actif est le joueur 2
+            piece_hover_blue_overlay_light = '#7754b9'
+            cannot_play_border_color_dark = '#ff8a78' # Couleur de bordure quand un des joueurs ne peut plus jouer
+            cannot_play_border_color_light = '#c00100'
         
         else:
             # PRIMARY
@@ -576,28 +758,65 @@ class Blocus:
             md_sys_color_outline_variant_dark = "#46464f"
             md_sys_color_scrim_dark = "#000000"
         
-            piece_hover_red_overlay = '#bf857c' # Couleur de bordure quand le joueur actif est le joueur 1
-            piece_hover_blue_overlay = '#8e91bf' # Couleur de bordure quand le joueur actif est le joueur 2
-            cannot_play_border_color = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
+            piece_hover_red_overlay_dark = '#bf857c' # Couleur de bordure quand le joueur actif est le joueur 1
+            piece_hover_red_overlay_light = '#a04040'
+            piece_hover_blue_overlay_dark = '#8e91bf' # Couleur de bordure quand le joueur actif est le joueur 2
+            piece_hover_blue_overlay_light = '#5a5ebf'
+            cannot_play_border_color_dark = '#e7c349' # Couleur de bordure quand un des joueurs ne peut plus jouer
+            cannot_play_border_color_light = '#6e5e00'
         
-        background_color = md_sys_color_background_dark # Couleur de fond du programme
-        on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
-        button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
-        button_outline_color = md_sys_color_on_surface_dark # Couleur de bordure des boutons
-        button_text_color = md_sys_color_on_surface_dark # Couleur du texte des boutons
-        surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
+        use_light_theme = settings_data['use_light_theme']
 
-        placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
-        valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
-        piece_hover_red = md_ref_palette_tertiary70 # Couleur de survol pour les pièces rouges
+        if not use_light_theme:
+            background_color = md_sys_color_background_dark # Couleur de fond du programme
+            on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
+            button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
+            button_outline_color = md_sys_color_on_surface_dark # Couleur de bordure des boutons
+            button_text_color = md_sys_color_on_surface_dark # Couleur du texte des boutons
+            surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
 
-        placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
-        valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
-        piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
+            placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
+            valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
+            piece_hover_red = md_ref_palette_tertiary70 # Couleur de survol pour les pièces rouges
 
-        invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+            placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
+            valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+            piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
 
-        board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordure des cases du plateau
+            invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+
+            board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordure des cases du plateau
+
+            piece_hover_blue_overlay = piece_hover_blue_overlay_dark
+            piece_hover_red_overlay = piece_hover_red_overlay_dark
+            cannot_play_border_color = cannot_play_border_color_dark
+
+            selected_theme = 'dark'
+        else:
+            background_color = md_sys_color_background_light # Couleur de fond du programme
+            on_background_color = md_sys_color_on_surface_light # Couleur des éléments placés sur le fond
+            button_background_color = md_sys_color_background_light # Couleur de fond des boutons
+            button_outline_color = md_sys_color_on_surface_light # Couleur de bordure des boutons
+            button_text_color = md_sys_color_on_surface_light # Couleur du texte des boutons
+            surface_color = md_sys_color_surface_variant_light # Couleur de surface (là où les pièces sont placées par exemple)
+
+            placed_piece_red = md_sys_color_tertiary_light # Couleur d'une pièce rouge placée
+            valid_placement_red = md_ref_palette_tertiary70 # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
+            piece_hover_red = md_ref_palette_tertiary50 # Couleur de survol pour les pièces rouges
+
+            placed_piece_blue = md_sys_color_primary_light # Couleur d'une pièce bleue placée
+            valid_placement_blue = md_ref_palette_primary70 # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
+            piece_hover_blue = md_ref_palette_primary50 # Couleur de survol pour les pièces bleues
+
+            invalid_placement = md_sys_color_outline_variant_light # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+
+            board_cell_outline_color = md_sys_color_outline_variant_light # Couleur de bordure des cases du plateau
+
+            piece_hover_blue_overlay = piece_hover_blue_overlay_light
+            piece_hover_red_overlay = piece_hover_red_overlay_light
+            cannot_play_border_color = cannot_play_border_color_light
+
+            selected_theme = 'light'
 
         player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                                 [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
@@ -670,6 +889,11 @@ class Blocus:
         
         self.reset_variables() # On appelle la fonction qui réinitialise les variables du programme
 
+        self.master.configure(bg=background_color) # On change la couleur de fond de la fenêtre
+
+        style.configure('TButton', background=button_background_color, focuscolor=button_background_color, relief='flat') # On ajoute du style pour les boutons
+        style.map('TButton', background=[('active', button_background_color), ('disabled', button_background_color)], relief=[('pressed', 'flat')]) # Modification du thème en fonction de l'état des boutons
+
         main_menu_frame = Frame(self.master, background=background_color) # On crée le cadre principal
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
         main_menu_frame.columnconfigure(4, weight=1)
@@ -686,20 +910,20 @@ class Blocus:
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
 
-        self.blocus_logo = PhotoImage(file="res/img/blocus_logo.png") if not settings_data['use_purple_and_yellow'] else PhotoImage(file="res/img/blocus_logo_alt.png") # On récupère l'image du logo
+        self.blocus_logo = PhotoImage(file=f"res/img/{selected_theme}/blocus_logo.png") if not settings_data['use_purple_and_yellow'] else PhotoImage(file=f"res/img/{selected_theme}/blocus_logo_alt.png") # On récupère l'image du logo
         blocus_logo_canvas.create_image(0, 0, anchor='nw', image=self.blocus_logo) # On place le logo sur le canvas mentionné ci-dessus
 
         settings_file.close()
 
-        self.github_logo = PhotoImage(file='res/img/github_logo.png') # On récupère l'image du logo GitHub
+        self.github_logo = PhotoImage(file=f'res/img/{selected_theme}/github_logo.png') # On récupère l'image du logo GitHub
         github_button = Button(main_menu_frame, image=self.github_logo, command=lambda: webbrowser.open_new('https://github.com/ziadOUA/Blocus'), compound='center', width=2, cursor="hand2") # On crée le bouton qui ouvrira le lien GitHub du projet dans le navigateur
         github_button.grid(column=0, row=0) # Le bouton est placé
 
-        self.about_icon = PhotoImage(file='res/img/about_icon.png') # On récupère l'image de l'icône "about_icon.png"
+        self.about_icon = PhotoImage(file=f'res/img/{selected_theme}/about_icon.png') # On récupère l'image de l'icône "about_icon.png"
         about_button = Button(main_menu_frame, image=self.about_icon, command=self.about_blocus_duo, compound='center', width=2, cursor="hand2") # On crée le bouton qui affichera les auteurs du projet
         about_button.grid(column=2, row=0) # Le bouton est placé
 
-        self.settings_icon = PhotoImage(file='res/img/settings_icon.png') # On récupère l'image de l'icône "about_icon.png"
+        self.settings_icon = PhotoImage(file=f'res/img/{selected_theme}/settings_icon.png') # On récupère l'image de l'icône "about_icon.png"
         settings_button = Button(main_menu_frame, image=self.settings_icon, command=self.settings, compound='center', width=2, cursor="hand2") # On crée le bouton qui affichera les auteurs du projet
         settings_button.grid(column=1, row=0) # Le bouton est placé
 
@@ -735,7 +959,7 @@ class Blocus:
         top_part.grid(row=0, column=0, sticky='ew')
         top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
-        self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
+        self.back_icon = PhotoImage(file=f'res/img/{selected_theme}/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
         back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
 
@@ -750,7 +974,7 @@ class Blocus:
         left_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
         left_click_icon_canvas.grid(column=0, row=0)
 
-        self.left_click_icon = PhotoImage(file="res/img/mouse_left_click_icon.png")
+        self.left_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_left_click_icon.png")
         left_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.left_click_icon)
 
         left_click_label = Label(controls_container, text='Sélectionnez une pièce en faisant un click gauche', font=('Arial', 12), background=background_color, foreground=on_background_color)
@@ -761,7 +985,7 @@ class Blocus:
         right_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
         right_click_icon_canvas.grid(column=0, row=3)
 
-        self.right_click_icon = PhotoImage(file="res/img/mouse_right_click_icon.png")
+        self.right_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_right_click_icon.png")
         right_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.right_click_icon)
 
         right_click_label = Label(controls_container, text='Tournez la pièce en faisant un click droit', font=('Arial', 12), background=background_color, foreground=on_background_color)
@@ -770,7 +994,7 @@ class Blocus:
         middle_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
         middle_click_icon_canvas.grid(column=0, row=4)
 
-        self.middle_click_icon = PhotoImage(file="res/img/mouse_middle_click_icon.png")
+        self.middle_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_middle_click_icon.png")
         middle_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.middle_click_icon)
 
         middle_click_label = Label(controls_container, text='Miroitez la pièce en faisant un click du milieu', font=('Arial', 12), background=background_color, foreground=on_background_color)
@@ -837,7 +1061,7 @@ class Blocus:
         board_top_part.grid(row=1, column=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
         board_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
-        self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
+        self.back_icon = PhotoImage(file=f'res/img/{selected_theme}/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
         back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
         
@@ -850,7 +1074,7 @@ class Blocus:
         player_1_pieces_top_part.grid(column=0, row=1, sticky='ew') # On place le nouveau cadre dans le cadre principal
         player_1_pieces_top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
-        self.hint_icon = PhotoImage(file='res/img/hint_icon.png') # On récupère l'image de l'icône "hint_icon.png"
+        self.hint_icon = PhotoImage(file=f'res/img/{selected_theme}/hint_icon.png') # On récupère l'image de l'icône "hint_icon.png"
         player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # On crée un bouton indice pour le joueur 1
         player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
 
@@ -1568,33 +1792,35 @@ class Blocus:
     def rotate_piece(self, event):
         global orientation_id, relative_positions, relative_positions_reference, directions_from_center_rotated
 
-        orientation_id = (orientation_id + 1) % 4 # On augmente la valeur
-        directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
+        if player_1_has_selected_piece or player_2_has_selected_piece:
+            orientation_id = (orientation_id + 1) % 4 # On augmente la valeur
+            directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
 
-        if orientation_id == 0:
-            directions_from_center_rotated = [list(direction) for direction in relative_positions_reference] # 0°
-        elif orientation_id == 1:
-            directions_from_center_rotated = [[-direction[1], direction[0]] for direction in relative_positions_reference] # 90°
-        elif orientation_id == 2:
-            directions_from_center_rotated = [[-direction[0], -direction[1]] for direction in relative_positions_reference] # 180°
-        elif orientation_id == 3:
-            directions_from_center_rotated = [[direction[1], -direction[0]] for direction in relative_positions_reference] # 270°
+            if orientation_id == 0:
+                directions_from_center_rotated = [list(direction) for direction in relative_positions_reference] # 0°
+            elif orientation_id == 1:
+                directions_from_center_rotated = [[-direction[1], direction[0]] for direction in relative_positions_reference] # 90°
+            elif orientation_id == 2:
+                directions_from_center_rotated = [[-direction[0], -direction[1]] for direction in relative_positions_reference] # 180°
+            elif orientation_id == 3:
+                directions_from_center_rotated = [[direction[1], -direction[0]] for direction in relative_positions_reference] # 270°
 
-        relative_positions = directions_from_center_rotated
-        self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1]) # On met à jour la pièce affichée avec les nouvelles valeurs
+            relative_positions = directions_from_center_rotated
+            self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1]) # On met à jour la pièce affichée avec les nouvelles valeurs
     
     def mirror_piece(self, event):
         global mirror_id, relative_positions, relative_positions_reference, directions_from_center_rotated
 
-        mirror_id = (mirror_id + 1) % 4 # On augmente la valeur
-        directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated] # On crée une copie de la liste "directions_from_center_rotated" sur laquelle on se basera
-        
-        for i, direction in enumerate(directions_from_center_rotated):
-            directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0] # On inverse les valeurs horizontales si "mirror_id" est égal à 0, 2 ou 3
-            directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1] # On inverse les valeurs verticales si "mirror_id" est égal à 0, 1 ou 2
+        if player_1_has_selected_piece or player_2_has_selected_piece:
+            mirror_id = (mirror_id + 1) % 4 # On augmente la valeur
+            directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated] # On crée une copie de la liste "directions_from_center_rotated" sur laquelle on se basera
+            
+            for i, direction in enumerate(directions_from_center_rotated):
+                directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0] # On inverse les valeurs horizontales si "mirror_id" est égal à 0, 2 ou 3
+                directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1] # On inverse les valeurs verticales si "mirror_id" est égal à 0, 1 ou 2
 
-        relative_positions = directions_from_center_mirrored
-        self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1]) # On met à jour la pièce affichée avec les nouvelles valeurs
+            relative_positions = directions_from_center_mirrored
+            self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1]) # On met à jour la pièce affichée avec les nouvelles valeurs
 
     def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y, generate_relative_positions):
         global relative_positions, relative_positions_reference, directions_from_center_rotated
@@ -1625,7 +1851,7 @@ class Blocus:
         return adjacent_cells
 
     def settings(self):
-        global color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state, use_space_to_mirror_state, use_middle_starting_cases_state
+        global color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state, use_space_to_mirror_state, use_middle_starting_cases_state, use_light_theme_state
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
         
@@ -1639,7 +1865,7 @@ class Blocus:
         settings_label = Label(top_part, text='Paramètres', font=('Arial', 20), background=background_color, foreground=on_background_color) # Titre de la page (Paramètres)
         settings_label.grid(column=1, row=0, sticky='ew')
         
-        self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
+        self.back_icon = PhotoImage(file=f'res/img/{selected_theme}/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
         back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0, sticky='w', pady=20)
 
@@ -1650,6 +1876,26 @@ class Blocus:
 
         with open("settings.json", "r") as settings_file: # On ouvre le fichier paramètres
             settings_data = json.load(settings_file) # On récupère les données du fichier
+
+        use_light_theme_state = BooleanVar() # Création de l'option "Thème clair"
+        use_light_theme_state.set(settings_data['use_light_theme'])
+        use_light_theme_checkbox = Checkbutton(
+                                        main_menu_frame, 
+                                        text='Thème clair', 
+                                        onvalue=True, 
+                                        offvalue=False, 
+                                        variable=use_light_theme_state, 
+                                        command=self.update_settings, 
+                                        font=('Arial', 15), 
+                                        bd=0,
+                                        highlightthickness=0,
+                                        background=background_color, 
+                                        activebackground=background_color,
+                                        foreground=on_background_color,
+                                        activeforeground=on_background_color,
+                                        relief='flat',
+                                        selectcolor=background_color) # On crée une case à cocher
+        use_light_theme_checkbox.grid(column=0, row=2, sticky='w')
 
         alternative_color_scheme_state = BooleanVar() # Création de l'option "Utiliser du violet et du jaune"
         alternative_color_scheme_state.set(settings_data['use_purple_and_yellow'])
@@ -1669,12 +1915,12 @@ class Blocus:
                                                 activeforeground=on_background_color,
                                                 relief='flat',
                                                 selectcolor=background_color) # On crée une case à cocher
-        alternative_color_scheme_checkbox.grid(column=0, row=2, sticky='w')
+        alternative_color_scheme_checkbox.grid(column=0, row=3, sticky='w')
 
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=3) # On crée un espace entre les différentes sections
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=4) # On crée un espace entre les différentes sections
 
         sound_settings_section_label = Label(main_menu_frame, text='AUDIO', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres audio
-        sound_settings_section_label.grid(column=0, row=4, sticky='w')
+        sound_settings_section_label.grid(column=0, row=5, sticky='w')
 
         play_victory_sound_state = BooleanVar() # Création de l'option "Jouer un son de victoire"
         play_victory_sound_state.set(settings_data['play_victory_sound'])
@@ -1694,12 +1940,12 @@ class Blocus:
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
-        play_victory_sound_checkbox.grid(column=0, row=5, sticky='w')
+        play_victory_sound_checkbox.grid(column=0, row=6, sticky='w')
 
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=6) # On crée un espace entre les différentes sections
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=7) # On crée un espace entre les différentes sections
 
         accessibility_settings_section_label = Label(main_menu_frame, text='ACCESSIBILITÉ', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres d'accessibilité
-        accessibility_settings_section_label.grid(column=0, row=7, sticky='w')
+        accessibility_settings_section_label.grid(column=0, row=8, sticky='w')
 
         color_blind_mode_state = BooleanVar() # Création de l'option "Mode daltonien"
         color_blind_mode_state.set(settings_data['color_blind_mode'])
@@ -1719,7 +1965,7 @@ class Blocus:
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
-        color_blind_mode_checkbox.grid(column=0, row=8, sticky='w')
+        color_blind_mode_checkbox.grid(column=0, row=9, sticky='w')
 
         use_space_to_mirror_state = BooleanVar() # Création de l'option "Utiliser la touche espace pour miroiter"
         use_space_to_mirror_state.set(settings_data['use_space_to_mirror'])
@@ -1739,12 +1985,12 @@ class Blocus:
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
-        use_space_to_mirror_checkbox.grid(column=0, row=9, sticky='w')
+        use_space_to_mirror_checkbox.grid(column=0, row=10, sticky='w')
 
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=10) # On crée un espace entre les différentes sections
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=11) # On crée un espace entre les différentes sections
 
         game_settings_section_label = Label(main_menu_frame, text='COMPORTEMENT DU JEU', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres d'accessibilité
-        game_settings_section_label.grid(column=0, row=11, sticky='w')
+        game_settings_section_label.grid(column=0, row=12, sticky='w')
 
         use_middle_starting_cases_state = BooleanVar() # Création de l'option "Mettre les cases de départ au centre"
         use_middle_starting_cases_state.set(settings_data['use_middle_starting_cases'])
@@ -1764,7 +2010,7 @@ class Blocus:
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
-        use_middle_starting_cases_checkbox.grid(column=0, row=12, sticky='w')
+        use_middle_starting_cases_checkbox.grid(column=0, row=13, sticky='w')
 
         settings_file.close() # On ferme le fichier de paramètres pour éviter les problèmes
     
@@ -1773,6 +2019,7 @@ class Blocus:
             settings_data = json.load(settings_file) # On récupère les données du fichier
 
         settings_data['color_blind_mode'] = color_blind_mode_state.get() # Le fichier paramètres est mis à jour en fonction des choix de l'utilisateur
+        settings_data['use_light_theme'] = use_light_theme_state.get()
         settings_data['use_red_and_blue'] = not alternative_color_scheme_state.get()
         settings_data['use_purple_and_yellow'] = alternative_color_scheme_state.get()
         settings_data['play_victory_sound'] = play_victory_sound_state.get()
