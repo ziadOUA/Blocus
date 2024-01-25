@@ -299,7 +299,7 @@ class Blocus:
         global placed_piece_red, valid_placement_red, piece_hover_red, piece_hover_red_overlay
         global placed_piece_blue, valid_placement_blue, piece_hover_blue, piece_hover_blue_overlay
         global cannot_play_border_color, invalid_placement, board_cell_outline_color
-        global play_victory_sound, use_space_to_mirror, color_blind_mode
+        global play_victory_sound, use_space_to_mirror, color_blind_mode, use_middle_starting_cases
 
         with open("settings.json", "r") as settings_file:
             settings_data = json.load(settings_file)
@@ -636,6 +636,7 @@ class Blocus:
         color_blind_mode = settings_data['color_blind_mode']
         play_victory_sound = settings_data['play_victory_sound']
         use_space_to_mirror = settings_data['use_space_to_mirror']
+        use_middle_starting_cases = settings_data['use_middle_starting_cases']
 
         orientation_id = 0
 
@@ -732,13 +733,13 @@ class Blocus:
 
         top_part = Frame(main_menu_frame, background=background_color)
         top_part.grid(row=0, column=0, sticky='ew')
-        top_part.columnconfigure(1, weight=1)
+        top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
         self.back_icon = PhotoImage(file='res/img/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
         back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
 
-        how_to_play_label = Label(top_part, text='Comment jouer', font=('Arial', 20), background=background_color, foreground=on_background_color)
+        how_to_play_label = Label(top_part, text='Comment jouer', font=('Arial', 20), background=background_color, foreground=on_background_color) # Création d'un titre principal
         how_to_play_label.grid(column=1, row=0, sticky='ew')
 
         Label(top_part, text='                ', background=background_color).grid(column=2, row=0)
@@ -787,7 +788,7 @@ class Blocus:
                  '• Dès qu\'un joueur est bloqué, l\'autre joueur joue jusqu\'à ce qu\'il le soit aussi']
         
         for rule in rules:
-            Label(game_rules_container, text=rule, font=('Arial', 12), background=background_color, foreground=on_background_color).grid(row=rules.index(rule) + 1, column=0, sticky='w')
+            Label(game_rules_container, text=rule, font=('Arial', 12), background=background_color, foreground=on_background_color).grid(row=rules.index(rule) + 1, column=0, sticky='w') # On place les différentes règles grâce à une boucle (pour éviter d'inutiles répétitions)
 
     def blocus_duo(self, event):
         global board_canvas, board_cells, board, win_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
@@ -807,11 +808,17 @@ class Blocus:
         main_menu_frame.pack(expand=True)
 
         board = [[' ' for _ in range(board_size)] for _ in range(board_size)] # Création du plateau grâce à une compréhension de liste
-        board[-1][0] = 'RC' # On place les coins initiaux, où la première pièce de couleur correspondante devra être placée
-        board[0][-1] = 'BC'
-
-        red_corners_coordinates.append([0, board_size - 1]) # On ajoute les coordonnées des cases de coin mentionnées ci-dessus
-        blue_corners_coordinates.append([board_size - 1, 0])
+        
+        if not use_middle_starting_cases:
+            board[-1][0] = 'RC' # On place les cases de départ, où la première pièce de couleur correspondante devra être placée
+            board[0][-1] = 'BC'
+            red_corners_coordinates.append([0, board_size - 1]) # On ajoute les coordonnées des cases de départ mentionnées ci-dessus
+            blue_corners_coordinates.append([board_size - 1, 0])
+        else:
+            board[4][4] = 'RC' # On place les cases de départ, où la première pièce de couleur correspondante devra être placée
+            board[-4][-4] = 'BC'
+            red_corners_coordinates.append([4, 4]) # On ajoute les coordonnées des cases de départ mentionnées ci-dessus
+            blue_corners_coordinates.append([board_size - 5, board_size - 5])
 
         board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color, background=background_color) # On crée un canvas pour le plateau
         board_canvas.grid(column=1, row=2, padx=10) # On place le canvas
@@ -866,17 +873,29 @@ class Blocus:
         player_2_score_label.grid(column=1, row=0, sticky='ew') # Le texte est placé
         player_2_score_label['text'] = f'Score : {player_2_score}' # Le contenu du texte est mis à jour
 
-        x1 = 1
-        y1 = (board_size - 1) * board_cell_size + 1
-        x2 = x1 + board_cell_size - 1
-        y2 = y1 + board_cell_size - 1
-        red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0) # On crée un cercle rouge dans le coin de départ du joueur 1
+        if not use_middle_starting_cases:
+            x1 = 1
+            y1 = (board_size - 1) * board_cell_size + 1
+            x2 = x1 + board_cell_size - 1
+            y2 = y1 + board_cell_size - 1
+        else:
+            x1 = 1 + 4 * board_cell_size
+            y1 = 4 * board_cell_size + 1
+            x2 = x1 + board_cell_size - 1
+            y2 = y1 + board_cell_size - 1
+        red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0) # On crée un cercle rouge dans la case de départ du joueur 1
 
-        x1 = (board_size - 1) * board_cell_size + 1
-        y1 = 1
-        x2 = x1 + board_cell_size - 1
-        y2 = y1 + board_cell_size - 1
-        blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0) # On crée un cercle rouge dans le coin de départ du joueur 2
+        if not use_middle_starting_cases:
+            x1 = (board_size - 1) * board_cell_size + 1
+            y1 = 1
+            x2 = x1 + board_cell_size - 1
+            y2 = y1 + board_cell_size - 1
+        else:
+            x1 = (board_size - 5) * board_cell_size + 1
+            y1 = 1 + (board_size - 5) * board_cell_size
+            x2 = x1 + board_cell_size - 1
+            y2 = y1 + board_cell_size - 1
+        blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0) # On crée un cercle rouge dans la case de départ du joueur 2
 
         for line in range(board_size):
             row = []
@@ -908,10 +927,10 @@ class Blocus:
             player_1_pieces_cells.append(row_j1) # Tous les objets correspondant aux cases sont ajoutés aux listes "player_1_pieces_cells" et "player_1_pieces_cells", qui permettera de les éditer facilement
             player_2_pieces_cells.append(row_j2)
 
-        # On "bind" le board à des événements
+        # On "bind" le plateau à des événements
         board_canvas.bind("<Button-1>", self.on_board_click) # Clic : la pièce sélectionnée est placée
         if use_space_to_mirror:
-            board_canvas.bind_all('<space>', self.mirror_piece)
+            board_canvas.bind_all('<space>', self.mirror_piece) # Si le paramètre est activé, fait que la touche espace miroite la pièce sélectionnée
         else:
             board_canvas.bind('<Button-2>', self.mirror_piece)
             board_canvas.unbind_all('<space>')
@@ -919,13 +938,13 @@ class Blocus:
         board_canvas.bind("<Motion>", self.on_board_hover) # La souris bouge sur le plateau
         board_canvas.bind("<Leave>", self.on_board_leave) # La souris quitte le canvas
 
-        # On "bind" les pièces à des événements
+        # On "bind" les range-pièces à des événements
         player_1_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
         player_1_pieces.bind("<Motion>", self.on_pieces_hover) # Survol
-        player_1_pieces.bind("<Leave>", self.on_pieces_leave) # La souris quitte les pièces du joueur 1
+        player_1_pieces.bind("<Leave>", self.on_pieces_leave) # La souris quitte le range-pièces du joueur 1
         player_2_pieces.bind("<Button-1>", self.on_player_pieces_click) # Clic : la pièce est sélectionnée
         player_2_pieces.bind("<Motion>", self.on_pieces_hover) # Survol
-        player_2_pieces.bind("<Leave>", self.on_pieces_leave) # La souris quitte les pièces du joueur 2
+        player_2_pieces.bind("<Leave>", self.on_pieces_leave) # La souris quitte le range-pièces du joueur 2
 
     def on_board_click(self, event):
         global board, current_player, adjacent_coords, relative_positions, player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
@@ -982,7 +1001,7 @@ class Blocus:
                     player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # Le bouton indice du joueur 2 est redéfini
                     player_2_hint_button.grid(column=2, row=0) # Le bouton est placé
                     player_1_pieces_container.configure(highlightbackground=background_color)
-                    player_2_pieces_container.configure(highlightbackground=placed_piece_blue)
+                    player_2_pieces_container.configure(highlightbackground=placed_piece_blue) # On met un bord coloré autour du range-pièces du joueur actif 
                 else:
                     player_2_pieces_container.configure(highlightbackground=cannot_play_border_color)
             else:
@@ -992,7 +1011,7 @@ class Blocus:
                     Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) #... remplacé par un objet vide, pour centrer le texte du score
                     player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # Le bouton indice du joueur 1 est redéfini
                     player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
-                    player_1_pieces_container.configure(highlightbackground=placed_piece_red)
+                    player_1_pieces_container.configure(highlightbackground=placed_piece_red) # On met un bord coloré autour du range-pièces du joueur actif
                     player_2_pieces_container.configure(highlightbackground=background_color)
                 else:
                     player_1_pieces_container.configure(highlightbackground=cannot_play_border_color)
@@ -1002,7 +1021,7 @@ class Blocus:
                 # player_1_score += 15 if 'O' not in player_1_pieces_list else player_1_score # Ajoute 15 au score si toutes les pièces ont été posées
                 # player_2_score += 15 if 'O' not in player_2_pieces_list else player_2_score
                 
-                for line in range(28):
+                for line in range(28): # On enlève autant de points que de carrés non-placés
                     for column in range(12):
                         if player_1_pieces_list[line][column] == 'O':
                             player_1_score -= 1
@@ -1040,8 +1059,6 @@ class Blocus:
 
             if has_a_player_won and play_victory_sound:
                 playsound.playsound('./res/audio/victory_sound.wav') # Son joué lorsque l'un des deux joueurs a gagné
-
-            # playsound.playsound('./res/audio/piece_place.wav')
 
     def on_board_hover(self, event):
         global board, board_canvas, board_cells
@@ -1124,10 +1141,10 @@ class Blocus:
                                     touches_corner = True #... on lève le drapeau "touches_corner"
 
                         if touches_corner:
-                            memoire.append([column, line])
+                            memoire.append([column, line]) # Les coordonnées de la case sont ajoutées à la mémoire
 
                 if board[line][column] in ['RC', 'BC']:
-                    for direction in directions_corners:
+                    for direction in directions_corners: # Boucle qui servira à tester si la case testée est un coin commun entre une pièce rouge et bleue
                         if self.is_within_the_main_board(column + direction[0], line + direction[1]):
                             if board[line + direction[1]][column + direction[0]] == 'R':
                                 touches_red_corner = True
@@ -1135,11 +1152,11 @@ class Blocus:
                                 touches_blue_corner = True
 
                     if touches_red_corner and touches_blue_corner:
-                        memoire2.append([column, line])
+                        memoire2.append([column, line]) # Les coordonnées de la case sont ajoutées à la mémoire
 
         for element in memoire:
             if board[element[1]][element[0]] == ' ':
-                color_corners_coordinates.append(element)
+                color_corners_coordinates.append(element) # Ajoute les coordonnées testées à la liste correspondant à la couleur du joueur actif
 
         for element in memoire2:
             if board[element[1]][element[0]] in ['R', 'B']:
@@ -1326,14 +1343,14 @@ class Blocus:
                                                             if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == player_color:
                                                                 can_be_placed = False
                                             
-                                            if player_score >= 2 and can_be_placed and not has_found_a_piece:
+                                            if player_score >= 2 and can_be_placed and not has_found_a_piece: # L'indice n'est donné que si le joueur a assez de score (au moins 2)
                                                 for position in relative_positions:
                                                     board[line + position[1]][column + position[0]] = 'H'
                                                 for line in range(board_size):
                                                     for column in range(board_size):
                                                         if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
                                                         if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color); # On colore en gris là où une pièce peut être posée
-                                                has_found_a_piece = True
+                                                has_found_a_piece = True # On lève le drapeau pour éviter que la fonction montre tous les placements possibles
                                                 if current_player == 0:
                                                     player_1_score -= 2
                                                     player_1_score_label['text'] = f'Score : {player_1_score}' # On met à jour le texte qui affiche le score du joueur actif
@@ -1391,17 +1408,17 @@ class Blocus:
                 board[blue_case_coordinate[1]][blue_case_coordinate[0]] = 'B'
 
             for position in relative_positions:
-                if player_1_has_selected_piece and can_be_placed and can_be_drawn:
+                if player_1_has_selected_piece and can_be_placed and can_be_drawn: # On indique que le placement est valide
                     board[event_y + position[1]][event_x + position[0]] = 'RH'
                 elif player_2_has_selected_piece and can_be_placed and can_be_drawn:
                     board[event_y + position[1]][event_x + position[0]] = 'BH'
                 else:
                     if board[event_y + position[1]][event_x + position[0]] == 'R':
-                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_red_overlay, outline=piece_hover_red_overlay)
+                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_red_overlay, outline=piece_hover_red_overlay) # La pièce est montrée "au dessus" des autres pièces
                     elif board[event_y + position[1]][event_x + position[0]] == 'B':
-                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_blue_overlay, outline=piece_hover_blue_overlay)
+                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_blue_overlay, outline=piece_hover_blue_overlay) # La pièce est montrée "au dessus" des autres pièces
                     elif board[event_y + position[1]][event_x + position[0]] in ['RC', 'BC', 'RBC', ' ']:
-                        board[event_y + position[1]][event_x + position[0]] = 'H'
+                        board[event_y + position[1]][event_x + position[0]] = 'H' # On indique que le placement est invalide dans le restant des cas
 
         for line in range(board_size):
             for column in range(board_size): # On ajoute les couleurs en fonction du contenu de la liste
@@ -1608,7 +1625,7 @@ class Blocus:
         return adjacent_cells
 
     def settings(self):
-        global color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state, use_space_to_mirror_state
+        global color_blind_mode_state, alternative_color_scheme_state, play_victory_sound_state, use_space_to_mirror_state, use_middle_starting_cases_state
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
         
@@ -1617,7 +1634,7 @@ class Blocus:
 
         top_part = Frame(main_menu_frame, background=background_color) # On crée un cadre supérieur contenant le titre de la page et un bouton retour
         top_part.grid(column=0, row=0, sticky='ew')
-        top_part.columnconfigure(1, weight=1)
+        top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
         settings_label = Label(top_part, text='Paramètres', font=('Arial', 20), background=background_color, foreground=on_background_color) # Titre de la page (Paramètres)
         settings_label.grid(column=1, row=0, sticky='ew')
@@ -1724,6 +1741,31 @@ class Blocus:
                                         selectcolor=background_color) # On crée une case à cocher
         use_space_to_mirror_checkbox.grid(column=0, row=9, sticky='w')
 
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=10) # On crée un espace entre les différentes sections
+
+        game_settings_section_label = Label(main_menu_frame, text='COMPORTEMENT DU JEU', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres d'accessibilité
+        game_settings_section_label.grid(column=0, row=11, sticky='w')
+
+        use_middle_starting_cases_state = BooleanVar() # Création de l'option "Mettre les cases de départ au centre"
+        use_middle_starting_cases_state.set(settings_data['use_middle_starting_cases'])
+        use_middle_starting_cases_checkbox = Checkbutton(
+                                        main_menu_frame, 
+                                        text='Mettre les cases de départ au centre', 
+                                        onvalue=True, 
+                                        offvalue=False, 
+                                        variable=use_middle_starting_cases_state, 
+                                        command=self.update_settings, 
+                                        font=('Arial', 15), 
+                                        bd=0,
+                                        highlightthickness=0,
+                                        background=background_color, 
+                                        activebackground=background_color,
+                                        foreground=on_background_color,
+                                        activeforeground=on_background_color,
+                                        relief='flat',
+                                        selectcolor=background_color) # On crée une case à cocher
+        use_middle_starting_cases_checkbox.grid(column=0, row=12, sticky='w')
+
         settings_file.close() # On ferme le fichier de paramètres pour éviter les problèmes
     
     def update_settings(self):
@@ -1735,6 +1777,7 @@ class Blocus:
         settings_data['use_purple_and_yellow'] = alternative_color_scheme_state.get()
         settings_data['play_victory_sound'] = play_victory_sound_state.get()
         settings_data['use_space_to_mirror'] = use_space_to_mirror_state.get()
+        settings_data['use_middle_starting_cases'] = use_middle_starting_cases_state.get() 
 
         with open("settings.json", "w") as settings_file:
             json.dump(settings_data, settings_file, indent=4) # On écrit les modifications dans le fichier

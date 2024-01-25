@@ -4,5 +4,6 @@
     "use_red_and_blue": true,
     "use_purple_and_yellow": false,
     "play_victory_sound": false,
-    "use_space_to_mirror": false
+    "use_space_to_mirror": false,
+    "use_middle_starting_cases": false
 }
