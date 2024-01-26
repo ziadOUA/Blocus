@@ -171,7 +171,19 @@ Les pièces seront placées dans la liste en fonction de leur état :
 
 ### 3.1. Menu principal
 
-<!-- <img src="https://i.postimg.cc/L50T2qXk/main-menu.png"> -->
+#### Mode clair
+
+<div>
+  <img src="https://i.postimg.cc/J7xKtZvT/main-menu-light.png" width="400">
+  <img src="https://i.postimg.cc/tCgk67H9/main-menu-light-alt.png" width="400">
+</div>
+
+#### Mode sombre
+
+<div>
+  <img src="https://i.postimg.cc/FRgpyLRH/main-menu-dark.png" width="400">
+  <img src="https://i.postimg.cc/cCFcjGfq/main-menu-dark-alt.png" width="400">
+</div>
 
 Boutons de gauche à droite :
 - Bouton GitHub (la page GitHub du projet dans le navigateur par défaut)
@@ -180,7 +192,19 @@ Boutons de gauche à droite :
 
 ### 3.2. Interface de jeu
 
-<img src="https://i.postimg.cc/Qt5kDbM0/game-interface.png">
+#### Mode clair
+
+<div>
+  <img src="https://i.postimg.cc/YC5zT3LS/game-light.png" width="400">
+  <img src="https://i.postimg.cc/mr7y4H7y/game-light-alt.png" width="400">
+</div>
+
+#### Mode sombre
+
+<div>
+  <img src="https://i.postimg.cc/xTFR3Y0M/game-dark.png" width="400">
+  <img src="https://i.postimg.cc/BnLChy6y/game-dark-alt.png" width="400">
+</div>
 
 Divers boutons :
 - Bouton indice
@@ -189,3 +213,4 @@ Divers boutons :
 → Le range-pièces du joueur actif a une bordure colorée.
 
 ### 3.3. Paramètres
+
