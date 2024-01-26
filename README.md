@@ -214,3 +214,10 @@ Divers boutons :
 
 ### 3.3. Paramètres
 
+#### Mode clair
+
+<img src="https://i.postimg.cc/Kvq63RR2/settings-light.png" width="800">
+
+#### Mode sombre
+
+<img src="https://i.postimg.cc/L68dsz4D/settings-dark.png" width="800">
