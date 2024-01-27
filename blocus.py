@@ -443,6 +443,7 @@ class Blocus:
 
     def main_menu(self):
         global how_to_play_label, main_menu_frame
+        global small_label_style, medium_label_style, large_label_style, xlarge_label_style
         
         for i in self.master.winfo_children():
             i.destroy() # On supprime tout le contenu de la fenêtre
@@ -453,6 +454,11 @@ class Blocus:
 
         style.configure('TButton', background=button_background_color, focuscolor=button_background_color, relief='flat') # On s'assure que les boutons ont bien les bonnes couleurs
         style.map('TButton', background=[('active', button_background_color), ('disabled', button_background_color)], relief=[('pressed', 'flat')])
+
+        small_label_style = {'background': background_color, 'foreground': invalid_placement, 'font': ('Consolas', 10)}
+        medium_label_style = {'background': background_color, 'foreground': on_background_color, 'font': ('Arial', 12)}
+        large_label_style = {'background': background_color, 'foreground': on_background_color, 'font': ('Arial', 15)}
+        xlarge_label_style = {'background': background_color, 'foreground': on_background_color, 'font': ('Arial', 20)}
 
         main_menu_frame = Frame(self.master, background=background_color) # On crée le cadre principal
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
