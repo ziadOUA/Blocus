@@ -18,6 +18,7 @@ import os
 import json
 import webbrowser
 from timeit import default_timer as timer
+from settings_util import check_settings_file
 
 # ════════════════════════════════════════════════════════════════════════════
 # ════════════════════════════ CORPS DU PROGRAMME ════════════════════════════
@@ -25,8 +26,9 @@ from timeit import default_timer as timer
 
 # ══════════ Paramètres
 
-with open("settings.json", "r") as settings_file:
-    settings_data = json.load(settings_file)
+check_settings_file() # On vérifie la présence du fichier paramètres
+with open("settings.json", "r") as settings_file: # Ouverture initiale du fichier paramètres (nommé settings.json)
+    settings_data = json.load(settings_file) # On récupère les données du fichier
 
 # ══════════ Variables & Constantes
 
@@ -73,17 +75,16 @@ use_space_to_mirror = settings_data['use_space_to_mirror'] #
 orientation_id = 0
 mirror_id = 0
 
-last_event_coordinates_copy = []
-directions_from_center_copy = []
-relative_positions = [[0, 0]]
-relative_positions_reference = [[0, 0]]
+last_event_coordinates_copy = [] # Copie des dernières coordonnées de la souris
+relative_positions = [[0, 0]] # Positions relatives par rapport à la souris
+relative_positions_reference = [[0, 0]] # Idem, mais qui ne sera modifié que lors d'un changement de pièce
 
-board = []
-board_cells = []
-player_1_pieces_cells = []
-player_2_pieces_cells = []
+board = [] # Liste source du plateau
+board_cells = [] # Contiendra les cases du plateau (pour facilement changer leur couleur) 
+player_1_pieces_cells = [] # Contiendra les cases du range-pièces du joueur 1 (pour facilement changer leur couleur) 
+player_2_pieces_cells = [] # Contiendra les cases du range-pièces du joueur 2 (pour facilement changer leur couleur)
 
-adjacent_coords_hover = []
+adjacent_coordinates_hover = []
 
 current_player = 0 # Le joueur 1 commence
 board_cell_size = 38 # On définit la taille d'une case du plateau
@@ -225,7 +226,7 @@ else:
 
 class Blocus:
     def __init__(self, master):
-        global style
+        global style, label_style, small_label_style, medium_label_style, large_label_style, xlarge_label_style
         
         self.master = master
         self.master.geometry('1280x720') # On définit la taille initiale de la fenêtre
@@ -233,16 +234,23 @@ class Blocus:
 
         style = Style() # On définit un style
         style.theme_use('default') # On utilise le style par défaut pour modifier plus facilement les boutons
-        style.configure('TButton', background=button_background_color, focuscolor=button_background_color, relief='flat') # On ajoute du style pour les boutons
-        style.map('TButton', background=[('active', button_background_color)], relief=[('pressed', 'flat')]) # Modification du thème en fonction de l'état des boutons
+        # On ajoute du style pour les boutons
+        style.configure('TButton', background=button_background_color, focuscolor=button_background_color, relief='flat')
+        # Modification du thème en fonction de l'état des boutons
+        style.map('TButton', background=[('active', button_background_color)], relief=[('pressed', 'flat')])
         style.configure('TFrame', background=background_color) # On change la couleur de fond des cadres "Frame"
+
+        small_label_style = {'background': background_color, 'foreground': invalid_placement, 'font': ('Consolas', 10)}
+        medium_label_style = {'background': background_color, 'foreground': on_background_color, 'font': ('Arial', 12)}
+        large_label_style = {'background': background_color, 'foreground': on_background_color, 'font': ('Arial', 15)}
+        xlarge_label_style = {'background': background_color, 'foreground': on_background_color, 'font': ('Arial', 20)}
 
         self.main_menu() # Affiche le menu principal dès le démarrage du programme
     
     def reset_variables(self): # Toutes les variables sont réinitialisées
         global player_1_pieces_list, player_2_pieces_list
         global player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
-        global orientation_id, last_event_coordinates_copy, directions_from_center_copy, relative_positions, relative_positions_reference
+        global orientation_id, last_event_coordinates_copy, relative_positions, relative_positions_reference
         global board, board_cells, player_1_pieces_cells, player_2_pieces_cells
         global current_player, player_1_score, player_2_score
         global red_corners_coordinates, blue_corners_coordinates, common_corners_coordinates, red_cases_coordinates, blue_cases_coordinates
@@ -321,55 +329,55 @@ class Blocus:
         use_light_theme = settings_data['use_light_theme']
 
         if not use_light_theme:
-            background_color = md_sys_color_background_dark # Couleur de fond du programme
-            on_background_color = md_sys_color_on_surface_dark # Couleur des éléments placés sur le fond
-            button_background_color = md_sys_color_background_dark # Couleur de fond des boutons
-            button_outline_color = md_sys_color_on_surface_dark # Couleur de bordure des boutons
-            button_text_color = md_sys_color_on_surface_dark # Couleur du texte des boutons
-            surface_color = md_sys_color_surface_variant_dark # Couleur de surface (là où les pièces sont placées par exemple)
+            background_color = md_sys_color_background_dark
+            on_background_color = md_sys_color_on_surface_dark
+            button_background_color = md_sys_color_background_dark
+            button_outline_color = md_sys_color_on_surface_dark
+            button_text_color = md_sys_color_on_surface_dark
+            surface_color = md_sys_color_surface_variant_dark
 
-            placed_piece_red = md_sys_color_tertiary_dark # Couleur d'une pièce rouge placée
-            valid_placement_red = md_sys_color_tertiary_container_dark # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
-            piece_hover_red = md_ref_palette_tertiary70 # Couleur de survol pour les pièces rouges
+            placed_piece_red = md_sys_color_tertiary_dark
+            valid_placement_red = md_sys_color_tertiary_container_dark
+            piece_hover_red = md_ref_palette_tertiary70
 
-            placed_piece_blue = md_sys_color_primary_dark # Couleur d'une pièce bleue placée
-            valid_placement_blue = md_sys_color_primary_container_dark # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
-            piece_hover_blue = md_ref_palette_primary70 # Couleur de survol pour les pièces bleues
+            placed_piece_blue = md_sys_color_primary_dark
+            valid_placement_blue = md_sys_color_primary_container_dark
+            piece_hover_blue = md_ref_palette_primary70
 
-            invalid_placement = md_sys_color_outline_variant_dark # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+            invalid_placement = md_sys_color_outline_variant_dark
 
-            board_cell_outline_color = md_sys_color_outline_variant_dark # Couleur de bordure des cases du plateau
+            board_cell_outline_color = md_sys_color_outline_variant_dark
 
-            piece_hover_blue_overlay = piece_hover_blue_overlay_dark # Couleur de bordure quand le joueur actif est le joueur 1
-            piece_hover_red_overlay = piece_hover_red_overlay_dark # Couleur de bordure quand le joueur actif est le joueur 2
-            cannot_play_border_color = cannot_play_border_color_dark # Couleur de bordure quand un des joueurs ne peut plus jouer
+            piece_hover_blue_overlay = piece_hover_blue_overlay_dark
+            piece_hover_red_overlay = piece_hover_red_overlay_dark
+            cannot_play_border_color = cannot_play_border_color_dark
 
-            selected_theme = 'dark'
+            selected_theme = 'dark' # Servira pour les différentes icônes du programme
         else:
-            background_color = md_sys_color_background_light # Couleur de fond du programme
-            on_background_color = md_sys_color_on_surface_light # Couleur des éléments placés sur le fond
-            button_background_color = md_sys_color_background_light # Couleur de fond des boutons
-            button_outline_color = md_sys_color_on_surface_light # Couleur de bordure des boutons
-            button_text_color = md_sys_color_on_surface_light # Couleur du texte des boutons
-            surface_color = md_sys_color_surface_variant_light # Couleur de surface (là où les pièces sont placées par exemple)
+            background_color = md_sys_color_background_light
+            on_background_color = md_sys_color_on_surface_light
+            button_background_color = md_sys_color_background_light
+            button_outline_color = md_sys_color_on_surface_light
+            button_text_color = md_sys_color_on_surface_light
+            surface_color = md_sys_color_surface_variant_light
 
-            placed_piece_red = md_sys_color_tertiary_light # Couleur d'une pièce rouge placée
-            valid_placement_red = md_ref_palette_tertiary70 # Couleur de survol d'une pièce rouge, si elle peut être placée à l'endroit choisi
-            piece_hover_red = md_ref_palette_tertiary50 # Couleur de survol pour les pièces rouges
+            placed_piece_red = md_sys_color_tertiary_light
+            valid_placement_red = md_ref_palette_tertiary70
+            piece_hover_red = md_ref_palette_tertiary50
 
-            placed_piece_blue = md_sys_color_primary_light # Couleur d'une pièce bleue placée
-            valid_placement_blue = md_ref_palette_primary70 # Couleur de survol d'une pièce bleue, si elle peut être placée à l'endroit choisi
-            piece_hover_blue = md_ref_palette_primary50 # Couleur de survol pour les pièces bleues
+            placed_piece_blue = md_sys_color_primary_light
+            valid_placement_blue = md_ref_palette_primary70
+            piece_hover_blue = md_ref_palette_primary50
 
-            invalid_placement = md_sys_color_outline_variant_light # Couleur de survol lorsque la pièce ne peut pas être placée à l'endroit choisi
+            invalid_placement = md_sys_color_outline_variant_light
 
-            board_cell_outline_color = md_sys_color_outline_variant_light # Couleur de bordure des cases du plateau
+            board_cell_outline_color = md_sys_color_outline_variant_light
 
-            piece_hover_blue_overlay = piece_hover_blue_overlay_light # Couleur de bordure quand le joueur actif est le joueur 1
-            piece_hover_red_overlay = piece_hover_red_overlay_light # Couleur de bordure quand le joueur actif est le joueur 2
-            cannot_play_border_color = cannot_play_border_color_light # Couleur de bordure quand un des joueurs ne peut plus jouer
+            piece_hover_blue_overlay = piece_hover_blue_overlay_light
+            piece_hover_red_overlay = piece_hover_red_overlay_light
+            cannot_play_border_color = cannot_play_border_color_light
 
-            selected_theme = 'light'
+            selected_theme = 'light' # Servira pour les différentes icônes du programme
 
         player_1_pieces_list = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                                 [' ', 'O', 'O', ' ', 'O', ' ', 'O', ' ', ' ', 'O', ' ', ' '],
@@ -398,9 +406,9 @@ class Blocus:
                                 [' ', 'O', 'O', ' ', 'O', 'O', ' ', ' ', ' ', ' ', ' ', ' '],
                                 [' ', ' ', ' ', ' ', 'O', ' ', ' ', 'O', 'O', 'O', 'O', ' '],
                                 [' ', 'O', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'O', ' ', ' '],
-                                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']] # Ensemble de pièces du joueur 1
+                                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
 
-        player_2_pieces_list = [i[:] for i in player_1_pieces_list] # Ensemble de pièces du joueur 2, copié depuis celui du joueur 1
+        player_2_pieces_list = [i[:] for i in player_1_pieces_list]
 
         player_1_has_selected_piece = False
         player_2_has_selected_piece = False
@@ -412,7 +420,6 @@ class Blocus:
         orientation_id = 0
 
         last_event_coordinates_copy = []
-        directions_from_center_copy = []
         relative_positions = [[0, 0]]
         relative_positions_reference = [[0, 0]]
 
@@ -421,7 +428,7 @@ class Blocus:
         player_1_pieces_cells = []
         player_2_pieces_cells = []
 
-        current_player = 0 # Le joueur 1 commence
+        current_player = 0
 
         red_corners_coordinates = []
         blue_corners_coordinates = []
@@ -451,7 +458,7 @@ class Blocus:
         main_menu_frame.pack(expand=True) # On affiche le cadre dans la fenêtre
         main_menu_frame.columnconfigure(4, weight=1)
 
-        play = Label(self.master, text="Appuyez pour Jouer", background=background_color, foreground=on_background_color, font=('Arial', 15)) # On crée le texte "Appuyez pour Jouer"
+        play = Label(self.master, text="Appuyez pour Jouer", **large_label_style) # On crée le texte "Appuyez pour Jouer"
         play.pack(pady=50) # On affiche le texte dans le cadre
 
         version_label = Label(main_menu_frame, text=version_number, background=background_color, foreground=invalid_placement, font=('Consolas', 15)) # On crée le texte qui affiche la version du programme
@@ -480,7 +487,7 @@ class Blocus:
         settings_button = Button(main_menu_frame, image=self.settings_icon, command=self.settings, compound='center', width=2, cursor="hand2") # On crée le bouton qui affichera les auteurs du projet
         settings_button.grid(column=1, row=0) # Le bouton est placé
 
-        how_to_play_label = Label(main_menu_frame, text='Comment jouer ?', font=('Consolas', 10), background=background_color, foreground=invalid_placement, cursor="hand2")
+        how_to_play_label = Label(main_menu_frame, text='Comment jouer ?', **small_label_style, cursor="hand2")
         how_to_play_label.grid(column=3, row=0, padx=5)
         how_to_play_label.bind("<Motion>", self.add_underline_how_to_play_label) # Survol : on souligne le texte
         how_to_play_label.bind("<Leave>", self.remove_underline_how_to_play_label) # La souris quitte le texte, on enlève le soulignage
@@ -519,7 +526,7 @@ class Blocus:
         back_button = Button(top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
 
-        how_to_play_label = Label(top_part, text='Comment jouer', font=('Arial', 20), background=background_color, foreground=on_background_color) # Création d'un titre principal
+        how_to_play_label = Label(top_part, text='Comment jouer', **xlarge_label_style) # Création d'un titre principal
         how_to_play_label.grid(column=1, row=0, sticky='ew')
 
         Label(top_part, text='                ', background=background_color).grid(column=2, row=0) # Espace servant à centrer le titre principal
@@ -533,42 +540,44 @@ class Blocus:
         self.left_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_left_click_icon.png") # On récupère l'image de l'icône "mouse_left_click_icon.png"
         left_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.left_click_icon) # L'image est placée dans le canvas
 
-        left_click_label = Label(controls_container, text='Sélectionnez une pièce en faisant un click gauche', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        left_click_label = Label(controls_container, text='Sélectionnez une pièce en faisant un click gauche', **medium_label_style) # Informations sur comment sélectionner une pièce
         left_click_label.grid(column=1, row=0, sticky='w', padx=10)
-        Label(controls_container, text='→ Vous pouvez la remettre en appuyant n\'importe où sur le range-pièces', font=('Arial', 12), background=background_color, foreground=on_background_color).grid(column=1, row=1, sticky='w', padx=10)
-        Label(controls_container, text='→ Placez-la sur le plateau lorsque la pièce se colore de la couleur du joueur actif', font=('Arial', 12), background=background_color, foreground=on_background_color).grid(column=1, row=2, sticky='w', padx=10)
+        # Informations supplémentaires sur le click gauche
+        Label(controls_container, text='→ Vous pouvez la remettre en appuyant n\'importe où sur le range-pièces', **medium_label_style).grid(column=1, row=1, sticky='w', padx=10)
+        Label(controls_container, text='→ Placez-la sur le plateau lorsque la pièce se colore de la couleur du joueur actif', **medium_label_style).grid(column=1, row=2, sticky='w', padx=10)
         
-        right_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        right_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color) # Canvas qui contiendra l'image "right_click_icon"
         right_click_icon_canvas.grid(column=0, row=3)
 
-        self.right_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_right_click_icon.png")
-        right_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.right_click_icon)
+        self.right_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_right_click_icon.png") # On récupère l'image de l'icône "mouse_right_click_icon.png"
+        right_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.right_click_icon) # L'image est placée dans le canvas
 
-        right_click_label = Label(controls_container, text='Tournez la pièce en faisant un click droit', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        right_click_label = Label(controls_container, text='Tournez la pièce en faisant un click droit', **medium_label_style) # Informations sur comment tourner une pièce
         right_click_label.grid(column=1, row=3, sticky='w', padx=10)
 
-        middle_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color)
+        middle_click_icon_canvas = Canvas(controls_container, width=40, height=40, bd=0, highlightthickness=0, relief='flat', background=background_color) # Canvas qui contiendra l'image "middle_click_icon"
         middle_click_icon_canvas.grid(column=0, row=4)
 
-        self.middle_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_middle_click_icon.png")
-        middle_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.middle_click_icon)
+        self.middle_click_icon = PhotoImage(file=f"res/img/{selected_theme}/mouse_middle_click_icon.png") # On récupère l'image de l'icône "mouse_middle_click_icon.png"
+        middle_click_icon_canvas.create_image(0, 0, anchor='nw', image=self.middle_click_icon) # L'image est placée dans le canvas
 
-        middle_click_label = Label(controls_container, text='Miroitez la pièce en faisant un click du milieu', font=('Arial', 12), background=background_color, foreground=on_background_color)
+        middle_click_label = Label(controls_container, text='Miroitez la pièce en faisant un click du milieu', **medium_label_style) # Informations sur comment miroiter une pièce
         middle_click_label.grid(column=1, row=4, sticky='w', padx=10)
-        Label(controls_container, text='→ Avec la touche [ESPACE] si activé dans les paramètres', font=('Arial', 12), background=background_color, foreground=on_background_color).grid(column=1, row=5, sticky='w', padx=10)
+        # Informations supplémentaires sur le click du milieu
+        Label(controls_container, text='→ Avec la touche [ESPACE] si activé dans les paramètres', **medium_label_style).grid(column=1, row=5, sticky='w', padx=10)
 
-        game_rules_container = Frame(main_menu_frame, background=background_color)
+        game_rules_container = Frame(main_menu_frame, background=background_color) # Cadre qui contiendra les règles du jeu
         game_rules_container.grid(column=0, row=6, sticky='ew', pady=20)
 
-        game_rules_title = Label(game_rules_container, text='Règles', font=('Arial', 20), background=background_color, foreground=on_background_color)
+        game_rules_title = Label(game_rules_container, text='Règles', **xlarge_label_style) # Titre de la section
         game_rules_title.grid(row=0, column=0, pady=10, sticky='w')
 
         rules = ['• Les premières pièces doivent être placées dans les cases colorées', 
                  '• Des pièces de même couleur ne peuvent se toucher que par les coins', 
-                 '• Dès qu\'un joueur est bloqué, l\'autre joueur joue jusqu\'à ce qu\'il le soit aussi']
+                 '• Dès qu\'un joueur est bloqué, l\'autre joueur joue jusqu\'à ce qu\'il le soit aussi'] # Liste de règles
         
         for rule in rules:
-            Label(game_rules_container, text=rule, font=('Arial', 12), background=background_color, foreground=on_background_color).grid(row=rules.index(rule) + 1, column=0, sticky='w') # On place les différentes règles grâce à une boucle (pour éviter d'inutiles répétitions)
+            Label(game_rules_container, text=rule, **medium_label_style).grid(row=rules.index(rule) + 1, column=0, sticky='w') # On place les différentes règles grâce à une boucle (pour éviter d'inutiles répétitions)
 
     def blocus_duo(self, event):
         global board_canvas, board_cells, board, win_label, board_top_part, current_player, player_1_pieces, player_2_pieces, player_1_pieces_list, player_1_pieces_cells, player_2_pieces_cells
@@ -603,12 +612,12 @@ class Blocus:
         board_canvas = Canvas(main_menu_frame, width=board_size * board_cell_size, height=board_size * board_cell_size, bd=0, highlightthickness=1, relief='flat', highlightbackground=board_cell_outline_color, background=background_color) # On crée un canvas pour le plateau
         board_canvas.grid(column=1, row=2, padx=10) # On place le canvas
 
-        player_1_pieces_container = Frame(main_menu_frame, highlightbackground=placed_piece_red, highlightthickness=5, height=626, width=274)
+        player_1_pieces_container = Frame(main_menu_frame, highlightbackground=placed_piece_red, highlightthickness=5, height=626, width=274, background=surface_color)
         player_1_pieces_container.grid(row=2, column=0) # On place le nouveau cadre dans le cadre principal
         player_1_pieces = Canvas(player_1_pieces_container, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 1
         player_1_pieces.pack() # On place le canvas
 
-        player_2_pieces_container = Frame(main_menu_frame, highlightbackground=background_color, highlightthickness=5, height=626, width=274)
+        player_2_pieces_container = Frame(main_menu_frame, highlightbackground=background_color, highlightthickness=5, height=626, width=274, background=surface_color)
         player_2_pieces_container.grid(row=2, column=2) # On place le nouveau cadre dans le cadre principal
         player_2_pieces = Canvas(player_2_pieces_container, width=264, height=616, bd=0, highlightthickness=0, relief='solid') # On crée un canvas qui affiche les pièces du joueur 2
         player_2_pieces.pack() # On place le canvas
@@ -621,7 +630,7 @@ class Blocus:
         back_button = Button(board_top_part, image=self.back_icon, command=self.main_menu, compound='center', width=2, cursor="hand2") # On crée un bouton retour
         back_button.grid(column=0, row=0) # Le bouton est placé
         
-        win_label = Label(board_top_part, font=('default', 20), background=background_color, foreground=on_background_color) #On crée un texte qui affiche le tour du joueur
+        win_label = Label(board_top_part, **xlarge_label_style) #On crée un texte qui affiche le tour du joueur
         win_label.grid(column=1, row=0, sticky='ew') # On place le texte 
 
         Label(board_top_part, text='                ', background=background_color).grid(column=2, row=0) # Création d'un objet servant à centrer le texte qui affiche le tour du joueur
@@ -634,7 +643,7 @@ class Blocus:
         player_1_hint_button = Button(player_1_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # On crée un bouton indice pour le joueur 1
         player_1_hint_button.grid(column=0, row=0) # Le bouton est placé
 
-        player_1_score_label = Label(player_1_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 1
+        player_1_score_label = Label(player_1_pieces_top_part, **xlarge_label_style) # On crée un texte qui affiche le score du joueur 1
         player_1_score_label.grid(column=1, row=0, sticky='ew') # Le texte est placé
         player_1_score_label['text'] = f'Score : {player_1_score}' # Le contenu du texte est mis à jour
 
@@ -649,32 +658,28 @@ class Blocus:
         player_2_hint_button = Button(player_2_pieces_top_part, image=self.hint_icon, command=self.get_hint, compound='center', width=2, cursor="hand2") # On crée un bouton indice pour le joueur 2
         Label(player_2_pieces_top_part, text='                ', background=background_color).grid(column=2, row=0) # On crée un objet qui prend la place du bouton indice du joueur 2, caché par défaut
 
-        player_2_score_label = Label(player_2_pieces_top_part, font=('default', 20), background=background_color, pady=20, foreground=on_background_color) # On crée un texte qui affiche le score du joueur 2
+        player_2_score_label = Label(player_2_pieces_top_part, **xlarge_label_style) # On crée un texte qui affiche le score du joueur 2
         player_2_score_label.grid(column=1, row=0, sticky='ew') # Le texte est placé
         player_2_score_label['text'] = f'Score : {player_2_score}' # Le contenu du texte est mis à jour
 
         if not use_middle_starting_cases:
             x1 = 1
             y1 = (board_size - 1) * board_cell_size + 1
-            x2 = x1 + board_cell_size - 1
-            y2 = y1 + board_cell_size - 1
         else:
             x1 = 1 + 4 * board_cell_size
             y1 = 4 * board_cell_size + 1
-            x2 = x1 + board_cell_size - 1
-            y2 = y1 + board_cell_size - 1
+        x2 = x1 + board_cell_size - 1
+        y2 = y1 + board_cell_size - 1
         red_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_red, width=0) # On crée un cercle rouge dans la case de départ du joueur 1
 
         if not use_middle_starting_cases:
             x1 = (board_size - 1) * board_cell_size + 1
             y1 = 1
-            x2 = x1 + board_cell_size - 1
-            y2 = y1 + board_cell_size - 1
         else:
             x1 = (board_size - 5) * board_cell_size + 1
             y1 = 1 + (board_size - 5) * board_cell_size
-            x2 = x1 + board_cell_size - 1
-            y2 = y1 + board_cell_size - 1
+        x2 = x1 + board_cell_size - 1
+        y2 = y1 + board_cell_size - 1
         blue_starting_corner = board_canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=valid_placement_blue, width=0) # On crée un cercle rouge dans la case de départ du joueur 2
 
         for line in range(board_size):
@@ -727,7 +732,7 @@ class Blocus:
         player_2_pieces.bind("<Leave>", self.on_pieces_leave) # La souris quitte le range-pièces du joueur 2
 
     def on_board_click(self, event):
-        global board, current_player, adjacent_coords, relative_positions, player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
+        global board, current_player, adjacent_coordinates, relative_positions, player_1_has_selected_piece, player_2_has_selected_piece, has_a_player_won
         global board_cell_size, board_size
         global player_1_score, player_2_score
         global player_1_pieces_top_part, player_2_pieces_top_part
@@ -740,7 +745,7 @@ class Blocus:
         if line_event > board_size - 1: line_event = board_size - 1;
         if column_event > board_size - 1: column_event = board_size - 1;
 
-        start = timer()
+        # start = timer() # DEBUG
 
         if board[line_event][column_event] in ['RH', 'BH']: # Vérifie que, lorsque le plateau est cliqué, la pièce pouvait bien être placée
             for line in range(board_size):
@@ -748,7 +753,7 @@ class Blocus:
                     if board[line][column] == 'RH':
                         board[line][column] = 'R'
                         red_cases_coordinates.append([column, line])
-                        for k in adjacent_coords:
+                        for k in adjacent_coordinates:
                             player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=background_color)
                         
                         if color_blind_mode:
@@ -762,14 +767,14 @@ class Blocus:
                     elif board[line][column] == 'BH':
                         board[line][column] = 'B'
                         blue_cases_coordinates.append([column, line])
-                        for k in adjacent_coords:
+                        for k in adjacent_coordinates:
                             player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=background_color)
                         player_2_has_selected_piece = False
 
             if current_player == 0:
-                player_1_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
+                player_1_score += len(adjacent_coordinates) # On ajoute au score le nombre de carreaux placés sur le plateau
             else:
-                player_2_score += len(adjacent_coords) # On ajoute au score le nombre de carreaux placés sur le plateau
+                player_2_score += len(adjacent_coordinates) # On ajoute au score le nombre de carreaux placés sur le plateau
 
             self.define_possible_corners() # On place les coins où des pièces peuvent être placées
 
@@ -798,15 +803,23 @@ class Blocus:
             
             if not self.can_still_play(player=0) and not self.can_still_play(player=1): # Si aucun des deux joueurs ne peut jouer
                 current_player = 999 # Le jeu est bloqué
-                # player_1_score += 15 if 'O' not in player_1_pieces_list else player_1_score # Ajoute 15 au score si toutes les pièces ont été posées
-                # player_2_score += 15 if 'O' not in player_2_pieces_list else player_2_score
                 
+                player_1_still_has_a_piece = False
+                player_2_still_has_a_piece = False
+
                 for line in range(28): # On enlève autant de points que de carrés non-placés
                     for column in range(12):
                         if player_1_pieces_list[line][column] == 'O':
                             player_1_score -= 1
+                            player_1_still_has_a_piece = True
                         if player_2_pieces_list[line][column] == 'O':
                             player_2_score -= 1
+                            player_2_still_has_a_piece = True
+                
+                if not player_1_still_has_a_piece:
+                    player_1_score += 15 # Ajoute 15 au score si toutes les pièces ont été posées
+                if not player_2_still_has_a_piece:
+                    player_2_score += 15 # Ajoute 15 au score si toutes les pièces ont été posées
                 
                 player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le score du joueur actif
                 player_1_score_label.update()
@@ -823,6 +836,7 @@ class Blocus:
                     win_label['text'] = 'Égalité' # Si les deux scores sont égaux, alors égalité
                     has_a_player_won = False
                 win_label.update() # On met à jour le texte pour qu'il affiche l'état du jeu
+                
                 player_1_hint_button.grid_forget() # On retire les boutons indice des deux joueurs...
                 player_2_hint_button.grid_forget()
                 Label(player_1_pieces_top_part, text='                ', background=background_color).grid(column=0, row=0) #... remplacés par des objets vides pour centrer les scores
@@ -830,12 +844,12 @@ class Blocus:
                 player_1_pieces_container.configure(highlightbackground=cannot_play_border_color) # On ajoute une bordure jaune autour des pièces des deux joueurs
                 player_2_pieces_container.configure(highlightbackground=cannot_play_border_color)
             
-            adjacent_coords = []
+            adjacent_coordinates = []
             relative_positions = [[0, 0]]
             self.update_board_canvas() # On met à jour le canvas du plateau
 
-            end = timer()
-            print(f'Piece placed in {round((end - start) * 1000)} ms')
+            # end = timer() # DEBUG
+            # print(f'Piece placed in {round((end - start) * 1000)} ms') # DEBUG
 
     def on_board_hover(self, event):
         global board, board_canvas, board_cells
@@ -850,7 +864,7 @@ class Blocus:
         last_coords = [column_event, line_event]
         if last_event_coordinates_copy != last_coords: # Le code ci-dessous n'est exécuté qu'à chaque fois que la souris change de case du plateau, au lieu de l'exécuter au moindre mouvement
             last_event_coordinates_copy = [i for i in last_coords]
-            self.draw_piece_on_board(column_event, line_event) # "Dessine" la pièce sélectionnée sur le plateau, ou bien un carré si aucun pièce n'est sélectionnée
+            self.draw_piece_on_board(column_event, line_event) # "Dessine" la pièce sélectionnée sur le plateau, ou bien un carré si aucune pièce n'est sélectionnée
 
             # os.system('CLS')   # DEBUG
             # for line in board: # -> Affichage du plateau
@@ -1004,8 +1018,8 @@ class Blocus:
                                         directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
 
                                         for i, direction in enumerate(directions_from_center_rotated):
-                                            directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
-                                            directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
+                                            directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0] # On inverse les valeurs horizontales si "mirror_id" est égal à 0, 2 ou 3
+                                            directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1] # On inverse les valeurs verticales si "mirror_id" est égal à 0, 1 ou 2
                                         
                                         mirror_id = (mirror_id + 1) % 4
 
@@ -1074,7 +1088,7 @@ class Blocus:
                                 if not has_found_a_piece:
                                     self.get_adjacent_pieces_coordinates(player_pieces_list, piece_column, piece_line, True)
 
-                                    for _ in range(4):
+                                    for _ in range(4): # On teste pour toutes les rotations possibles
                                         directions_from_center_rotated = [list(direction) for direction in relative_positions_reference]
 
                                         if orientation_id == 0:
@@ -1088,21 +1102,22 @@ class Blocus:
                                         
                                         orientation_id = (orientation_id + 1) % 4
 
-                                        for _ in range(4):
+                                        for _ in range(4): # On miroite la pièce
                                             directions_from_center_mirrored = [list(direction) for direction in directions_from_center_rotated]
 
                                             for i, direction in enumerate(directions_from_center_rotated):
-                                                directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0]
-                                                directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1]
+                                                directions_from_center_mirrored[i][0] = direction[0] if mirror_id in {0, 2, 3} else -direction[0] # On inverse les valeurs horizontales si "mirror_id" est égal à 0, 2 ou 3
+                                                directions_from_center_mirrored[i][1] = direction[1] if mirror_id in {0, 1, 2} else -direction[1] # On inverse les valeurs verticales si "mirror_id" est égal à 0, 1 ou 2
 
                                             relative_positions = directions_from_center_mirrored
                                             mirror_id = (mirror_id + 1) % 4
 
-                                            out_of_bounds = False
+                                            out_of_bounds = False # Divers drapeaux servants aux tests
                                             can_fit = True
                                             can_be_placed = True
 
                                             for position in relative_positions:
+                                                # La pièce n'est valide que si elle ne sort pas du plateau
                                                 if not self.is_within_the_main_board(column + position[0], line + position[1]):
                                                     out_of_bounds = True
                                                     can_fit = False
@@ -1110,6 +1125,7 @@ class Blocus:
                                                 
                                             if not out_of_bounds:
                                                 for position in relative_positions:
+                                                # La pièce n'est valide que si elle n'empiète pas sur d'autres pièces
                                                     if board[line + position[1]][column + position[0]] in ['R', 'B']:
                                                         can_fit = False
                                                         can_be_placed = False
@@ -1117,17 +1133,20 @@ class Blocus:
                                             if can_fit:
                                                 for position in relative_positions:
                                                     for direction in directions:
+                                                        # La pièce n'est valide que si elle n'entre pas en contact avec des pièces du joueur qui demande l'indice
                                                         if self.is_within_the_main_board(column + position[0] + direction[0], line + position[1] + direction[1]):
                                                             if board[line + position[1] + direction[1]][column + position[0] + direction[0]] == player_color:
                                                                 can_be_placed = False
                                             
                                             if player_score >= 2 and can_be_placed and not has_found_a_piece: # L'indice n'est donné que si le joueur a assez de score (au moins 2)
                                                 for position in relative_positions:
+                                                    # On place des "H" dans la liste du plateau (board) là où une pièce peut être posée
                                                     board[line + position[1]][column + position[0]] = 'H'
                                                 for line in range(board_size):
                                                     for column in range(board_size):
+                                                        # On colore en gris là où une pièce peut être posée
                                                         if board[line][column] == ' ': board_canvas.itemconfig(board_cells[line][column], fill=background_color, outline=board_cell_outline_color);
-                                                        if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color); # On colore en gris là où une pièce peut être posée
+                                                        if board[line][column] == 'H': board_canvas.itemconfig(board_cells[line][column], fill=invalid_placement, outline=board_cell_outline_color);
                                                 has_found_a_piece = True # On lève le drapeau pour éviter que la fonction montre tous les placements possibles
                                                 if current_player == 0:
                                                     player_1_score -= 2
@@ -1143,17 +1162,17 @@ class Blocus:
         global board_size
         global red_cases_coordinates, blue_cases_coordinates
         
-        out_of_bounds = False
+        out_of_bounds = False # Divers drapeaux servants aux tests
         can_be_drawn = True
         can_be_placed = False
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
         for position in relative_positions:
-            if not self.is_within_the_main_board(event_x + position[0], event_y + position[1]):
+            if not self.is_within_the_main_board(event_x + position[0], event_y + position[1]): # La pièce sort du plateau, elle n'est donc plus dessinée
                 out_of_bounds = True
                 for red_case_coordinate in red_cases_coordinates:
-                    board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red) # On restore les couleurs des pièces placées
+                    board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red) # On restaure les couleurs des pièces placées
                 
                 for blue_case_coordinate in blue_cases_coordinates:
                     board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue)
@@ -1172,17 +1191,18 @@ class Blocus:
                     if [event_x + position[0], event_y + position[1]] in color_corners_coordinates or [event_x + position[0], event_y + position[1]] in common_corners_coordinates:
                         can_be_placed = True
                 else:
-                    can_be_placed = False  # Le placement de la pièce est invalide si la mémoire contient une case de la couleur du joueur actif
+                    can_be_placed = False # Le placement de la pièce est invalide si la mémoire contient une case de la couleur du joueur actif
                 
                 if board[event_y + position[1]][event_x + position[0]] in ['R', 'B']:
+                    # La pièce ne peut être placée à cet endroit car elle empiète sur d'autres pièces
                     can_be_drawn = False
 
             for red_case_coordinate in red_cases_coordinates:
-                board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red)
+                board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red) # On restaure les couleurs des pièces placées
                 board[red_case_coordinate[1]][red_case_coordinate[0]] = 'R'
             
             for blue_case_coordinate in blue_cases_coordinates:
-                board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue)
+                board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue) # On restaure les couleurs des pièces placées
                 board[blue_case_coordinate[1]][blue_case_coordinate[0]] = 'B'
 
             for position in relative_positions:
@@ -1192,9 +1212,9 @@ class Blocus:
                     board[event_y + position[1]][event_x + position[0]] = 'BH'
                 else:
                     if board[event_y + position[1]][event_x + position[0]] == 'R':
-                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_red_overlay, outline=piece_hover_red_overlay) # La pièce est montrée "au dessus" des autres pièces
+                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_red_overlay, outline=piece_hover_red_overlay) # La pièce est montrée "au-dessus" des autres pièces
                     elif board[event_y + position[1]][event_x + position[0]] == 'B':
-                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_blue_overlay, outline=piece_hover_blue_overlay) # La pièce est montrée "au dessus" des autres pièces
+                        board_canvas.itemconfig(board_cells[event_y + position[1]][event_x + position[0]], fill=piece_hover_blue_overlay, outline=piece_hover_blue_overlay) # La pièce est montrée "au-dessus" des autres pièces
                     elif board[event_y + position[1]][event_x + position[0]] in ['RC', 'BC', 'RBC', ' ']:
                         board[event_y + position[1]][event_x + position[0]] = 'H' # On indique que le placement est invalide dans le restant des cas
 
@@ -1216,10 +1236,10 @@ class Blocus:
                     board_canvas.itemconfig(board_cells[line][column], fill=transparent, outline=board_cell_outline_color)
         
         for red_case_coordinate in red_cases_coordinates:
-            board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red)
+            board_canvas.itemconfig(board_cells[red_case_coordinate[1]][red_case_coordinate[0]], fill=placed_piece_red, outline=placed_piece_red) # On restaure les couleurs des pièces placées
             
         for blue_case_coordinate in blue_cases_coordinates:
-            board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue)
+            board_canvas.itemconfig(board_cells[blue_case_coordinate[1]][blue_case_coordinate[0]], fill=placed_piece_blue, outline=placed_piece_blue) # On restaure les couleurs des pièces placées
 
     def update_board_canvas(self):
         global board, board_canvas, board_cells
@@ -1239,7 +1259,8 @@ class Blocus:
                 else:
                     color = transparent
                     outline = board_cell_outline_color
-                board_canvas.itemconfig(board_cells[line][column], fill=color, outline=outline) # Édite la couleur des cases en fonction de ce qu'il y a dedans
+                # Met à jour la couleur des cases en fonction de ce que contient la liste du plateau
+                board_canvas.itemconfig(board_cells[line][column], fill=color, outline=outline)
         
         player_1_score_label['text'] = f"Score : {player_1_score}" # On met à jour le texte qui affiche le score du joueur actif
         player_1_score_label.update()
@@ -1248,7 +1269,7 @@ class Blocus:
     
     def on_player_pieces_click(self, event):
         global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
-        global current_player, adjacent_coords, player_1_has_selected_piece, relative_positions, orientation_id, player_2_has_selected_piece
+        global current_player, adjacent_coordinates, player_1_has_selected_piece, relative_positions, orientation_id, player_2_has_selected_piece
 
         column_event = event.x // 22
         line_event = event.y // 22
@@ -1273,24 +1294,24 @@ class Blocus:
             placed_piece_color = placed_piece_blue
 
         if player_id == current_player and not player_has_selected_piece and player_pieces_list[line_event][column_event] == 'O': # On vérifie que la case choisie n'est pas vide
-            adjacent_coords = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, True) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées cliquées
-            for k in adjacent_coords: # On retire la pièce du range-pièces
+            adjacent_coordinates = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, True) # On cherche à obtenir les coordonnées de tous les "O" autour des coordonnées cliquées
+            for k in adjacent_coordinates: # On retire la pièce du range-pièces
                 player_pieces_list[k[1]][k[0]] = ' ' 
                 player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=valid_placement_color)
             player_1_has_selected_piece = True if player_id == 0 else False # On lève le drapeau pour le joueur concerné
             player_2_has_selected_piece = True if player_id == 1 else False
             orientation_id = 0 # On réinitialise l'orientation
         elif player_id == current_player and player_has_selected_piece:
-            for k in adjacent_coords: # La pièce est replacée dans le range-pièces
+            for k in adjacent_coordinates: # La pièce est replacée dans le range-pièces
                 player_pieces_list[k[1]][k[0]] = 'O'
                 player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=placed_piece_color)
-            player_1_has_selected_piece = False if player_id == 0 else player_1_has_selected_piece
+            player_1_has_selected_piece = False if player_id == 0 else player_1_has_selected_piece # On lève le drapeau pour le joueur concerné
             player_2_has_selected_piece = False if player_id == 1 else player_2_has_selected_piece
-            adjacent_coords = []
+            adjacent_coordinates = []
     
     def on_pieces_hover(self, event):
         global player_1_pieces_list, player_1_pieces, player_1_pieces_cells, player_2_pieces_list, player_2_pieces, player_2_pieces_cells
-        global current_player, adjacent_coords_hover, relative_positions, last_event_coordinates_copy
+        global current_player, adjacent_coordinates_hover, relative_positions, last_event_coordinates_copy
         global player_1_has_selected_piece, player_2_has_selected_piece
 
         column_event = event.x // 22
@@ -1298,14 +1319,14 @@ class Blocus:
         if column_event > 11: column_event = 11;
         if line_event > 28: line_event = 28;
 
-        adjacent_coords_hover = []
+        adjacent_coordinates_hover = []
 
         last_coords = [column_event, line_event]
         # Le code ci-dessous n'est exécuté qu'à chaque fois que la souris change de case, au lieu de l'exécuter au moindre mouvement
         if last_event_coordinates_copy != last_coords:
             last_event_coordinates_copy = [i for i in last_coords]
 
-            if event.widget == player_1_pieces:
+            if event.widget == player_1_pieces: # Définition de variables en fonction du range-pièces cliqué
                 player_pieces = player_1_pieces
                 player_pieces_list = player_1_pieces_list
                 player_pieces_cells = player_1_pieces_cells
@@ -1324,25 +1345,26 @@ class Blocus:
 
             if player_id == current_player and not player_has_selected_piece:
                 if player_pieces_list[line_event][column_event] == 'O': # On vérifie que la case choisie n'est pas vide
-                    adjacent_coords_hover = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, False)
-                    for k in adjacent_coords_hover:
+                    adjacent_coordinates_hover = self.get_adjacent_pieces_coordinates(player_pieces_list, column_event, line_event, False)
+                    for k in adjacent_coordinates_hover:
                         player_pieces.itemconfig(player_pieces_cells[k[1]][k[0]], fill=hover_piece_color) # On colore la pièce survolée
                 else:
                     relative_positions = [[0, 0]]
                     for line in range(28):
                         for column in range(11):
                             if player_pieces_list[line][column] == 'O':
-                                player_pieces.itemconfig(player_pieces_cells[line][column], fill=placed_piece_color) # On recolore toutes les pièces du range-pièces concerné dans la couleur du joueur actif
+                                # On recolore toutes les pièces du range-pièces concerné dans la couleur du joueur actif
+                                player_pieces.itemconfig(player_pieces_cells[line][column], fill=placed_piece_color)
 
     def on_pieces_leave(self, event):
-        global adjacent_coords_hover
+        global adjacent_coordinates_hover
 
         # On recolore toutes les pièces du range-pièces concerné dans la couleur du joueur actif
         if event.widget == player_1_pieces and not player_1_has_selected_piece and current_player == 0:
-            for k in adjacent_coords_hover:
+            for k in adjacent_coordinates_hover:
                 player_1_pieces.itemconfig(player_1_pieces_cells[k[1]][k[0]], fill=placed_piece_red)
         elif event.widget == player_2_pieces and not player_2_has_selected_piece and current_player == 1:
-            for k in adjacent_coords_hover:
+            for k in adjacent_coordinates_hover:
                 player_2_pieces.itemconfig(player_2_pieces_cells[k[1]][k[0]], fill=placed_piece_blue)
 
     def rotate_piece(self, event):
@@ -1378,7 +1400,7 @@ class Blocus:
             relative_positions = directions_from_center_mirrored
             self.draw_piece_on_board(last_event_coordinates_copy[0], last_event_coordinates_copy[1]) # On met à jour la pièce affichée avec les nouvelles valeurs
 
-    def get_adjacent_pieces_coordinates(self, liste_pièces, selected_case_x, selected_case_y, generate_relative_positions):
+    def get_adjacent_pieces_coordinates(self, pieces_list, selected_case_x, selected_case_y, generate_relative_positions):
         global relative_positions, relative_positions_reference, directions_from_center_rotated
         
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -1389,19 +1411,21 @@ class Blocus:
         while memoire: # On recommence tant que "memoire" n'est pas vide
             case_x, case_y = memoire.pop() # On enlève des coordonnées, affectées aux variables case_x et case_y
 
-            if liste_pièces[case_y][case_x] == 'O' and [case_x, case_y] not in adjacent_cells: # Condition, vraie si la case vérifiée est un "O" et n'est pas déjà dans la liste "adjacent_cells"
+            # Condition, vraie si la case vérifiée est un "O" et n'est pas déjà dans la liste "adjacent_cells"
+            if pieces_list[case_y][case_x] == 'O' and [case_x, case_y] not in adjacent_cells:
                 adjacent_cells.append([case_x, case_y]) # On ajoute les coordonnées à la liste "adjacent_cells"
                 for direction_x, direction_y in directions: # On vérifie dans les 4 directions différentes
                     adj_x = case_x + direction_x
                     adj_y = case_y + direction_y
 
-                    if 0 <= adj_y < len(liste_pièces) and 0 <= adj_x < len(liste_pièces[0]): # On verifie si la case que l'on essaie de vérifier se trouve bien au sein du range-pièces
-                        if liste_pièces[adj_y][adj_x] == 'O': # Si la case testée contient un "O"...
+                    # On verifie si la case que l'on essaie de vérifier se trouve bien au sein du range-pièces
+                    if 0 <= adj_y < len(pieces_list) and 0 <= adj_x < len(pieces_list[0]):
+                        if pieces_list[adj_y][adj_x] == 'O': # Si la case testée contient un "O"...
                             memoire.append([adj_x, adj_y]) # ...On l'ajoute à la mémoire pour qu'elle soit testée à son tour
 
         if generate_relative_positions:
-            for adjacent_coords in adjacent_cells:
-                relative_positions.append([adjacent_coords[0] - selected_case_x, adjacent_coords[1] - selected_case_y]) # On génère un ensemble de directions relatives par rapport à la souris
+            for adjacent_coordinates in adjacent_cells:
+                relative_positions.append([adjacent_coordinates[0] - selected_case_x, adjacent_coordinates[1] - selected_case_y]) # On génère un ensemble de directions relatives par rapport à la souris
             relative_positions_reference = [list(direction) for direction in relative_positions]
             directions_from_center_rotated = [list(direction) for direction in relative_positions]
 
@@ -1420,7 +1444,7 @@ class Blocus:
         top_part.grid(column=0, row=0, sticky='ew')
         top_part.columnconfigure(1, weight=1) # On configure la colonne 1 (= 2° colonne), pour qu'elle prenne toute la place possible
 
-        settings_label = Label(top_part, text='Paramètres', font=('Arial', 20), background=background_color, foreground=on_background_color) # Titre de la page (Paramètres)
+        settings_label = Label(top_part, text='Paramètres', **xlarge_label_style) # Titre de la page (Paramètres)
         settings_label.grid(column=1, row=0, sticky='ew')
         
         self.back_icon = PhotoImage(file=f'res/img/{selected_theme}/back_icon.png') # On récupère l'image de l'icône "back_icon.png"
@@ -1429,7 +1453,7 @@ class Blocus:
 
         Label(top_part, text='                ', background=background_color).grid(column=2, row=0) # Espace servant à centrer le titre
 
-        color_settings_section_label = Label(main_menu_frame, text='COULEURS', font=('Consolas', 10), foreground=invalid_placement, background=background_color) # Titre de la section des paramètres de couleurs
+        color_settings_section_label = Label(main_menu_frame, text='COULEURS', **small_label_style) # Titre de la section des paramètres de couleurs
         color_settings_section_label.grid(column=0, row=1, sticky='w')
 
         with open("settings.json", "r") as settings_file: # On ouvre le fichier paramètres
@@ -1444,12 +1468,10 @@ class Blocus:
                                         offvalue=False, 
                                         variable=use_light_theme_state, 
                                         command=self.update_settings, 
-                                        font=('Arial', 15), 
+                                        **large_label_style,
                                         bd=0,
-                                        highlightthickness=0,
-                                        background=background_color, 
+                                        highlightthickness=0, 
                                         activebackground=background_color,
-                                        foreground=on_background_color,
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
@@ -1464,26 +1486,19 @@ class Blocus:
                                                 offvalue=False, 
                                                 variable=alternative_color_scheme_state, 
                                                 command=self.update_settings, 
-                                                font=('Arial', 15), 
+                                                **large_label_style,
                                                 bd=0,
                                                 highlightthickness=0,
-                                                background=background_color, 
                                                 activebackground=background_color,
-                                                foreground=on_background_color,
                                                 activeforeground=on_background_color,
                                                 relief='flat',
                                                 selectcolor=background_color) # On crée une case à cocher
         alternative_color_scheme_checkbox.grid(column=0, row=3, sticky='w')
 
-        # Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=4) # On crée un espace entre les différentes sections
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=4) # On crée un espace entre les différentes sections
 
-        # sound_settings_section_label = Label(main_menu_frame, text='AUDIO', font=('Consolas', 10), foreground=surface_color, background=background_color) # Titre de la section des paramètres audio
-        # sound_settings_section_label.grid(column=0, row=5, sticky='w')
-
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=7) # On crée un espace entre les différentes sections
-
-        accessibility_settings_section_label = Label(main_menu_frame, text='ACCESSIBILITÉ', font=('Consolas', 10), foreground=invalid_placement, background=background_color) # Titre de la section des paramètres d'accessibilité
-        accessibility_settings_section_label.grid(column=0, row=8, sticky='w')
+        accessibility_settings_section_label = Label(main_menu_frame, text='ACCESSIBILITÉ', **small_label_style) # Titre de la section des paramètres d'accessibilité
+        accessibility_settings_section_label.grid(column=0, row=5, sticky='w')
 
         color_blind_mode_state = BooleanVar() # Création de l'option "Mode daltonien"
         color_blind_mode_state.set(settings_data['color_blind_mode'])
@@ -1494,16 +1509,14 @@ class Blocus:
                                         offvalue=False, 
                                         variable=color_blind_mode_state, 
                                         command=self.update_settings, 
-                                        font=('Arial', 15), 
+                                        **large_label_style,
                                         bd=0,
                                         highlightthickness=0,
-                                        background=background_color, 
                                         activebackground=background_color,
-                                        foreground=on_background_color,
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
-        color_blind_mode_checkbox.grid(column=0, row=9, sticky='w')
+        color_blind_mode_checkbox.grid(column=0, row=6, sticky='w')
 
         use_space_to_mirror_state = BooleanVar() # Création de l'option "Utiliser la touche espace pour miroiter"
         use_space_to_mirror_state.set(settings_data['use_space_to_mirror'])
@@ -1514,21 +1527,19 @@ class Blocus:
                                         offvalue=False, 
                                         variable=use_space_to_mirror_state, 
                                         command=self.update_settings, 
-                                        font=('Arial', 15), 
+                                        **large_label_style,
                                         bd=0,
                                         highlightthickness=0,
-                                        background=background_color, 
                                         activebackground=background_color,
-                                        foreground=on_background_color,
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
-        use_space_to_mirror_checkbox.grid(column=0, row=10, sticky='w')
+        use_space_to_mirror_checkbox.grid(column=0, row=7, sticky='w')
 
-        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=11) # On crée un espace entre les différentes sections
+        Label(main_menu_frame, text=' ', background=background_color).grid(column=0, row=8) # On crée un espace entre les différentes sections
 
-        game_settings_section_label = Label(main_menu_frame, text='COMPORTEMENT DU JEU', font=('Consolas', 10), foreground=invalid_placement, background=background_color) # Titre de la section des paramètres d'accessibilité
-        game_settings_section_label.grid(column=0, row=12, sticky='w')
+        game_settings_section_label = Label(main_menu_frame, text='COMPORTEMENT DU JEU', **small_label_style) # Titre de la section des paramètres d'accessibilité
+        game_settings_section_label.grid(column=0, row=9, sticky='w')
 
         use_middle_starting_cases_state = BooleanVar() # Création de l'option "Mettre les cases de départ au centre"
         use_middle_starting_cases_state.set(settings_data['use_middle_starting_cases'])
@@ -1539,16 +1550,14 @@ class Blocus:
                                         offvalue=False, 
                                         variable=use_middle_starting_cases_state, 
                                         command=self.update_settings, 
-                                        font=('Arial', 15), 
+                                        **large_label_style,
                                         bd=0,
                                         highlightthickness=0,
-                                        background=background_color, 
                                         activebackground=background_color,
-                                        foreground=on_background_color,
                                         activeforeground=on_background_color,
                                         relief='flat',
                                         selectcolor=background_color) # On crée une case à cocher
-        use_middle_starting_cases_checkbox.grid(column=0, row=13, sticky='w')
+        use_middle_starting_cases_checkbox.grid(column=0, row=10, sticky='w')
 
         settings_file.close() # On ferme le fichier de paramètres pour éviter les problèmes
     
@@ -1556,7 +1565,8 @@ class Blocus:
         with open("settings.json", "r") as settings_file: # On ouvre le fichier paramètres
             settings_data = json.load(settings_file) # On récupère les données du fichier
 
-        settings_data['color_blind_mode'] = color_blind_mode_state.get() # Le fichier paramètres est mis à jour en fonction des choix de l'utilisateur
+        # Le fichier paramètres est mis à jour en fonction des choix de l'utilisateur
+        settings_data['color_blind_mode'] = color_blind_mode_state.get()
         settings_data['use_light_theme'] = use_light_theme_state.get()
         settings_data['use_red_and_blue'] = not alternative_color_scheme_state.get()
         settings_data['use_purple_and_yellow'] = alternative_color_scheme_state.get()

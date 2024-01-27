@@ -97,7 +97,7 @@ Pour caractériser le plateau, on utilisera une liste de listes :
    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
 ```
 Cette liste servira de base au programme, qui sera la base de l'interface graphique.<br>
-→ **Il faudra placer les pièces, en faisant attention au fait que plus on descend dans le plateau plus la valeur de y augmente**, ce qui veut dire que l'index de la case du coin supérieur gauche est de [0, 0].
+→ **Il faudra placer les pièces, en faisant attention au fait que plus on descend dans le plateau plus la valeur de `y` augmente**, ce qui veut dire que l'index de la case du coin supérieur gauche est de [0, 0].
 
 ### 2.2. Range-pièces
 
@@ -221,3 +221,4 @@ Divers boutons :
 #### Mode sombre
 
 <img src="https://i.postimg.cc/L68dsz4D/settings-dark.png" width="800">
+
