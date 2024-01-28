@@ -167,6 +167,23 @@ Les pièces seront placées dans la liste en fonction de leur état :
       'R', 'R', ' '   'B' ,'B', ' '
   ```
 
+### 2.5. Fonctionnement général
+
+- Le joueur actif sélectionne une pièce
+  - Vérification du placement
+    - La pièce est placée
+      - On définit les coins où des pièces peuvent être placées
+      - On vérifie si le joueur suivant peut jouer
+        - On vérifie si le joueur actif peut encore jouer
+    - On met à jour les scores
+    - Le plateau est mis à jour
+
+- Le joueur demande un indice
+  - On vérifie pour chaque coin
+    - On vérifie pour chaque pièce
+      - On vérifie si la pièce rentre
+      - La première pièce qui peut être placée est affichée
+
 ## 3. Interface graphique
 
 ### 3.1. Menu principal
